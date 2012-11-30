@@ -8,26 +8,20 @@
 */
 
 #include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <string.h>
-#include <dirent.h>
+#include <sys/stat.h>	//stat structure
+#include <dirent.h>	//DIR , dirent structure
 
-/*     
-int main(void)
-{
- char *p=".";			//path to be added to Kwest - Current Directory
- char *dirname=strrchr(p,'/');	//Extract Directory name from path
- (void) dispdir(p,dirname+1); 	//success(1) or fail(0)
-}
-*/
-
-//Command Line
 int main(int argc, const char* argv[])
 {
  if (argc < 2) return -1;
  char *dirname=strrchr(argv[1],'/');	//Extract Directory name from path
  (void) dispdir(argv[1],dirname+1);	//success(1) or fail(0)
+ 
+ /* Function call with path in char *p */ 
+ /* char *dirname=strrchr(p,'/');	//Extract Directory name from path
+    (void) dispdir(p,dirname+1); 	//success(1) or fail(0)
+ */
 }
 
 
@@ -54,10 +48,6 @@ int dispdir(char *path,char *dirname)
     if (full_name[path_len - 1] != '/') strcat(full_name, "/");
     strcat(full_name, entry->d_name);
     
-    /*Ignore special directories*/
-    if ((strcmp(entry->d_name, ".") == 0) || (strcmp(entry->d_name, "..") == 0))
-            continue;
-
     /*Ignore files starting with .*/
     if((strchr(entry->d_name,'.')-entry->d_name)==0)
 	    continue;
@@ -74,44 +64,40 @@ int dispdir(char *path,char *dirname)
 	{
 	 printf("Dir : %s\n",entry->d_name);
 	 
-	 //Hash Function : t_sub=entry->d_name
-	 /*
-	    QUERY : 
-		Check if t_sub already exists in database [TAG]
-		If not add t_sub as tag [path is in full_name]
-	 */
+	 //Hash Function : t_sub=hashtag(entry->d_name);	//int hashtag(char *); 
+		
+	 //QUERY : addtag(t_sub,full_name);		
+			//Check If t_sub already exists in database [TAG]
+			//If not add t_sub as tag
 
 	 (void) dispdir(full_name,entry->d_name); //Access Sub-Directories
 
 	 //Tag-Tag Relation
-	 //Hash Function : t_par=dirname
-	 /*
-	   QUERY : 
-		Check if (t_sub,t_par,association) is already defined in database 
-		If not add (t_sub,t_par,association) to database
-	 */
+	 //Hash Function : t_par=hashtag(dirname);
+
+	 //QUERY :  addassociation(t_sub,t_par);
+			//Check if (t_sub,t_par,association) is already defined in database 
+			//If not add (t_sub,t_par,association) to database
 	}
     else if(S_ISREG(fstat.st_mode))	//Regular File  
 	{
 	 printf("File: %s\n",entry->d_name);
 	 
-	 //Hash Function : f=entry->d_name
-	 /*
-	    QUERY : 
-		Check if f already exists in database [FILE]		
-		IF not 
-			add f as File [path is in full_name]
-			Extract Metadata
-			[IF REQUIRED]Get inode information from fstat structure (fstat.st_ino)
-	 */
+	 //Hash Function : f=hashfile(entry->d_name);		//int hashfile(char *);		
+
+	 //QUERY : addfile(f,full_name);
+			//Check if f already exists in database [FILE]		
+			//IF not 
+				//add f as File
+				//Extract Metadata
+				//Get inode information from fstat structure
 
 	 //Tag-File Relation
-	 //Hash Function : d=dirname
-	 /*
-	    QUERY : 
-		Check if (f,d) is already defined in database
-		If not add (f,d) to database
-	 */ 
+	 //Hash Function : d=hashtag(dirname);
+
+	 //QUERY : tagfile(f,d);
+			//Check if (f,d) is already defined in database
+			//If not add (f,d) to database
         }
    }
    (void) closedir (directory);
