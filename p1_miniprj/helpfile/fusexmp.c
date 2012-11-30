@@ -6,6 +6,8 @@
   See the file COPYING.
 
   gcc -Wall `pkg-config fuse --cflags --libs` fusexmp.c -o fusexmp
+  
+ !! look at the directory navigation code 
 */
 
 #define FUSE_USE_VERSION 26
