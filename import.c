@@ -12,6 +12,29 @@
 #include <sys/stat.h>	//stat structure
 #include <dirent.h>	//DIR , dirent structure
 
+/*
+//Hash Function
+int hashtag(char *); 	//obtain key for tag
+int hashfile(char *);	//obtain key for file	
+
+//Query
+void addtag(int t_sub,char *full_name);		
+	//Check If t_sub already exists in database [TAG]
+	//If not add t_sub as tag
+void addassociation(int t_sub,int t_par);
+	//Check if (t_sub,t_par,association) is already defined in database 
+	//If not add (t_sub,t_par,association) to database
+void addfile(int f,char *full_name);
+	//Check if f already exists in database [FILE]		
+	//IF not 
+		//add f as File
+		//Extract Metadata
+		//Get inode information from fstat structure[If Required]
+void tagfile(int f,int d);
+	//Check if (f,d) is already defined in database
+	//If not add (f,d) to database
+*/
+
 int main(int argc, const char* argv[])
 {
  if (argc < 2) return -1;
@@ -64,40 +87,25 @@ int dispdir(char *path,char *dirname)
 	{
 	 printf("Dir : %s\n",entry->d_name);
 	 
-	 //Hash Function : t_sub=hashtag(entry->d_name);	//int hashtag(char *); 
-		
-	 //QUERY : addtag(t_sub,full_name);		
-			//Check If t_sub already exists in database [TAG]
-			//If not add t_sub as tag
+	 //t_sub=hashtag(entry->d_name); 	//Hash Function
+	 //addtag(t_sub,full_name);		//QUERY	
 
 	 (void) dispdir(full_name,entry->d_name); //Access Sub-Directories
 
-	 //Tag-Tag Relation
-	 //Hash Function : t_par=hashtag(dirname);
-
-	 //QUERY :  addassociation(t_sub,t_par);
-			//Check if (t_sub,t_par,association) is already defined in database 
-			//If not add (t_sub,t_par,association) to database
+	 /*Tag-Tag Relation*/
+	 //t_par=hashtag(dirname);		//Hash Function
+	 //addassociation(t_sub,t_par);		//QUERY
 	}
     else if(S_ISREG(fstat.st_mode))	//Regular File  
 	{
 	 printf("File: %s\n",entry->d_name);
 	 
-	 //Hash Function : f=hashfile(entry->d_name);		//int hashfile(char *);		
+	 //f=hashfile(entry->d_name); 		//Hash Function
+	 //addfile(f,full_name);		//QUERY
 
-	 //QUERY : addfile(f,full_name);
-			//Check if f already exists in database [FILE]		
-			//IF not 
-				//add f as File
-				//Extract Metadata
-				//Get inode information from fstat structure
-
-	 //Tag-File Relation
-	 //Hash Function : d=hashtag(dirname);
-
-	 //QUERY : tagfile(f,d);
-			//Check if (f,d) is already defined in database
-			//If not add (f,d) to database
+	 /*Tag-File Relation*/
+	 //d=hashtag(dirname);			//Hash Function
+	 //tagfile(f,d); 			//QUERY
         }
    }
    (void) closedir (directory);
@@ -107,3 +115,5 @@ int dispdir(char *path,char *dirname)
   perror ("Couldn't open the directory");     
  return 0;
 }
+
+
