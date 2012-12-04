@@ -7,6 +7,8 @@
 	Pass path as argument
 */
 
+
+//Header Files
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>	//stat structure
