@@ -4,6 +4,7 @@
  * */
 
 #include "fusefunc.h"
+#include <string.h>
 
 /* kwest_getattr: 
  * input: path as string
@@ -13,7 +14,41 @@
  * */
 static int kwest_getattr(const char *path, struct stat *stbuf)
 {
-	return 0;
+	int res = 0; //result of operation	
+	
+	if(*(path+1) == '\0') { //path is root
+	//set root as directory, return
+		memset(stbuf, 0, sizeof(struct stat));
+		stbuf->st_mode = S_IFDIR | 0755;
+		stbuf->st_nlink = 2;
+		return 0;
+	}
+	
+	char filename[20]; //%%shift to common storage
+	char *tmp = NULL;
+	const char *p = path;
+	tmp = strrchr(p,'/'); //get last name
+	if(tmp == NULL) return 0; //error in syntax
+	strcpy(filename, tmp+1); //copy filename
+	
+	/*
+	 * query to check if path==file
+	if(query_result == SQLITE_ROW) { //success
+		stbuf->st_mode = S_IFREG | 0444;
+		stbuf->st_nlink = no_links;
+		stbuf->st_size = size;
+	} else { //no rows returned
+	 * query to check if path==directory
+	   if(query_result == SQLITE_ROW) { //success
+			stbuf->st_mode = S_IFDIR | 0755;
+			stbuf->st_nlink = 1;
+		} else { //error
+			return -ENOENT;
+		}
+	}
+	* */
+	
+	return res;
 	/* OPERATION:
 	 * decode path
 	 * last entry is file OR directory
@@ -36,6 +71,27 @@ static int kwest_getattr(const char *path, struct stat *stbuf)
  * */
 static int kwest_access(const char *path, int mask)
 {
+	if(*(path+1) == '\0') { //path is root
+	//set root as directory, return
+		return 0;
+	}
+		
+	char filename[20]; //%%shift to common storage
+	char *tmp = NULL;
+	const char *p = path;
+	tmp = strrchr(p,'/'); //get last name
+	if(tmp == NULL) return 0; //error in syntax
+	strcpy(filename, tmp+1); //copy filename
+	
+	/*
+	 * query to get physical path of file
+	if(query_result == SQLITE_ROW) { //success
+		return access(path, mask);
+	} else { //no rows returned
+		return -ENOENT;
+		}
+	}
+	* */
 	return 0;
 	/* OPERATION
 	 * decode path
@@ -61,6 +117,61 @@ static int kwest_access(const char *path, int mask)
 static int kwest_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 		       off_t offset, struct fuse_file_info *fi)
 {
+	(void) offset;
+	(void) fi;
+	
+	if (strcmp(path,"/")==0) {
+		/* const char *result = NULL;
+		 * while(query_result == SQLITE_ROW) {
+				struct stat st; //struct stat
+				memset(&st, 0, sizeof(st));
+				st.st_mode = S_IFREG | 0444; //set as file
+				result = get result from dB
+				//%%warning: pointer targets in assignment differ in signedness [-Wpointer-sign]
+				if (filler(buf, result, NULL, 0)) //fill to buffer
+					break;
+				next_query_result
+			}
+			// list directories
+			while(qres == SQLITE_ROW) {
+				struct stat st; //struct stat
+				memset(&st, 0, sizeof(st));
+				st.st_mode = S_IFDIR | 0755;
+				result = get result from db
+				//%%warning: pointer targets in assignment differ in signedness [-Wpointer-sign]
+				if (filler(buf, result, NULL, 0)) //fill to buffer
+					break;
+				next query result
+			}		
+			* */		
+		} else {
+			/* path is not root
+			query : send path, get files as result
+			 const char *result = NULL;
+		     while(query_result == SQLITE_ROW) {
+				struct stat st; //struct stat
+				memset(&st, 0, sizeof(st));
+				st.st_mode = S_IFREG | 0444; //set as file
+				result = get result from dB
+				//%%warning: pointer targets in assignment differ in signedness [-Wpointer-sign]
+				if (filler(buf, result, NULL, 0)) //fill to buffer
+					break;
+				next_query_result
+			}
+			// list directories
+			while(qres == SQLITE_ROW) {
+				struct stat st; //struct stat
+				memset(&st, 0, sizeof(st));
+				st.st_mode = S_IFDIR | 0755;
+				result = get result from db
+				//%%warning: pointer targets in assignment differ in signedness [-Wpointer-sign]
+				if (filler(buf, result, NULL, 0)) //fill to buffer
+					break;
+				next query result
+			}
+			* */
+		}	
+		
 	return 0;
 	/* OPERATION
 	 * populate the directory with entries
@@ -80,6 +191,28 @@ static int kwest_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
  * */
 static int kwest_mkdir(const char *path, mode_t mode)
 {
+	/* extract new tag */
+	char tagname[20]; 
+	char *tmp = NULL;
+	const char *p = path;
+	tmp = strrchr(p,'/'); //get last name
+	if(tmp == NULL) return 0; //error in syntax
+	strcpy(tagname, tmp+1); 
+	const char *p2 = strchr(p+1,'/');
+	int tag_id = 0;  /* query to register new tag (tagname)  and returns its unique id*/
+	char tag2name[20];
+	int count = 0;
+	while(p != tmp && p2 != NULL) { /* associate with other tags */
+	    ++p;
+	    count = 0;
+		while(p != p2) { /* seperate tags to associate */
+			tag2name[count++] = *p++;
+		}
+		tag2name[count] = '\0';		
+		/* query to associate tag_id with tag2name as subgroup */
+		p2 = strchr(p+1,'/');
+	}	
+	
 	return 0;
 	/* OPERATION
 	 * we have to create a tag here with the specified name under path
@@ -97,6 +230,27 @@ static int kwest_mkdir(const char *path, mode_t mode)
  * */
 static int kwest_unlink(const char *path)
 {
+		/* extract new tag */
+	char filename[20]; 
+	char *tmp = NULL;
+	const char *p = path;
+	tmp = strrchr(p,'/'); //get last name
+	if(tmp == NULL) return 0; //error in syntax
+	strcpy(filename, tmp+1); 
+	const char *p2 = strchr(p+1,'/');
+	int file_id = 0;  /* query to file unique id*/
+	char tag2name[20];
+	int count = 0;
+	while(p != tmp && p2 != NULL) { /* associate with other tags */
+	    ++p;
+	    count = 0;
+		while(p != p2) { /* seperate tags to associate */
+			tag2name[count++] = *p++;
+		}
+		tag2name[count] = '\0';		
+		/* query to remove file from associated tag */
+		p2 = strchr(p+1,'/');
+	}	
 	return 0;
 	/* OPERATION
 	 * delete the file
@@ -112,6 +266,14 @@ static int kwest_unlink(const char *path)
  * */
 static int kwest_rmdir(const char *path)
 {
+	/* extract tag */
+	char tagname[20]; 
+	char *tmp = NULL;
+	const char *p = path;
+	tmp = strrchr(p,'/'); //get last name
+	if(tmp == NULL) return 0; //error in syntax
+	strcpy(tagname, tmp+1); 
+	/* query to delete tag (tagname) */
 	return 0;
 	/* OPERATION
 	 * decode the path
@@ -128,7 +290,21 @@ static int kwest_rmdir(const char *path)
  * */
 static int kwest_rename(const char *from, const char *to)
 {
+	/* extract filename */
+	char fromname[20]; 
+	char toname[20]; 
+	char *tmp = NULL;
+	const char *p = from;
+	tmp = strrchr(p,'/'); //get last name
+	if(tmp == NULL) return 0; //error in syntax
+	strcpy(fromname, tmp+1); 
+	p = to;
+	tmp = strrchr(p,'/'); //get last name
+	if(tmp == NULL) return 0; //error in syntax
+	strcpy(toname, tmp+1); 
+	/* query to change file fromname to toname */
 	return 0;
+	
 	/* OPERATION
 	 * decode from path
 	 * identify file
@@ -147,6 +323,15 @@ static int kwest_rename(const char *from, const char *to)
  * */
 static int kwest_chmod(const char *path, mode_t mode)
 {
+	/* extract filename */
+	char filename[20]; 
+	char *tmp = NULL;
+	const char *p = path;
+	tmp = strrchr(p,'/'); //get last name
+	if(tmp == NULL) return 0; //error in syntax
+	strcpy(filename, tmp+1); 
+	/* query to get physical location of filename */
+	/* apply mode permissions to filename */
 	return 0;
 	/* OPERATION
 	 * decode path
@@ -165,6 +350,15 @@ static int kwest_chmod(const char *path, mode_t mode)
  * */
 static int kwest_truncate(const char *path, off_t size)
 {
+	/* extract filename */
+	char filename[20]; 
+	char *tmp = NULL;
+	const char *p = path;
+	tmp = strrchr(p,'/'); //get last name
+	if(tmp == NULL) return 0; //error in syntax
+	strcpy(filename, tmp+1); 
+	/* query to get physical location of filename */
+	/* apply truncate file to size */
 	return 0;
 	/* OPERATION
 	 * decode path, get filename
@@ -181,6 +375,15 @@ static int kwest_truncate(const char *path, off_t size)
  * */
 static int kwest_ftruncate(const char *path, off_t size)
 {
+	/* extract filename */
+	char filename[20]; 
+	char *tmp = NULL;
+	const char *p = path;
+	tmp = strrchr(p,'/'); //get last name
+	if(tmp == NULL) return 0; //error in syntax
+	strcpy(filename, tmp+1); 
+	/* query to get physical location of filename */
+	/* apply truncate file to size */
 	return 0;
 	/* OPERATION
 	 * decode path, get filename
@@ -197,6 +400,15 @@ static int kwest_ftruncate(const char *path, off_t size)
  * */
 static int kwest_utimens(const char *path, const struct timespec ts[2])
 {
+	/* extract filename */
+	char filename[20]; 
+	char *tmp = NULL;
+	const char *p = path;
+	tmp = strrchr(p,'/'); //get last name
+	if(tmp == NULL) return 0; //error in syntax
+	strcpy(filename, tmp+1); 
+	/* query to get physical location of filename */
+	/* change last access time & last modification time */
 	return 0;
 	/* OPERATION
 	 * decode path
@@ -215,6 +427,15 @@ static int kwest_utimens(const char *path, const struct timespec ts[2])
  * */
 static int kwest_open(const char *path, struct fuse_file_info *fi)
 {
+	/* extract filename */
+	char filename[20]; 
+	char *tmp = NULL;
+	const char *p = path;
+	tmp = strrchr(p,'/'); //get last name
+	if(tmp == NULL) return 0; //error in syntax
+	strcpy(filename, tmp+1); 
+	/* query to get permissions for filename */
+	/* if valid, return SUCCESS */
 	return 0;
 	/* OPERATION
 	 * decode path
@@ -237,6 +458,15 @@ static int kwest_open(const char *path, struct fuse_file_info *fi)
 static int kwest_read(const char *path, char *buf, size_t size, off_t offset,
 		    struct fuse_file_info *fi)
 {
+	/* extract filename */
+	char filename[20]; 
+	char *tmp = NULL;
+	const char *p = path;
+	tmp = strrchr(p,'/'); //get last name
+	if(tmp == NULL) return 0; //error in syntax
+	strcpy(filename, tmp+1); 
+	/* query to get physical location of filename */
+	/* use pread(filename) */
 	return 0;
 	/* OPERATION
 	 * decode path
@@ -258,6 +488,15 @@ static int kwest_read(const char *path, char *buf, size_t size, off_t offset,
 static int kwest_write(const char *path, const char *buf, size_t size,
 		     off_t offset, struct fuse_file_info *fi)
 {
+	/* extract filename */
+	char filename[20]; 
+	char *tmp = NULL;
+	const char *p = path;
+	tmp = strrchr(p,'/'); //get last name
+	if(tmp == NULL) return 0; //error in syntax
+	strcpy(filename, tmp+1); 
+	/* query to get physical location of filename */
+	/* write bytes to file */
 	return 0;
 	/* OPERATION
 	 * DOES NOT RETURN O

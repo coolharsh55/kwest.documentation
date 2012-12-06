@@ -29,8 +29,6 @@
 /* fuse header file */
 #include <fuse.h>
 
-#include <errno.h> /* error nos */
-
 /* kwest_getattr: 
  * input: path as string
  * input: stat buffer pointer
