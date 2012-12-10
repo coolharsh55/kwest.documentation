@@ -2,14 +2,33 @@
  * gcc -Wall -c fusefunc.c -o fusefunc -D_FILE_OFFSET_BITS=64 -lfuse
  * FUSE function implementations
  * */
+ 
+/*
+
+   Copyright [2012] [harshvardhan pandit]
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+   
+ */
 
 #include "fusefunc.h"
 #include <string.h>
+#include <errno.h>
 
 /* kwest_getattr: 
  * input: path as string
  * input: stat buffer pointer
- * return: integer for operation status
+ * return:  attributes
  * operation: return attributes in stat buffer
  * */
 static int kwest_getattr(const char *path, struct stat *stbuf)
@@ -19,7 +38,7 @@ static int kwest_getattr(const char *path, struct stat *stbuf)
 	if(*(path+1) == '\0') { //path is root
 	//set root as directory, return
 		memset(stbuf, 0, sizeof(struct stat));
-		stbuf->st_mode = S_IFDIR | 0755;
+		stbuf->st_mode = 0; /*S_IFDIR | 0755;*/
 		stbuf->st_nlink = 2;
 		return 0;
 	}
@@ -567,3 +586,59 @@ static int kwest_fsync(const char *path, int isdatasync,
 	 * DO NOTHING
 	 * */
 }
+
+/*
+1. function: getattr
+input: const char* name
+q01: check whether it is a file or a directory
+return its stat structure
+
+2. function: access
+input: const char* name
+q02: check and return if permissions are avalaible
+return -EACESS for invalid permissions
+
+3. function readdir
+input: const char* path
+q03: get all files from current directory
+q04: get all subdirectories for current directory
+
+4. function mkdir
+input: const char* name
+q05: create tag
+q06: associate const char* tag1 with const char *tag2 where tag1 has subgroup tag2
+
+5. function unlink
+q07: remove association const char* file from const char* tag
+
+6. function rmdir
+q08: remove const char* tag
+
+7. function rename
+q09: rename const char* from to rename const char* to
+
+8. function chmod
+q10: return permissions for const char* path
+
+9. function truncate
+q11: truncate const char* file to size
+
+10. function ftruncate
+q11: q11: truncate const char* file to size
+
+11. function utimens
+q12: set const char* file access/modification time to const struct timespec[2]
+
+12. function open
+q02: check and return if permissions are avalaible
+return -EACESS for invalid permissions
+
+13. function read
+q13: read size from offset for const char* file into char* buf
+
+14. function write
+q14: write size from offset for const char* file with char* buf
+
+15. function statfs
+---
+*/
