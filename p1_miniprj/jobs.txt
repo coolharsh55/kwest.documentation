@@ -25,6 +25,7 @@ JOBS : Creating a working mini-model
 
 3. Extraction of Metadata from Libraries
    Assigned to : @AG
+   by @HP audio with TagLib [DONE]
 
 4. Importing Semantics [DONE]
    Assigned to : @SG

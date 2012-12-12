@@ -1,56 +1,42 @@
-/* 
- * gcc -Wall -c fusefunc.c -o fusefunc -D_FILE_OFFSET_BITS=64 -lfuse
- * FUSE function implementations
- * */
- 
-/*
+/* FUSE FUNCTIONS
+/* gcc -Wall -c fusefunc.c -o fusefunc -D_FILE_OFFSET_BITS=64 -lfuse */
 
-   Copyright [2012] [harshvardhan pandit]
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
+/* LICENSE
+** Copyright [2012] [Harshvardhan Pandit]
+** Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at
        http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.   
+*/
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-   
- */
-
-#include "fusefunc.h"
+#include "fusefunc.h"	/* fuse functions */
 #include <string.h>
 #include <errno.h>
 
-/* kwest_getattr: 
- * input: path as string
- * input: stat buffer pointer
- * return:  attributes
- * operation: return attributes in stat buffer
+/* kwest_getattr: retrieve attributes 
+ * param:	const char* path	-	path of entry
+ * 				struct stat* buf		-	stat buffer to be filled
+ * return:	0 on SUCCESS and -ENOENT for NO ENTRY
+ * author: @HP
  * */
 static int kwest_getattr(const char *path, struct stat *stbuf)
 {
-	int res = 0; //result of operation	
-	
-	if(*(path+1) == '\0') { //path is root
-	//set root as directory, return
+	/* if path is root, return with DIRECTORY */
+	if(*(path+1) == '\0') { 
 		memset(stbuf, 0, sizeof(struct stat));
-		stbuf->st_mode = 0; /*S_IFDIR | 0755;*/
+		stbuf->st_mode = S_IFDIR | 0755;
 		stbuf->st_nlink = 2;
 		return 0;
 	}
 	
-	char filename[20]; //%%shift to common storage
+	char name[20]; 
 	char *tmp = NULL;
 	const char *p = path;
-	tmp = strrchr(p,'/'); //get last name
-	if(tmp == NULL) return 0; //error in syntax
-	strcpy(filename, tmp+1); //copy filename
-	
+	tmp = strrchr(p,'/'); 	/* get last name */
+	if(tmp == NULL) return 0; 	/* error in syntax */
+	strcpy(name, tmp+1);
+		
 	/*
+	 * return (db_get_attr(name, stbuf));
 	 * query to check if path==file
 	if(query_result == SQLITE_ROW) { //success
 		stbuf->st_mode = S_IFREG | 0444;
@@ -67,42 +53,31 @@ static int kwest_getattr(const char *path, struct stat *stbuf)
 	}
 	* */
 	
-	return res;
-	/* OPERATION:
-	 * decode path
-	 * last entry is file OR directory
-	 * rest entries are tags associated/related
-	 * get info from DB
-	 * copy in stbuf:
-	 * stbuf->st_mode = FILE|DIRECTORY
-	 * stbuf->st_nlink = ???
-	 * stbuf->st_size = size of file
-	 * return 0 for success
-	 * return -ENOENT for NO ENTRY
-	 * */
+	return 0;
 }
 	
-/* kwest_access: 
- * input: path as string
- * input: mask integer
- * return: integer for permission
- * operation: checks if calling process can access the file path-name
+/* kwest_access: permissions
+ * param:	const char* path	-	path of entry
+ * 				int mask					-	
+ * return:	0 on SUCCESS and -ENOENT for NO ENTRY
+ * 				-ENOACcESS for invalid permissions
+ * author: @HP
  * */
 static int kwest_access(const char *path, int mask)
 {
-	if(*(path+1) == '\0') { //path is root
-	//set root as directory, return
-		return 0;
-	}
+	/* if path is root - return */
+	if(*(path+1) == '\0')
+		return 0;		
 		
-	char filename[20]; //%%shift to common storage
+	char name[20];
 	char *tmp = NULL;
 	const char *p = path;
-	tmp = strrchr(p,'/'); //get last name
-	if(tmp == NULL) return 0; //error in syntax
-	strcpy(filename, tmp+1); //copy filename
+	tmp = strrchr(p,'/');
+	if(tmp == NULL) return 0;
+	strcpy(name, tmp+1);
 	
 	/*
+	 * return (db_access(path));
 	 * query to get physical path of file
 	if(query_result == SQLITE_ROW) { //success
 		return access(path, mask);
@@ -111,431 +86,316 @@ static int kwest_access(const char *path, int mask)
 		}
 	}
 	* */
+	
 	return 0;
-	/* OPERATION
-	 * decode path
-	 * last entry if file/directory
-	 * mask contains requested permissions
-	 * check if permission is available
-	 * return -ENOENT for invalid path
-	 * return -EACCESS for permission not valid
-	 * return 0 for success
-	 * */
 }	
 	
-/* kwest_readdir: 
- * input: path as string
- * input: filler buffer pointer
- * input: fuse defined filler function to populate directories
- * input: offset of last read location
- * input: fuse file handle pointer
- * return: integer for operation status
- * operation: populate list of directories and files under current
- * path by using the filler function
- * */
+/* kwest_readdir: list directory contents
+ * param:	const char* path	-	path of entry
+ * 				void *buf				-	buffer to be filled
+ * 				fuse_fill_dir_t filler	-	filler function
+ * 				off_t offset				-	offset of current read
+ * 				struct fuse_file_info *fi	- fuse internal file handle
+ * return:	0 on SUCCESS and -ENOENT for NO ENTRY
+ * author: @HP
+ * */	
 static int kwest_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 		       off_t offset, struct fuse_file_info *fi)
 {
 	(void) offset;
 	(void) fi;
 	
-	if (strcmp(path,"/")==0) {
-		/* const char *result = NULL;
-		 * while(query_result == SQLITE_ROW) {
-				struct stat st; //struct stat
-				memset(&st, 0, sizeof(st));
-				st.st_mode = S_IFREG | 0444; //set as file
-				result = get result from dB
-				//%%warning: pointer targets in assignment differ in signedness [-Wpointer-sign]
-				if (filler(buf, result, NULL, 0)) //fill to buffer
-					break;
-				next_query_result
-			}
-			// list directories
-			while(qres == SQLITE_ROW) {
-				struct stat st; //struct stat
-				memset(&st, 0, sizeof(st));
-				st.st_mode = S_IFDIR | 0755;
-				result = get result from db
-				//%%warning: pointer targets in assignment differ in signedness [-Wpointer-sign]
-				if (filler(buf, result, NULL, 0)) //fill to buffer
-					break;
-				next query result
-			}		
-			* */		
-		} else {
-			/* path is not root
-			query : send path, get files as result
-			 const char *result = NULL;
-		     while(query_result == SQLITE_ROW) {
-				struct stat st; //struct stat
-				memset(&st, 0, sizeof(st));
-				st.st_mode = S_IFREG | 0444; //set as file
-				result = get result from dB
-				//%%warning: pointer targets in assignment differ in signedness [-Wpointer-sign]
-				if (filler(buf, result, NULL, 0)) //fill to buffer
-					break;
-				next_query_result
-			}
-			// list directories
-			while(qres == SQLITE_ROW) {
-				struct stat st; //struct stat
-				memset(&st, 0, sizeof(st));
-				st.st_mode = S_IFDIR | 0755;
-				result = get result from db
-				//%%warning: pointer targets in assignment differ in signedness [-Wpointer-sign]
-				if (filler(buf, result, NULL, 0)) //fill to buffer
-					break;
-				next query result
-			}
-			* */
-		}	
-		
+	/* return (db_list(path, buf, filler)); */	
+	
 	return 0;
-	/* OPERATION
-	 * populate the directory with entries
-	 * results are a series of `struct dirents`
-	 * struct stat for each file in directory (only requires st_ino & st_mode)
-	 * call filler function with buffer, filename, struct stat, offset(NULL)
-	 * filler returns non-zero value for correct operation
-	 * do same for all files and directories under current path
-	 * */
 }		     
 
-/* kwest_mkdir: 
- * input: path as string
- * input: mode containing directory permissions
- * return: integer for operation status
- * operation: create a new tag
+/* kwest_mkdir: create tag & associate with path
+ * param:	const char* path	-	path of entry
+ * 				mode_t mode		-
+ * return:	0 on SUCCESS
+ * author: @HP
  * */
 static int kwest_mkdir(const char *path, mode_t mode)
 {
-	/* extract new tag */
 	char tagname[20]; 
 	char *tmp = NULL;
 	const char *p = path;
-	tmp = strrchr(p,'/'); //get last name
-	if(tmp == NULL) return 0; //error in syntax
-	strcpy(tagname, tmp+1); 
+	tmp = strrchr(p,'/');
+	if(tmp == NULL) return 0;
+	strcpy(tagname, tmp+1); 	/* get new tag name - is at last */
+	
+	int tag_id = 0; /* db_tag_new(tagname); */
+	if(tag_id == 0) {
+		return 0; /* return directory already exists */
+	}
+	
 	const char *p2 = strchr(p+1,'/');
-	int tag_id = 0;  /* query to register new tag (tagname)  and returns its unique id*/
-	char tag2name[20];
 	int count = 0;
 	while(p != tmp && p2 != NULL) { /* associate with other tags */
 	    ++p;
 	    count = 0;
 		while(p != p2) { /* seperate tags to associate */
-			tag2name[count++] = *p++;
+			tagname[count++] = *p++;
 		}
-		tag2name[count] = '\0';		
-		/* query to associate tag_id with tag2name as subgroup */
+		tagname[count] = '\0';		
+		/* if(db_tag_associate(tag_id, tagname) == 0) { 
+			return 0; /* error in creating directory * /
+		} */
 		p2 = strchr(p+1,'/');
 	}	
 	
 	return 0;
-	/* OPERATION
-	 * we have to create a tag here with the specified name under path
-	 * decode the path
-	 * last name is tag name
-	 * create that tag
-	 * associate it with all other tags in path
-	 * */
 }
 
-/* kwest_unlink: 
- * input: path as string
- * return: integer for operation status
- * operation: delete the file
+/* kwest_unlink: remove file
+ * param:	const char* path	-	path of entry
+ * return:	0 on SUCCESS
+ * author: @HP
  * */
 static int kwest_unlink(const char *path)
 {
-		/* extract new tag */
-	char filename[20]; 
+	char name[20]; 
 	char *tmp = NULL;
 	const char *p = path;
-	tmp = strrchr(p,'/'); //get last name
-	if(tmp == NULL) return 0; //error in syntax
-	strcpy(filename, tmp+1); 
+	tmp = strrchr(p,'/');  
+	if(tmp == NULL) return 0;
+	strcpy(name, tmp+1);  /* get filename */
+	int file_id = 0;  /* db_file_getid(name) */
+	if(file_id == 0) {
+		return 0; /* error: file does not exist */
+	}
+	
 	const char *p2 = strchr(p+1,'/');
-	int file_id = 0;  /* query to file unique id*/
-	char tag2name[20];
 	int count = 0;
-	while(p != tmp && p2 != NULL) { /* associate with other tags */
+	while(p != tmp && p2 != NULL) {  /* remove from tags */
 	    ++p;
 	    count = 0;
-		while(p != p2) { /* seperate tags to associate */
-			tag2name[count++] = *p++;
+		while(p != p2) { 
+			name[count++] = *p++;
 		}
-		tag2name[count] = '\0';		
-		/* query to remove file from associated tag */
+		name[count] = '\0';		
+		
+		/* if(db_file_tag_remove(file_id, name) == 0) { 
+			return 0; /* error in removing file * /
+		} */
 		p2 = strchr(p+1,'/');
 	}	
 	return 0;
-	/* OPERATION
-	 * delete the file
-	 * remove the file from the associated tags
-	 * if file has no more tags, delete the file
-	 * */
 }
 
-/* kwest_rmdir: 
- * input: path as string
- * return: integer for operation status
- * operation: delete the tag
+/* kwest_rmdir: remove tag
+ * param:	const char* path	-	path of entry
+ * return:	0 on SUCCESS
+ * author: @HP
  * */
 static int kwest_rmdir(const char *path)
 {
-	/* extract tag */
 	char tagname[20]; 
 	char *tmp = NULL;
 	const char *p = path;
-	tmp = strrchr(p,'/'); //get last name
-	if(tmp == NULL) return 0; //error in syntax
-	strcpy(tagname, tmp+1); 
-	/* query to delete tag (tagname) */
+	tmp = strrchr(p+1,'/'); 
+	if(tmp == NULL) 
+		return 0;  /* error in reading directory */
+		
+	/* if(db_tag_remove(tmp) == 0) {
+		return 0; /* error in removing directory * /
+	} */
+	
 	return 0;
-	/* OPERATION
-	 * decode the path
-	 * remove the tag from system
-	 * remove all its associations
-	 * */
 }
 
-/* kwest_rename: 
- * input: source filename path - from
- * input: target filename path - to
- * return: integer for operation status
- * operation: rename the file and re-assign tags
+/* kwest_rename: rename a file
+ * param:	const char* from	-	original file
+ * 				const char* to		-	target file
+ * return:	0 on SUCCESS
+ * author: @HP
  * */
 static int kwest_rename(const char *from, const char *to)
 {
-	/* extract filename */
 	char fromname[20]; 
 	char toname[20]; 
 	char *tmp = NULL;
 	const char *p = from;
-	tmp = strrchr(p,'/'); //get last name
-	if(tmp == NULL) return 0; //error in syntax
+	tmp = strrchr(p,'/'); 
+	if(tmp == NULL) return 0;
 	strcpy(fromname, tmp+1); 
 	p = to;
-	tmp = strrchr(p,'/'); //get last name
-	if(tmp == NULL) return 0; //error in syntax
+	tmp = strrchr(p,'/'); 
+	if(tmp == NULL) return 0;
 	strcpy(toname, tmp+1); 
-	/* query to change file fromname to toname */
+	
+	/* if(db_file_rename(fromname, toname) == 0) {
+		return 0; /* error renaming file * /
+	} */
+	
 	return 0;
 	
-	/* OPERATION
-	 * decode from path
-	 * identify file
-	 * decode to path
-	 * identify new filename
-	 * change base filename
-	 * change tag relationships with file
-	 * */
 }
 
-/* kwest_chmod: 
- * input: path of the file
- * input: mode structure containing permissions
- * return: integer for operation status
- * operation: assign permissions to file
+/* kwest_chmod: change permissions
+ * param:	const char* path	-	path of entry
+ * 				mode_t mode		-	new permissions
+ * return:	0 on SUCCESS
+ * author: @HP
  * */
 static int kwest_chmod(const char *path, mode_t mode)
 {
-	/* extract filename */
 	char filename[20]; 
 	char *tmp = NULL;
 	const char *p = path;
-	tmp = strrchr(p,'/'); //get last name
-	if(tmp == NULL) return 0; //error in syntax
+	tmp = strrchr(p,'/'); 
+	if(tmp == NULL) return 0;
 	strcpy(filename, tmp+1); 
-	/* query to get physical location of filename */
-	/* apply mode permissions to filename */
+	
+	/* if(db_file_chmod(filename) == 0) {
+		return 0; /* error setting permissions * /
+	} */
+	
 	return 0;
-	/* OPERATION
-	 * decode path
-	 * get filename or directory name
-	 * check for userpermissions from mode
-	 * if permissions are available return 0
-	 * else return -EACCESS
-	 * */
 }
 
-/* kwest_truncate: 
- * input: path of the file
- * input: size of file
- * return: integer for operation status
- * operation: truncate or extend file to given size
+/* kwest_truncate: truncate a files length
+ * param:	const char* path	-	path of entry
+ * 				off_t size				-	new file size
+ * return:	0 on SUCCESS
+ * author: @HP
  * */
 static int kwest_truncate(const char *path, off_t size)
 {
-	/* extract filename */
 	char filename[20]; 
 	char *tmp = NULL;
 	const char *p = path;
-	tmp = strrchr(p,'/'); //get last name
-	if(tmp == NULL) return 0; //error in syntax
+	tmp = strrchr(p,'/'); 
+	if(tmp == NULL) return 0;
 	strcpy(filename, tmp+1); 
-	/* query to get physical location of filename */
-	/* apply truncate file to size */
+	
+	/* if(db_file_truncate(filename, size) == 0) {
+		return 0; /* cannot truncate file * /
+	} */
+	
 	return 0;
-	/* OPERATION
-	 * decode path, get filename
-	 * get physical location
-	 * pass size to system call to truncate
-	 * */
 }
 
-/* kwest_ftruncate: 
- * input: path of the file
- * input: size of file
- * return: integer for operation status
- * operation: truncate or extend file to given size
+/* kwest_ftruncate: truncate a files length
+ * param:	const char* path	-	path of entry
+ * 				off_t size				-	new file size
+ * return:	0 on SUCCESS
+ * author: @HP
  * */
 static int kwest_ftruncate(const char *path, off_t size)
 {
-	/* extract filename */
 	char filename[20]; 
 	char *tmp = NULL;
 	const char *p = path;
-	tmp = strrchr(p,'/'); //get last name
-	if(tmp == NULL) return 0; //error in syntax
+	tmp = strrchr(p,'/'); 
+	if(tmp == NULL) return 0;
 	strcpy(filename, tmp+1); 
-	/* query to get physical location of filename */
-	/* apply truncate file to size */
+	
+	/* if(db_file_truncate(filename, size) == 0) {
+		return 0; /* cannot truncate file * /
+	} */
+	
 	return 0;
-	/* OPERATION
-	 * decode path, get filename
-	 * get physical location
-	 * pass size to system call to truncate
-	 * */
 }
 
-/* kwest_utimens: 
- * input: path of the file
- * input: timespec structure containing last access/modification time
- * return: integer for operation status
- * operation: assign last access/modification time
+/* kwest_utimens: update access/modification time
+ * param:	const char* path	-	path of entry
+ * 				const struct timespec ts	-	time structs
+ * 				ts[0] - access ; ts[1] modification
+ * return:	0 on SUCCESS
+ * author: @HP
  * */
 static int kwest_utimens(const char *path, const struct timespec ts[2])
 {
-	/* extract filename */
 	char filename[20]; 
 	char *tmp = NULL;
 	const char *p = path;
-	tmp = strrchr(p,'/'); //get last name
-	if(tmp == NULL) return 0; //error in syntax
+	tmp = strrchr(p,'/'); 
+	if(tmp == NULL) return 0; 
 	strcpy(filename, tmp+1); 
-	/* query to get physical location of filename */
-	/* change last access time & last modification time */
+	
+	/* if(db_file_utimens(filename, ts) == 0) {
+		return 0; /* error updating time * /
+	} */
+	
 	return 0;
-	/* OPERATION
-	 * decode path
-	 * get filename
-	 * update the last access time to current time
-	 * whenever file is changed via open change modification time
-	 * update with values in DB
-	 * */
 }
 
-/* kwest_open: 
- * input: path of the file
- * input: fuse file handle
- * return: integer for operation status
- * operation: read permission for file and return if valid for open
+/* kwest_open: check if file can be opened
+ * param:	const char* path	-	path of entry
+ * 				struct fuse_file_info* fi	-	fuse internal file handle
+ * return:	0 on SUCCESS
+ * author: @HP
  * */
 static int kwest_open(const char *path, struct fuse_file_info *fi)
 {
-	/* extract filename */
 	char filename[20]; 
 	char *tmp = NULL;
 	const char *p = path;
-	tmp = strrchr(p,'/'); //get last name
-	if(tmp == NULL) return 0; //error in syntax
+	tmp = strrchr(p,'/');
+	if(tmp == NULL) return 0;
 	strcpy(filename, tmp+1); 
-	/* query to get permissions for filename */
-	/* if valid, return SUCCESS */
-	return 0;
-	/* OPERATION
-	 * decode path
-	 * get filename
-	 * check permissions
-	 * if all available return 0
-	 * else return -EACCESS
-	 * */
+	return 0; /* db_file_access(path); */
 }
 
-/* kwest_read: 
- * input: path of the file
- * input: character buffer for file data
- * input: size in bytes to read
- * input: offset of file to start reading
- * input: fuse file handle
- * return: integer for operation status
- * operation: read specified bytes of file
+/* kwest_read: read blocks from file
+ * param:	const char* path	-	path of entry
+ * 				char* buf				-	buffer to pass data
+ * 				size_t size				-	size of data to be read
+ * 				off_t offset				-	position to start reading
+ * 				struct fuse_file_info* fi	-	internal fuse file handle
+ * return:	0 on SUCCESS
+ * author: @HP
  * */
 static int kwest_read(const char *path, char *buf, size_t size, off_t offset,
 		    struct fuse_file_info *fi)
 {
-	/* extract filename */
 	char filename[20]; 
 	char *tmp = NULL;
 	const char *p = path;
-	tmp = strrchr(p,'/'); //get last name
-	if(tmp == NULL) return 0; //error in syntax
+	tmp = strrchr(p,'/'); 
+	if(tmp == NULL) return 0;
 	strcpy(filename, tmp+1); 
-	/* query to get physical location of filename */
-	/* use pread(filename) */
+	
+	/* pread(db_file_path(filename) */
+	
 	return 0;
-	/* OPERATION
-	 * decode path
-	 * get filename
-	 * get physical location
-	 * use pread() to read `size` bytes from `offset` into `buf`
-	 * */
 }
 
-/* kwest_write: 
- * input: path of the file
- * input: character buffer for file data
- * input: size in bytes to write
- * input: offset of file to start writing
- * input: fuse file handle
- * return: integer for operation status
- * operation: write specified bytes of file
+/* kwest_write: write blocks from file
+ * param:	const char* path	-	path of entry
+ * 				char* buf				-	buffer to pass data
+ * 				size_t size				-	size of data to write
+ * 				off_t offset				-	position to start writing
+ * 				struct fuse_file_info* fi	-	internal fuse file handle
+ * return:	0 on SUCCESS
+ * author: @HP
  * */
 static int kwest_write(const char *path, const char *buf, size_t size,
 		     off_t offset, struct fuse_file_info *fi)
 {
-	/* extract filename */
 	char filename[20]; 
 	char *tmp = NULL;
 	const char *p = path;
-	tmp = strrchr(p,'/'); //get last name
-	if(tmp == NULL) return 0; //error in syntax
+	tmp = strrchr(p,'/'); 
+	if(tmp == NULL) return 0;
 	strcpy(filename, tmp+1); 
-	/* query to get physical location of filename */
-	/* write bytes to file */
+	
+	/* write(db_file_path(filename) */
+	
 	return 0;
-	/* OPERATION
-	 * DOES NOT RETURN O
-	 * decode path
-	 * get filename
-	 * get physical location
-	 * write bytes specified to file
-	 * */
 }
 
-/* kwest_statfs: 
- * input: path of the file
- * input: statvfs buffer 
- * return: integer for operation status
- * operation: fill statvfs with filesystem info
+/* kwest_statfs: give filesystem info
+ * param:	const char* path	-	path of entry
+ * 				struct statvfs* stbuf	-	pass filesystem info
+ * return:	0 on SUCCESS
+ * author: @HP
  * */
 static int kwest_statfs(const char *path, struct statvfs *stbuf)
 {
-	return 0;
-	/* OPERATION
+	/*
 	 * supposed to return FS information
 	 * but ours is virtual file system where this does not apply
 	 * we can combine total monitor total disk data and represent that
@@ -553,92 +413,29 @@ static int kwest_statfs(const char *path, struct statvfs *stbuf)
        unsigned long  f_namemax;  maximum filename length
        };
 	 * */
+	 return 0;
 }
 
-/* kwest_release: 
- * input: path of the file
- * input: fuse file handle
- * return: integer for operation status
- * operation: release file, do nothing
+/* kwest_statfs: give filesystem info
+ * param:	const char* path	-	path of entry
+ * 				struct fuse_file_info* fi	-	fuse internal file handle
+ * return:	0 on SUCCESS
+ * author: @HP
  * */
 static int kwest_release(const char *path, struct fuse_file_info *fi)
 {
 	return 0;
-	/* OPERATION
-	 * decode path
-	 * get filename
-	 * update access time
-	 * */
 }
 
-/* kwest_fsync: 
- * input: path of the file
- * input: isdatasync denotes data/metadata sync
- * input: fuse file handle
- * return: integer for operation status
- * operation: flush data to disk, do nothing
+/* kwest_fsync: flush data to disk
+ * param:	const char* path	-	path of entry
+ * 				int isdatasync		-	data is synced
+ * 				struct fuse_file_info* fi	-	internal fuse file handle
+ * return:	0 on SUCCESS
+ * author: @HP
  * */
 static int kwest_fsync(const char *path, int isdatasync,
 		     struct fuse_file_info *fi)
 {
 	return 0;
-	/* OPERATION
-	 * DO NOTHING
-	 * */
 }
-
-/*
-1. function: getattr
-input: const char* name
-q01: check whether it is a file or a directory
-return its stat structure
-
-2. function: access
-input: const char* name
-q02: check and return if permissions are avalaible
-return -EACESS for invalid permissions
-
-3. function readdir
-input: const char* path
-q03: get all files from current directory
-q04: get all subdirectories for current directory
-
-4. function mkdir
-input: const char* name
-q05: create tag
-q06: associate const char* tag1 with const char *tag2 where tag1 has subgroup tag2
-
-5. function unlink
-q07: remove association const char* file from const char* tag
-
-6. function rmdir
-q08: remove const char* tag
-
-7. function rename
-q09: rename const char* from to rename const char* to
-
-8. function chmod
-q10: return permissions for const char* path
-
-9. function truncate
-q11: truncate const char* file to size
-
-10. function ftruncate
-q11: q11: truncate const char* file to size
-
-11. function utimens
-q12: set const char* file access/modification time to const struct timespec[2]
-
-12. function open
-q02: check and return if permissions are avalaible
-return -EACESS for invalid permissions
-
-13. function read
-q13: read size from offset for const char* file into char* buf
-
-14. function write
-q14: write size from offset for const char* file with char* buf
-
-15. function statfs
----
-*/
