@@ -1,5 +1,5 @@
-/* FUSE FUNCTIONS
-/* gcc -Wall -c fusefunc.c -o fusefunc -D_FILE_OFFSET_BITS=64 -lfuse */
+/* FUSE FUNCTIONS */
+/* gcc -Wall -c fusefunc.c -o fusefunc.o -D_FILE_OFFSET_BITS=64 -lfuse */
 
 /* LICENSE
 ** Copyright [2012] [Harshvardhan Pandit]
@@ -358,7 +358,7 @@ static int kwest_read(const char *path, char *buf, size_t size, off_t offset,
 	if(tmp == NULL) return 0;
 	strcpy(filename, tmp+1); 
 	
-	/* pread(db_file_path(filename) */
+	/* pread(db_file_path_name(filename) */
 	
 	return 0;
 }
