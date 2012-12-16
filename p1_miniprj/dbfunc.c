@@ -1,414 +1,819 @@
-/* 
- * gcc dbfunc.c -o dbfunc
- * Database function implementations
- * */
+/* DATABASE FUNCTIONS */
 
-/*
-
+/* LICENSE
    Copyright [2012] [harshvardhan pandit]
-
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
-
        http://www.apache.org/licenses/LICENSE-2.0
-
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-   
- */
+*/
 
 #include "dbfunc.h"
 
+
+/* ------------ Database Connections ---------------- */
+
+/* createdb: Create database for first use
+ * return: 	1 on SUCCESS
+ * author:	@SG
+ * */
+int createdb(void)
+{
+	strcpy(query,"CREATE TABLE IF NOT EXISTS FileDetails (f_hashkey INTEGER PRIMARY KEY,f_name VARCHAR2(20),abspath VARCHAR2(50));");
+	retval = sqlite3_exec(db,query,0,0,0);
+
+	strcpy(query,"CREATE TABLE IF NOT EXISTS TagDetails (t_hashkey INTEGER PRIMARY KEY,tagname VARCHAR2(20));");
+	retval = sqlite3_exec(db,query,0,0,0);
+
+	strcpy(query,"CREATE TABLE IF NOT EXISTS FileAssociation (t_hashkey INTEGER,f_hashkey INTEGER);");
+	retval = sqlite3_exec(db,query,0,0,0);
+
+	strcpy(query,"CREATE TABLE IF NOT EXISTS TagAssociation (t1_hashkey INTEGER,t2_hashkey INTEGER,relationid INTEGER);");	
+	retval = sqlite3_exec(db,query,0,0,0);
+
+	strcpy(query,"CREATE TABLE IF NOT EXISTS FileMetadata (f_hashkey INTEGER,inode INTEGER,size INTEGER);");
+	retval = sqlite3_exec(db,query,0,0,0);
+
+	strcpy(query,"CREATE TABLE IF NOT EXISTS Associations (relationid INTEGER PRIMARY KEY,relationtype VARCHAR2(20));");
+	retval = sqlite3_exec(db,query,0,0,0);
+
+	addrelation("probably_related");
+	addrelation("subgroup");
+	addrelation("related");
+	addrelation("not_related");
+
+	return 1;
+}
+
+/* initdb: 	Establish Database Connection
+ * return: 	1 on SUCCESS
+ * author:	@SG
+ * */
+int initdb(void)
+{
+	db=NULL;
+	stmt=NULL;
+
+	retval = sqlite3_open("./testdb",&db);
+
+	if(retval==SQLITE_OK) {
+		(void) createdb();
+		return 1;
+	} else {
+		printf("Database Connection Failed\n");
+		return 0;
+	}
+}
+
+/* closedb: Close Database Connection
+ * return: 	1 on SUCCESS
+ * author:	@SG
+ * */
+int closedb(void)
+{
+	/*  
+	if(SQLITE_OK!=sqlite3_finalize(stmt))
+		printf("Finalize Failed\n");
+	*/
+	
+	retval = sqlite3_close(db);
+	
+	if (retval==SQLITE_OK) {  
+		return 1;
+	} else if (retval==SQLITE_BUSY)	{
+		printf("Error Closing Database\nSQLITE_BUSY\n");
+		return 0;
+	} else {
+		printf("Error Closing Database\nError Code : %d\n",retval);
+		return 0;
+	}
+}
+
 /* ---------------- ADD/REMOVE -------------------- */
 
-/* addtag: 
- * input: tagname as string
- * return: integer for operation status
- * operation: Create a new tag in kwest
+/* addtag: 	Create a new tag in kwest
+ * param: 	char *tagname
+ * return: 	1 on SUCCESS
+ * author:	@SG	
  * */
 int addtag(char *tagname)
 {
- /* OPERATION
-  * int t_hashkey=sethashtag(tagname)
-  * Query : Add to TagDetails Table(t_hashkey,tagname)
-  * */
- return 0;
+	int t_hashval=sethashtag(tagname);
+	if(t_hashval==-1){
+	return 0;
+	} 
+	
+	char t_hashkey[INT_SIZE];
+	sprintf(t_hashkey,"%d",t_hashval);
+
+	/* Insert (t_hashkey, tagname) in TagDetails Table */
+	strcpy(query,"INSERT INTO TagDetails VALUES(");
+	strcat(query,t_hashkey);
+	strcat(query,",'");
+	strcat(query,tagname);
+	strcat(query,"');");
+
+	retval = sqlite3_exec(db,query,0,0,0);
+
+	return 1;
 }
 
-/* removetag: 
- * input: tagname as string
- * return: integer for operation status
- * operation: Remove an existing tag from kwest
+/* removetag: Remove an existing tag from kwest 
+ * param: 	char *tagname
+ * return: 	1 on SUCCESS
+ * author:	
  * */
 int removetag(char *tagname)
 {
- /* OPERATION
-  * int t_hashkey = gethashtagkey(tagname)
-  * Query : Check if any entry for the tag exist in FileAssociation table
-  * prompt user to deal with existing entries if any
-  * Query : remove tag entry from TagDetails Table
-  * */
- return 0;
+	/* OPERATION
+	 * int t_hashkey = gethashtagkey(tagname)
+	 * Query : Check if any entry for the tag exist in FileAssociation table
+	 * prompt user to deal with existing entries if any
+	 * Query : remove tag entry from TagDetails Table
+	 * */
+	return 0;
 }
 
-/* addfile: 
- * input: abspath (Absolute Path) as string. It is the path of the file in base file system on which fuse is mounted.
- * return: integer for operation status
- * operation: Add file to kwest
+/* addfile: Add file to kwest
+ * param: 	char *abspath
+ * return: 	1 on SUCCESS
+ * author:  @SG
  * */
 int addfile(char *abspath)
 {
- /* OPERATION
-  * int f_hashkey=sethashfile(abspath)
-  * Get f_name form path
-  * Query : Add to FileDetails Table(f_hashkey,f_name,abspath)
-  * struct meta m = generatemetadata()	//Function which returns metadata using libraries
-  * addfilemetadata(f_hashkey,m)
-  * */
- return 0;
+	int f_hashval=sethashfile(abspath);
+	if(f_hashval==-1){
+	return 0;
+	} 
+
+	char f_hashkey[INT_SIZE];
+	sprintf(f_hashkey,"%d",f_hashval);
+
+	char *f_name=strrchr(abspath,'/');
+
+	/* Query : Insert (f_hashkey, f_name, abspath) in FileDetails Table */
+	strcpy(query,"INSERT INTO FileDetails VALUES(");
+	strcat(query,f_hashkey);
+	strcat(query,",'");
+	strcat(query,f_name+1);
+	strcat(query,"','");
+	strcat(query,abspath);
+	strcat(query,"');");
+
+	retval = sqlite3_exec(db,query,0,0,0);
+
+	/* struct meta m = generatemetadata() */
+
+	/* addfilemetadata(f_hashkey,m) */
+
+	return 1;
 }
 
-/* removefile: 
- * input: path as string. path can be a filename or a hierarchy of tags it is associated with in kwest.
- * return: integer for operation status
- * operation: Remove file form kwest
+/* removefile: 	Remove file form kwest 
+ * param: 	char *path - Path in Kwest
+ * return: 	1 on SUCCESS
+ * author:  
  * */
 int removefile(char *path)
 {
- /* OPERATION
-  * int f_hashkey=gethashfilekey(path)
-  * Query : Check if any entry with f_hashkey exist in FileAssociation Table
-  * prompt user to deal with existing entries if any
-  * removefilemetadata(f_hashkey)
-  * Query : remove file entry from FileDetails  Table
-  * */
- return 0;
+	/* OPERATION
+	 * int f_hashkey=gethashfilekey(path)
+	 * Query : Check if any entry with f_hashkey exist in FileAssociation Table
+	 * prompt user to deal with existing entries if any
+	 * removefilemetadata(f_hashkey)
+	 * Query : remove file entry from FileDetails  Table
+	 * */
+	return 0;
 }
 
-/* addfilemetadata: 
- * input: Hash value for file (f_hashkey) as integer
- * input: structure meta. It holds all metadata associated with a file, generated by external libraries.
- * return: integer for operation status
- * operation: Add metadata for a file generated by external libraries
+/* addfilemetadata: Add metadata for a file generated by external libraries 
+ * param: 	int f_hashkey - Hash value for file
+ * param: 	structure meta - holds all metadata associated with a file, generated by external libraries.
+ * return: 	1 on SUCCESS
+ * author: 
  * */
 int addfilemetadata(int f_hashkey,struct meta *m)
 {
- /* OPERATION			
-  * Query : add meta-info in structure meta to FileMetadata Table for file(f_hashkey)
-  * */
- return 0;
+	/* OPERATION			
+ 	 * Query : add meta-info in structure meta to FileMetadata Table for file(f_hashkey)
+	 * */
+	return 0;
 }
 
-/* removefilemetadata: 
- * input: Hash value for file (f_hashkey) as integer
- * return: integer for operation status
- * operation: Remove metadata for existing file
+/* removefilemetadata: Remove metadata for existing file
+ * param: 	int f_hashkey - Hash value for file
+ * return: 	1 on SUCCESS
+ * author: 	
  * */
 int removefilemetadata(int f_hashkey)
 {
- /* OPERATION
-  * Query : remove entry of file(f_hashkey) from FileMetadata Table
-  * */
- return 0;
+	/* OPERATION
+	 * Query : remove entry of file(f_hashkey) from FileMetadata Table
+	 * */
+	return 0;
 }
 
 /* --------------- Tag-File Relation ------------- */
 
-/* tagfile: 
- * input: tagname as string
- * input: filename as string
- * return: integer for operation status
- * operation: Associate a tag with a file
+/* tagfile: Associate a tag with a file 
+ * param: 	char *t - tagname
+ * param: 	char *f - filename
+ * return: 	1 on SUCCESS
+ * author:  @SG
  * */
 int tagfile(char *t,char *f)
 {
- /* OPERATION
-  * int t_hashkey=gethashtagkey(t)
-  * int f_hashkey=gethashfilekey(f)
-  * Query : check if entry exists in File Association Table
-  * Query : add t_hashkey,f_hashkey to File Association Table
-  * */
- return 0;
+	char f_hashkey[INT_SIZE];
+	sprintf(f_hashkey,"%d",gethashfilekey(f));
+
+	char t_hashkey[INT_SIZE];
+	sprintf(t_hashkey,"%d",gethashtagkey(t));
+
+	/* Query : check if entry exists in File Association Table */
+	strcpy(query,"select f_hashkey from FileAssociation where t_hashkey=");
+	strcat(query,t_hashkey);
+	strcat(query,";");
+
+	retval = sqlite3_prepare_v2(db,query,-1,&stmt,0);
+	while(1) {
+		retval = sqlite3_step(stmt);
+  
+		if(retval == SQLITE_ROW) {
+			if(strcmp(f_hashkey,(const char*)sqlite3_column_text(stmt,0))==0) {
+				sqlite3_finalize(stmt);
+				return 0;
+			}
+		} else if(retval == SQLITE_DONE) {
+			break;
+		}
+    	}
+	sqlite3_finalize(stmt);
+	
+	/* Query : add t_hashkey,f_hashkey to File Association Table */
+	strcpy(query,"insert into FileAssociation values(");
+	strcat(query,t_hashkey);
+	strcat(query,",");
+	strcat(query,f_hashkey);
+	strcat(query,")");
+
+	retval = sqlite3_exec(db,query,0,0,0);
+
+	return 1;
 }
 
-/* untagfile: 
- * input: tagname as string
- * input: filename as string
- * return: integer for operation status
- * operation: Remove the existing association between the tag and file
+/* untagfile: 	Remove the existing association between the tag and file
+ * param: 	char *t - tagname
+ * param: 	char *f - filename
+ * return: 	1 on SUCCESS
+ * author: 
  * */
 int untagfile(char *t,char *f)
 {
- /* OPERATION
-  * int t_hashkey=gethashtagkey(t)
-  * int f_hashkey=gethashfilekey(f)
-  * Query : remove t_hashkey,f_hashkey from File Association Table
-  * */
- return 0;
+	/* OPERATION
+	 * int t_hashkey=gethashtagkey(t)
+	 * int f_hashkey=gethashfilekey(f)
+	 * Query : remove t_hashkey,f_hashkey from File Association Table
+	 * */
+	return 0;
 }
 
-/* getfile: 
- * input: tagname as string
- * return: filename as string. NULL if no file found
- * operation: Return list of files associated to given tag
+/* getfile: Return list of files associated to given tag 
+ * param:	char *t - tagname
+ * return:  node *head - Link List containing abspath of files 
+ * author:  @SG
  * */
-char *getfile(char *t)
+node *getfile(char *t)
 {
- /* OPERATION
-  * int t_hashkey=gethashtagkey(t)
-  * Query : get f_hashkey from FileAssociation Table
-  * char *f_name = gethashfile(f_hashkey)
-  * return f_name
-  * */
- return 0;
+	node *head=NULL;
+	int i=0;
+
+	char t_hashkey[INT_SIZE];
+	sprintf(t_hashkey,"%d",gethashtagkey(t));
+
+	/* Query : get f_hashkey from FileAssociation Table */ 
+	strcpy(query,"select f_hashkey from FileAssociation where t_hashkey=");
+	strcat(query,t_hashkey);
+	strcat(query,";");
+
+	retval = sqlite3_prepare_v2(db,query,-1,&stmt,0);
+	while(1) {
+		retval = sqlite3_step(stmt);
+  
+		if(retval == SQLITE_ROW) {
+			sqlite3_stmt *stmt1=NULL;
+
+			strcpy(query,"select abspath from FileDetails where f_hashkey="); 
+			strcat(query,(const char*)sqlite3_column_text(stmt,0));
+
+			retval = sqlite3_prepare_v2(db,query,-1,&stmt1,0);
+			retval = sqlite3_step(stmt1);
+		
+			if(retval == SQLITE_ROW)
+				if(head==NULL) {
+					head = (node *)malloc(sizeof(node));
+					head->data=strdup((char*)sqlite3_column_text(stmt1,0));
+					head->next=NULL;
+					if(SQLITE_OK!=sqlite3_finalize(stmt1)) 
+						printf("Finalize getfile 1 Failed\n");  
+				}
+				else {
+				   node *temp=head;
+				   while(temp->next!=NULL)
+				   temp = temp -> next;
+				   temp->next = (node *)malloc(sizeof(node));
+				   temp = temp->next;
+				   temp->data = strdup((char*)sqlite3_column_text(stmt1,0));
+				   temp->next = NULL;
+				   if(SQLITE_OK!=sqlite3_finalize(stmt1)) 
+				   	printf("Finalize getfile 2 Failed\n");  
+				}
+		} else if(retval == SQLITE_DONE) {
+			break;
+		} else {
+			printf("GetFile : Error Encountered\n");
+			break;
+		}
+    }
+
+	if(SQLITE_OK!=sqlite3_finalize(stmt)) printf("Finalize getfile Failed\n");  
+	return head;  
 }
 
-/* gettag: 
- * input: filename as string
- * return: tagname as string. NULL if no tag found.
- * operation: Return list of tags associated with a given file
+/* gettag: 	Return list of tags associated with a given file
+ * param: 	char *f - filename
+ * return:  node *head - Link List containing tagnames
+ * author: 
  * */
-char *gettag(char *f)
+node *gettag(char *f)
 {
- /* OPERATION
-  * int f_hashkey=gethashfilekey(f)
-  * Query : get t_hashkey from FileAssociation Table
-  * char *tagname = gethashtag(t_hashkey)
-  * return tagname
-  * */
- return 0;
+	node *head=NULL;
+	/* OPERATION
+	 * int f_hashkey=gethashfilekey(f)
+	 * Query : get t_hashkey from FileAssociation Table
+	 * char *tagname = gethashtag(t_hashkey)
+	 * return tagname
+	 * */
+	return head;
 }
 
 
 /*----------------- Tag-Tag Relation ------------------*/
 
-/* addassociation: 
- * input: tagname of both tags to be associated as string
- * input: relationtype between tags to be formed as string
- * return: integer for operation status
- * operation: Associate a tag with another tag
+/* addassociation: Associate a tag with another tag 
+ * param: 	char *t1,*t2 - tagname of both tags to be associated
+ * param: 	char *relationtype - relation between tags to be formed
+ * return: 	1 on SUCCESS
+ * author:  @SG
  * */
 int addassociation(char *t1,char *t2,char *relationtype)
 {
- /* OPERATION
-  * int relationid=getrelationid(relationtype)
-  * int t1=gethashtagkey(t1)
-  * int t2=gethashtagkey(t2)
-  * Query : check if entry exists in TagAssociation Table
-  * Query : add t1, t2,relationid to TagAssociation Table
-  * */
- return 0;
+	char relationid[INT_SIZE];
+	sprintf(relationid,"%d",getrelationid(relationtype));
+
+	char t1_hashkey[INT_SIZE];
+	sprintf(t1_hashkey,"%d",gethashtagkey(t1));
+
+	char t2_hashkey[INT_SIZE];
+	sprintf(t2_hashkey,"%d",gethashtagkey(t2));
+
+	/* Query : check if entry exists in TagAssociation Table */
+
+	/* Query : add (t1, t2, relationtype) to TagAssociation Table */
+	strcpy(query,"insert into TagAssociation values(");
+	strcat(query,t1_hashkey);
+	strcat(query,",");
+	strcat(query,t2_hashkey);
+	strcat(query,","); 
+	strcat(query,relationid);
+	strcat(query,")");
+
+	retval = sqlite3_exec(db,query,0,0,0);
+
+	return 1;
 }
 
-/* removeassociation: 
- * input: tagname of both tags whose associated is to be removed as string
- * input: relationtype between tags to be removed as string
- * return: integer for operation status
- * operation: Remove the existing association between the two tags
+/* removeassociation: Remove the existing association between the two tags 
+ * param: 	char *t1,*t2 - tagname of both tags whose associated is to be removed
+ * param: 	char *relationtype - relation between tags to be removed
+ * return: 	1 on SUCCESS
+ * author:	
  * */
 int removeassociation(char *t1,char *t2,char *relationtype)
 {
- /* OPERATION
-  * int relationid=getrelationid(relationtype)
-  * int t1=gethashtagkey(t1)
-  * int t2=gethashtagkey(t2)
-  * Query : remove entry t1, t2,relationid from TagAssociation Table
-  * */
- return 0;
+	/* OPERATION
+	 * int relationid=getrelationid(relationtype)
+	 * int t1=gethashtagkey(t1)
+	 * int t2=gethashtagkey(t2)
+	 * Query : remove entry t1, t2,relationid from TagAssociation Table
+	 * */
+	return 0;
 }
 
-/* getassociationrelation: 
- * input: tagname of both tags in association as string
- * return: relationid between tags as integer
- * operation: Return type of association between the two tags
+/* getassociationrelation: Return type of association between the two tags
+ * param: 	char *t1,*t2 - tagname of both tags in association
+ * return: 	int relationid
+ * author:	
  * */
 int getassociationrelation(char *t1,char *t2)
 {
- /* OPERATION
-  * int t1=gethashtagkey(t1)
-  * int t2=gethashtagkey(t2)
-  * Query : return relationid from entry t1, t2 from TagAssociation Table
-  * */
- return 0;
+	/* OPERATION
+	 * int t1=gethashtagkey(t1)
+	 * int t2=gethashtagkey(t2)
+	 * Query : return relationid from entry t1, t2 from TagAssociation Table
+	 * */
+	return 0;
 }
 
-/* getassociation: 
- * input: tagname as string
- * input: relationtype between tags as string
- * return: related tagname as string
- * operation: Get tag having a particular association with another tag
+/* getassociation: Get tag having a particular association with another tag 
+ * param: 	char *t - tagname
+ * param: 	char *relationtype - relation between tags
+ * return: 	node *head - Link List of related tagnames
+ * author:  @SG 
  * */
-char* getassociation(char *t,char *relationtype)
+node *getassociation(char *t,char *relationtype)
 {
- /* OPERATION
-  * int relationid=getrelationid(relationtype)
-  * int t1=gethashtagkey(t)
-  * Query : get t2 from entry t1, relationid from TagAssociation Table
-  * char *tag = gethashtag(t2)
-  * return tag
-  * */
- return 0;
+	node *head=NULL;
+
+	char relationid[INT_SIZE];  
+	sprintf(relationid,"%d",getrelationid(relationtype));
+
+	char t2_hashkey[INT_SIZE];
+	sprintf(t2_hashkey,"%d",gethashtagkey(t));
+
+	/* Query : get t2 from entry (t1, relationid) from TagAssociation Table */
+
+	strcpy(query,"select t1_hashkey from TagAssociation where t2_hashkey=");
+	strcat(query,t2_hashkey);
+	strcat(query," and relationid=");
+	strcat(query,relationid);
+	strcat(query,";");
+
+	retval = sqlite3_prepare_v2(db,query,-1,&stmt,0);
+
+	while(1) {
+		retval = sqlite3_step(stmt);
+
+		if(retval == SQLITE_ROW) { 
+			if(head==NULL) {
+				head = (node *)malloc(sizeof(node));
+				head->data=strdup(gethashtag(atoi((char*)sqlite3_column_text(stmt,0))));
+				head->next=NULL;
+			} else {
+				node *temp=head;
+				while(temp->next!=NULL)
+				temp = temp -> next;
+				temp->next = (node *)malloc(sizeof(node));
+				temp = temp->next;
+				temp->data = strdup(gethashtag(atoi((char*)sqlite3_column_text(stmt,0))));
+				temp->next = NULL;
+			}
+		} else if(retval == SQLITE_DONE) {
+			break;
+		} else {
+			printf("GetAssociation : Error Encountered\n");
+			break;
+		}
+	}
+
+	if(SQLITE_OK != sqlite3_finalize(stmt)) 
+		printf("Finalize getassociation Failed\n");  
+	return head;
 }
 
 /* ----------------- Associations --------------------- */
 
-/* addrelation: 
- * input: relationtype as string
- * return: relationid as integer. 0 if unable to add relation
- * operation: Create a new association type
+/* addrelation: Create a new association type 
+ * param: 	char *relationtype
+ * return: 	int relationid and 0 if unable to add relation
+ * author:	@SG 
  * */
 int addrelation(char *relationtype)
 {
- /* OPERATION
-  * Query : check if entry exists in AssociationRelation Table
-  * Generate now relationid (increment)
-  * Query : add relationid,relationtype to AssociationRelation Table
-  * */
- return 0;
+	char relationid[INT_SIZE];
+
+	/* Query : check if entry exists in Associations Table */  
+	strcpy(query,"select count(relationid) from Associations where relationtype='");
+	strcat(query,relationtype);
+	strcat(query,"';");
+
+	retval = sqlite3_prepare_v2(db,query,-1,&stmt,0); 
+	retval = sqlite3_step(stmt);
+
+	if(retval == SQLITE_ROW) {
+		retval=atoi((char*)sqlite3_column_text(stmt,0));
+		if(retval!=0) {
+		sqlite3_finalize(stmt);
+		return 0;
+		}
+	}
+	sqlite3_finalize(stmt);
+
+	/* Generate new relationid (increment) */  
+	strcpy(query,"select max(relationid) from Associations;");
+
+	retval = sqlite3_prepare_v2(db,query,-1,&stmt,0); 
+	retval = sqlite3_step(stmt);
+
+	if(retval == SQLITE_ROW) {
+		if((const char*)sqlite3_column_text(stmt,0)==NULL) 
+			sprintf(relationid,"%d",1);
+		else
+			sprintf(relationid,"%d",atoi((char*)sqlite3_column_text(stmt,0))+1);
+		if(SQLITE_OK!=sqlite3_finalize(stmt)) 
+			printf("Finalize3 addrelation Failed\n");
+
+		/* Query : add (relationid,relationtype) to Association Table */
+		strcpy(query,"INSERT INTO Associations VALUES(");
+		strcat(query,relationid);
+		strcat(query,",'");
+		strcat(query,relationtype);
+		strcat(query,"');");
+
+		retval = sqlite3_exec(db,query,0,0,0);
+	}
+
+	return 1;
 }
 
-/* removerelation: 
- * input: relationtype as string
- * return: integer for operation status
- * operation: Remove an existing association type
+/* removerelation: Remove an existing association type
+ * param: 	char *relationtype
+ * return: 	1 on SUCCESS
+ * author: 	
  * */
 int removerelation(char *relationtype)
 {
- /* OPERATION
-  * int relationid=getrelationid(relationtype)
-  * Query : Check if any entries with relationid in Tagassociation Table exist
-  * prompt user to deal with existing entries if any
-  * Query : remove entry for relationid in AssociationRelations Table
-  * */
- return 0;
+	/* OPERATION
+	 * int relationid=getrelationid(relationtype)
+	 * Query : Check if any entries with relationid in Tagassociation Table exist
+	 * prompt user to deal with existing entries if any
+	 * Query : remove entry for relationid in AssociationRelations Table
+	 * */
+	return 0;
 }
 
-/* getrelationid: 
- * input: relationtype as string
- * return: relationid as integer
- * operation: Returns relationid for given relationtype
+/* getrelationid: Returns relationid for given relationtype 
+ * param: 	char *relationtype
+ * return: 	int relationid
+ * author:	@SG
  * */
 int getrelationid(char *relationtype)
 {
- /* OPERATION
-  * Query : return relationid from AssociationRelation Table	
-  * */
- return 0;
+	sqlite3_stmt *stmt1;
+
+	/* Query : return relationid from AssociationRelation Table */
+
+	strcpy(query,"select relationid from Associations where relationtype='");
+	strcat(query,relationtype);
+	strcat(query,"';");
+
+	retval = sqlite3_prepare_v2(db,query,-1,&stmt1,0); 
+	retval = sqlite3_step(stmt1);
+
+	if(retval == SQLITE_ROW) {
+		if((char*)sqlite3_column_text(stmt1,0)==NULL)
+			return -1;
+		else {
+			retval=atoi((char*)sqlite3_column_text(stmt1,0));
+			sqlite3_finalize(stmt1);
+			return retval;
+		}
+	}
 }
 
-/* getrelationtype: 
- * input: relationid as integer
- * return: relationtype as string
- * operation: Returns relationtype for given relationid
+/* getrelationtype: Returns relationtype for given relationid
+ * param: 	int relationid
+ * return: 	char *relationtype
+ * author:	
  * */
 char *getrelationtype(int relationid)
 {
- /* OPERATION
-  * Query : return relationtype from AssociationRelation Table
-  * */
- return 0;
+	/* OPERATION
+ 	 * Query : return relationtype from AssociationRelation Table
+ 	 * */
+	return 0;
 }
 
 /* --------------------- Others --------------------- */
 
-/* listtags: 
- * input: void
- * return: tagname string. NULL if no tag found
- * operation: List all tags in the system
+/* listtags: 	List all tags in the system 
+ * param: 	void
+ * return: 	node * head - Link List of tagnames
+ * author: 	
  * */
-char *listtags(void)
+node *listtags(void)
 {
- /* OPERATION
-  * Query : get all tagname from TagDetails Table
-  * */
- return 0;
+	node *head=NULL;
+	/* OPERATION
+	 * Query : get all tagname from TagDetails Table
+ 	 * */
+	return head;
 }
 
 /* -------------------- Hashing --------------------- */
 
-/* sethashfile:
- * input: abspath (Absolute Path). It is the path of the file in base file system on which fuse is mounted.
- * return: f_hashkey 
- * operation: Generate hash_key for new file to be added in kwest
+/* sethashfile: Generate hash_key for new file to be added in kwest
+ * param: 	char *abspath - Absolute Path of File
+ * return: 	int f_hashkey
+ * author:	@SG 
  * */
 int sethashfile(char *abspath)
 {
- /* OPERATION
-  * Query : check if file exists in  FileDetails Table
-  * Hash Function to generate new f_hashkey
-  * return f_hashkey
-  * */
- return 0;
+	sqlite3_stmt *stmt=NULL;
+
+	/* Query : check if file exists in FileDetails Table */
+	  
+	strcpy(query,"select f_hashkey from FileDetails where abspath='");
+	strcat(query,abspath);
+	strcat(query,"';");
+
+	retval = sqlite3_prepare_v2(db,query,-1,&stmt,0); 
+	retval = sqlite3_step(stmt);
+
+	if(retval == SQLITE_ROW) {
+		sqlite3_finalize(stmt);
+		return -1;
+	}
+	sqlite3_finalize(stmt); 				
+
+	/* Genererate new hashkey : Increment */
+	strcpy(query,"select max(f_hashkey) from FileDetails;");
+
+	retval = sqlite3_prepare_v2(db,query,-1,&stmt,0); 
+	retval = sqlite3_step(stmt);
+
+	if(retval == SQLITE_ROW) {
+		if((const char*)sqlite3_column_text(stmt,0)==NULL) {
+			if(SQLITE_OK!=sqlite3_finalize(stmt)) 
+				printf("Finalize sethashfile 1 Failed\n");
+			return 1;
+		} else {
+			retval=atoi((const char*)sqlite3_column_text(stmt,0))+1;
+			if(SQLITE_OK!=sqlite3_finalize(stmt)) 
+				printf("Finalize sethashfile 2 Failed\n");
+			return retval;
+		} 
+	}
 }
 
-/* sethashtag:
- * input: tag name string 
- * return: t_hashkey 
- * operation: Generate hash_key for a new tag to be created in kwest
+/* sethashtag: 	Generate hash_key for a new tag to be created in kwest
+ * param: 	char *tagname
+ * return: 	int t_hashkey 
+ * author:	@SG 
  * */
 int sethashtag(char *tagname)
 {
- /* OPERATION
-  * Query : check if tag exists in  TagDetails Table
-  * Hash Function to generate new t_hashkey
-  * return t_hashkey
-  * */
- return 0;
+	sqlite3_stmt *stmt=NULL;  
+
+	/* Query : check if tag exists in TagDetails Table */
+
+	strcpy(query,"select t_hashkey from TagDetails where tagname='");
+	strcat(query,tagname);
+	strcat(query,"';");
+
+	retval = sqlite3_prepare_v2(db,query,-1,&stmt,0); 
+	retval = sqlite3_step(stmt);
+
+	if(retval == SQLITE_ROW) {
+		sqlite3_finalize(stmt);
+		return -1;
+	}
+	sqlite3_finalize(stmt);
+
+    	/* Generate new hashkey : Increment */
+	strcpy(query,"select max(t_hashkey) from TagDetails;");
+
+	retval = sqlite3_prepare_v2(db,query,-1,&stmt,0);
+	retval = sqlite3_step(stmt);
+
+	if(retval == SQLITE_ROW) {
+		if((const char*)sqlite3_column_text(stmt,0)==NULL) { 
+			if(SQLITE_OK!=sqlite3_finalize(stmt)) 
+				printf("Finalize sethashtag 1 Failed\n");
+			return 1;
+		} else {
+			retval=atoi((const char*)sqlite3_column_text(stmt,0))+1;
+			if(SQLITE_OK!=sqlite3_finalize(stmt)) 
+				printf("Finalize sethashtag 2 Failed\n");
+			return retval;
+		}
+	}	
 }
 
-/* gethashfilekey:
- * input: path as string. path can be a filename or a hierarchy of tags it is associated with in kwest.
- * return: f_hashkey 
- * operation: Hash_key for file in kwest
+/* gethashfilekey: Hash_key for file in kwest
+ * param: 	char *abspath - Absolute Path of File
+ * return: 	int f_hashkey 
+ * author:	@SG 
  * */
-int gethashfilekey(char *path)
+int gethashfilekey(char *abspath)
 {
- /* OPERATION
-  * Decode list of tags and filename from path
-  * Query : get f_hashkey from tags & filename	from FileAssociation Table
-  * */
- return 0;
+	sqlite3_stmt *stmt=NULL;
+
+	strcpy(query,"select f_hashkey from FileDetails where abspath='");
+	strcat(query,abspath);
+	strcat(query,"';");
+
+	retval = sqlite3_prepare_v2(db,query,-1,&stmt,0);
+	retval = sqlite3_step(stmt);
+
+	if(retval == SQLITE_ROW) {
+		retval=atoi((const char*)sqlite3_column_text(stmt,0));
+		if(SQLITE_OK!=sqlite3_finalize(stmt)) 
+			printf("Finalize gethashfilekey 1 Failed\n");
+		return retval;
+	}
+	
+	if(SQLITE_OK!=sqlite3_finalize(stmt)) 
+		printf("Finalize gethashfilekey 2 Failed\n");
+	return -1;
 }
 
-/* gethashtagkey:
- * input: tag name string 
- * return: t_hashkey 
- * operation: Hash_key for a tag in kwest
+/* gethashtagkey: Hash_key for a tag in kwest
+ * param: 	char *tagname
+ * return: 	int t_hashkey 
+ * author:	@SG 
  * */
 int gethashtagkey(char *tagname)
 {
- /* OPERATION
-  * Query : get t_hashkey from TagDetails table
-  * */
- return 0;
+	sqlite3_stmt *stmt=NULL;  
+
+	strcpy(query,"select t_hashkey from TagDetails where tagname='");
+	strcat(query,tagname);
+	strcat(query,"';");
+
+	retval = sqlite3_prepare_v2(db,query,-1,&stmt,0);
+	retval = sqlite3_step(stmt);
+
+	if(retval == SQLITE_ROW) {
+		retval=atoi((const char*)sqlite3_column_text(stmt,0));
+		if(SQLITE_OK!=sqlite3_finalize(stmt)) 
+			printf("Finalize gethashtagkey 1 Failed\n");
+		return retval; 
+	}
+
+	if(SQLITE_OK!=sqlite3_finalize(stmt)) 
+		printf("Finalize gethashtagkey 2 Failed\n");
+	return -1;
 }
 
-/* gethashfile:
- * input: hash_key of file 
- * return: filename string 
- * operation: Retrieve filename by its hash_key
+/* gethashfile: Retrieve filename by its hash_key
+ * param: 	int f_hashkey - hash key of file 
+ * return: 	char *filename
+ * author:	@SG 
  * */
 char *gethashfile(int f_hashkey)
 {
- /* OPERATION
-  * Query : Return f_name from FileDetails Table
-  * */
- return 0;
+	char *filename=NULL;
+	sqlite3_stmt *stmt;
+	char query[60];
+
+	char f_hashkeychar[INT_SIZE];
+	sprintf(f_hashkeychar,"%d",f_hashkey);
+
+	strcpy(query,"select abspath from FileDetails where f_hashkey=");
+	strcat(query,f_hashkeychar);
+	strcat(query,";");
+
+	retval = sqlite3_prepare_v2(db,query,-1,&stmt,0);
+	retval = sqlite3_step(stmt);
+	
+	if(retval == SQLITE_ROW)
+		filename=(char*)sqlite3_column_text(stmt,0);
+
+	if(SQLITE_OK!=sqlite3_finalize(stmt)) 
+		printf("Finalize gethashfile Failed\n");	
+	return filename;
 }
 
-/* gethashtag:
- * input: hash_key of tag 
- * return: tag name string 
- * operation: Retrieve tag name by its hash_key
+/* gethashtag: 	Retrieve tag name by its hash_key
+ * param: 	int t_hashkey - hash key of tag 
+ * return: 	char *tagname
+ * author: 	@SG 
  * */
 char *gethashtag(int t_hashkey)
 {
- /* OPERATION
-  * Query : Return tagname from TagDetails Table
-  * */
- return 0;
+	char *tagname=NULL;
+	sqlite3_stmt *stmt;
+	char query[60];
+
+	char t_hashkeychar[INT_SIZE];
+	sprintf(t_hashkeychar,"%d",t_hashkey);
+
+	strcpy(query,"select tagname from TagDetails where t_hashkey=");
+	strcat(query,t_hashkeychar);
+	strcat(query,";");
+
+	retval = sqlite3_prepare_v2(db,query,-1,&stmt,0);
+	retval = sqlite3_step(stmt);
+
+	if(retval == SQLITE_ROW)
+		tagname=(char*)sqlite3_column_text(stmt,0);
+
+	if(SQLITE_OK!=sqlite3_finalize(stmt)) 
+		printf("Finalize gethashtag Failed\n");
+	return tagname;
 }
