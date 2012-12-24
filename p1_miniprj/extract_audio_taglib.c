@@ -30,10 +30,10 @@ int extract_metadata_file(const char* path)
 		
 	TagLib_Tag* tag = taglib_file_tag(file);
 	/* struct METADATA_AUDIO to store audio keywords */
-	/* METADATA_AUDIO.title = */ taglib_tag_title(tag);
-	/* METADATA_AUDIO.artist = */ taglib_tag_artist(tag);
-	/* METADATA_AUDIO.album = */ taglib_tag_album(tag);
-	/* METADATA_AUDIO.genre = */ taglib_tag_genre(tag);
+	printf("%s\n",taglib_tag_title(tag));
+	/* METADATA_AUDIO.artist = */ printf("%s\n",taglib_tag_artist(tag));
+	/* METADATA_AUDIO.album = */ printf("%s\n",taglib_tag_album(tag));
+	/* METADATA_AUDIO.genre = */ printf("%s\n",taglib_tag_genre(tag));
 	
 	_extract_clear_strings(file);	
 	return 0;
@@ -60,10 +60,10 @@ int extract_metadata_fileid(int file_id)
 		
 	TagLib_Tag* tag = taglib_file_tag(file);
 	/* struct METADATA_AUDIO to store audio keywords */
-	/* METADATA_AUDIO.title = */ taglib_tag_title(tag);
-	/* METADATA_AUDIO.artist = */ taglib_tag_artist(tag);
-	/* METADATA_AUDIO.album = */ taglib_tag_album(tag);
-	/* METADATA_AUDIO.genre = */ taglib_tag_genre(tag);
+	/* METADATA_AUDIO.title = */ printf("%s\n",taglib_tag_title(tag));
+	/* METADATA_AUDIO.artist = */ printf("%s\n",taglib_tag_artist(tag));
+	/* METADATA_AUDIO.album = */ printf("%s\n",taglib_tag_album(tag));
+	/* METADATA_AUDIO.genre = */ printf("%s\n",taglib_tag_genre(tag));
 	
 	_extract_clear_strings(file);
 	return 0;
@@ -99,3 +99,14 @@ inline void _extract_clear_strings(TagLib_File* file)
 	return;
 }
 
+int main(int argc, char *argv[])
+{
+	printf("extract audio metadata using taglib_c\n");
+	
+	if(argc == 1) 
+		return 0;
+	
+	printf("arguments: %s",argv[1]);	
+	extract_metadata_file(argv[1]);
+	return 0;
+}
