@@ -4,3 +4,10 @@ int A()
 	test
 	test
 }
+
+int B()
+{
+	test
+}
+
+
