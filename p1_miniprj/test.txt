@@ -1,0 +1,6 @@
+int A()
+{
+	test
+	test
+	test
+}
