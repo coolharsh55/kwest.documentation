@@ -168,16 +168,16 @@ int main(int argc,char *argv[])
 	const char *homedir = pw->pw_dir;
 	const char *musicdir = strdup(strcat((char *)homedir,"/Music"));
 	if(import(musicdir) == IMP_FAIL) return -1;
+
 	/* free((char *)musicdir); */
 	do_this_free(musicdir); /* do this */
-	
-	/* and this */
-	
-	add_association("Music","files",ASSOC_SUBGROUP);
 	
 	/* Establish file-tag associations 
 	 * to tag all audio files under appropriate metadata tag */
 	audio_metadata_associations();
+	
+	/* Import FS */
+	add_association("Music","files",RELATION_SUBGROUP);
 	
 	commit_transaction();
 	
