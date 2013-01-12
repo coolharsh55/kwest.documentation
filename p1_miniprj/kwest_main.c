@@ -168,7 +168,10 @@ int main(int argc,char *argv[])
 	const char *homedir = pw->pw_dir;
 	const char *musicdir = strdup(strcat((char *)homedir,"/Music"));
 	if(import(musicdir) == IMP_FAIL) return -1;
-	free((char *)musicdir);
+	/* free((char *)musicdir); */
+	do_this_free(musicdir); /* do this */
+	
+	
 	
 	add_association("Music","files",ASSOC_SUBGROUP);
 	
