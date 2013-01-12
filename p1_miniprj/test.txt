@@ -14,3 +14,8 @@ int C()
 {
 	test
 }
+
+int D()
+{
+	function
+}
