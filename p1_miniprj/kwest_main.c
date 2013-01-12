@@ -31,8 +31,9 @@
 #include <sys/types.h>
 #include <pwd.h>
 
-#include "dbfunc.h"
+#include "dbbasic.h"
 #include "import.h"
+#include "audio.h"
 
 static int kwest_getattr(const char *path, struct stat *stbuf)
 {
@@ -55,7 +56,7 @@ static int kwest_getattr(const char *path, struct stat *stbuf)
 	tmp = 0;
 	const char *f=strrchr(path,'/');
 	if((tmp=isfile(f+1))>0) { /* file */
-		abspath=get_abspath(path);
+		abspath=get_abspath_by_fname(path);
 		stat(abspath,stbuf);
 		free((char *)abspath);
 		return 0;
@@ -75,8 +76,8 @@ static int kwest_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 		const char *tname;
 		
 		/* Display all tags under audio */
-		ptr=get_association("audio",RELATION_SYSTEM);
-		while((tname=get_data(ptr))!=NULL) { 
+		ptr=get_tags_by_association("root",ASSOC_SUBGROUP);
+		while((tname=string_from_stmt(ptr))!=NULL) { 
 			struct stat st; //struct stat
 			memset(&st, 0, sizeof(st));
 			st.st_mode = S_IFDIR | 0755;
@@ -86,8 +87,8 @@ static int kwest_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 		}
 		
 		/* Display all files under audio */
-		ptr=get_file("audio");
-		while((tname=get_data(ptr))!=NULL) { 
+		ptr=get_fname_under_tag("root");
+		while((tname=string_from_stmt(ptr))!=NULL) { 
 			struct stat st; //struct stat
 			memset(&st, 0, sizeof(st));
 			st.st_mode = S_IFREG | 0444;
@@ -105,20 +106,9 @@ static int kwest_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 			 return -ENOENT;
 		}
 		
-		/* Display System Tags */
-		ptr=get_association(t+1,RELATION_SYSTEM); 
-		while(tag=get_data(ptr)) { /* Get Tags */
-			struct stat st; //struct stat
-			memset(&st, 0, sizeof(st));
-			st.st_mode = S_IFDIR | 0755;
-			if (filler(buf, tag, NULL, 0)) {
-				break;
-			}
-		}
-		
 		/* Display User Tags */
-		ptr=get_association(t+1,RELATION_SUBGROUP); 
-		while(tag=get_data(ptr)) { /* Get Tags */
+		ptr=get_tags_by_association(t+1,ASSOC_SUBGROUP); 
+		while(tag=string_from_stmt(ptr)) { /* Get Tags */
 			struct stat st; //struct stat
 			memset(&st, 0, sizeof(st));
 			st.st_mode = S_IFDIR | 0755;
@@ -128,8 +118,8 @@ static int kwest_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 		}
 		
 		/* Display Files */
-		ptr=get_file(t+1);
-		while(tag=get_data(ptr)) { /* Get Files */ 
+		ptr=get_fname_under_tag(t+1);
+		while(tag=string_from_stmt(ptr)) { /* Get Files */ 
 			struct stat st; //struct stat
 			memset(&st, 0, sizeof(st));
 			st.st_mode = S_IFREG | 0444;
@@ -149,9 +139,8 @@ static int kwest_access(const char *path, int mask)
 static int kwest_unlink(const char *path)
 {
 	char *filename = strrchr(path,'/')+1;
-	const char *abs_path = get_abspath(filename);
-	if(abs_path!=NULL){
-		if(remove_file(abs_path)==KWEST_SUCCESS){
+	if(filename!=NULL){
+		if(remove_file(filename)==KWEST_SUCCESS){
 			return 0;
 		}
 	}
@@ -169,25 +158,10 @@ struct fuse_operations ft_oper = {
 int main(int argc,char *argv[])
 {
 
-	init_db();
+	begin_transaction();
 	create_db();
 	
-	/* Create tags to browse Audio Files */
-	add_tag("audio",SYSTEM_TAG);
-	add_tag("artist",SYSTEM_TAG);
-	add_tag("album",SYSTEM_TAG);
-	add_tag("genre",SYSTEM_TAG);
-	
-	/* Metadata available for Audio Files */
-	add_meta_info("audio","title");
-	add_meta_info("audio","artist");
-	add_meta_info("audio","album");
-	add_meta_info("audio","genre");
-	
-	/* Establish tag-tag associations */
-	add_association("artist","audio",RELATION_SYSTEM);
-	add_association("album","audio",RELATION_SYSTEM);
-	add_association("genre","audio",RELATION_SYSTEM);
+	audio_metadata();
 	
 	/* Include all files under Music Directory in Home */
 	struct passwd *pw = getpwuid(getuid());
@@ -196,14 +170,13 @@ int main(int argc,char *argv[])
 	if(import(musicdir) == IMP_FAIL) return -1;
 	free((char *)musicdir);
 	
+	add_association("Music","files",ASSOC_SUBGROUP);
+	
 	/* Establish file-tag associations 
 	 * to tag all audio files under appropriate metadata tag */
-	system_associations("audio","artist");
-	system_associations("audio","album");
-	system_associations("audio","genre");
+	audio_metadata_associations();
 	
-	close_db();
+	commit_transaction();
 	
-	init_db();
 	return fuse_main(argc, argv, &ft_oper,NULL);
 }
