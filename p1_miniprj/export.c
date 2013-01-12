@@ -1,6 +1,6 @@
 /* EXPORTING SEMANTICS */
 
-/* gcc export.c dbfunc.c extract_audio_taglib.c -o export -lsqlite3 -ltag_c
+/* gcc export.c dbbasic.c dbinit.c dbkey.c extract_audio_taglib.c -o export -lsqlite3 -ltag_c
  * ./export tag_name absolute_path
  */
 
@@ -103,9 +103,9 @@ int export(const char *tag,const char *path)
 	} 
 
 	/* Copy Files in Directory */
-	ptr=get_file_abspath(tag); /* Get Path */
-	while((filepath=get_data(ptr))!=NULL) {
-		filename=strrchr(filepath,'/')+1; /* Filename */
+	ptr=get_fname_under_tag(tag); /* Get Path */
+	while((filename=string_from_stmt(ptr))!=NULL) {
+		filepath=get_abspath_by_fname(filename);
 		if(send_file(filepath,tagpath)==EXPORT_COPY_FAIL){ 
 			printf("Error copying file %s\n",filename);
 		} else {
@@ -114,8 +114,8 @@ int export(const char *tag,const char *path)
 	}
 
 	/* Copy Sub-Directories */
-	ptr=get_association(tag,RELATION_SUBGROUP); /* Get Tag */
-	while((tagname=get_data(ptr))!=NULL) {
+	ptr=get_tags_by_association(tag,ASSOC_SUBGROUP); /* Get Tag */
+	while((tagname=string_from_stmt(ptr))!=NULL) {
 		/* Copy Sub-Directory contents */
 		export(tagname,tagpath); 
 	}
@@ -126,7 +126,6 @@ int export(const char *tag,const char *path)
 int main(int argc,const char *argv[])
 {
 	if(argc<3) return -1;
-	init_db();
 
 	if(export(argv[1],argv[2]) == EXPORT_SUCCESS){
 		printf("Tag Exported\n");
