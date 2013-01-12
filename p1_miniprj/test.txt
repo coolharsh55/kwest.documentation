@@ -10,4 +10,7 @@ int B()
 	test
 }
 
-
+int C()
+{
+	test
+}
