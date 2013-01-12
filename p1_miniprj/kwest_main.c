@@ -171,7 +171,7 @@ int main(int argc,char *argv[])
 	/* free((char *)musicdir); */
 	do_this_free(musicdir); /* do this */
 	
-	
+	/* and this */
 	
 	add_association("Music","files",ASSOC_SUBGROUP);
 	
