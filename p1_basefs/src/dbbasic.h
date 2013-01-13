@@ -21,6 +21,8 @@
 #define DBFUNC_H_INCLUDED
 
 #include <sqlite3.h>
+#include "flags.h"
+
 /* ---------------- ADD/REMOVE -------------------- */
 
 /* add_tag: Create a new tag in kwest
@@ -150,23 +152,6 @@ int is_association_type(int associationid);
  */
 sqlite3_stmt *list_user_tags(void);
 
-/* associate_file_metadata: Form association for metadata in file
- * param: filetype - Type of File
- * param: tag - Metadata Category
- * return: 0 on SUCCESS
- * author: @SG
- */
-int associate_file_metadata(const char *filetype,const char *tag);
-
-/* tag_file_with_metadata: Form association between file and associated metadata
- * param: tag - Metadata Category
- * param: name - Metadata
- * return: 0 on SUCCESS
- * author: @SG
- */
-int tag_file_with_metadata(const char *filetype,const char *tag,
-                           const char *name);
-
 /* string_from_stmt: Returns data for multiple rows is query
  * param: sqlite3_stmt *stmt - statement holding query
  * return: const char* data returned by query
@@ -181,14 +166,14 @@ const char* string_from_stmt(sqlite3_stmt *stmt);
  * return: 1 if tag present
  * author: @SG 
  */
-int istag(const char *t);
+BOOL istag(const char *t);
 
 /* isfile: Check if given file is present in system
  * param: char *f - filename
  * return: 1 if file present
  * author: @SG 
  */
-int isfile(const char *f);
+BOOL isfile(const char *f);
 
 /* get_abspath_by_fname: return absolute path of file
  * param: char *path - kwest path

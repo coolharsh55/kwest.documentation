@@ -20,13 +20,6 @@
 #ifndef DBKEY_H_INCLUDED
 #define DBKEY_H_INCLUDED
 
-#include <stdio.h>
-#include <string.h>
-#include <sqlite3.h>    /* SQLITE Functions */
-
-#include "flags.h"
-#include "dbinit.h"
-
 /* set_file_id: Generate id for new file to be added in kwest
  * param: char *abspath - Absolute Path of File
  * return: int fno

@@ -25,9 +25,12 @@
 #include <unistd.h>     /* Function : getuid */
 #include <errno.h>
 #include <sys/stat.h>
-#include "flags.h"
+
 #include "dbbasic.h"
+
 #include "dbinit.h"
+#include "flags.h"
+#include "magicstrings.h"
 #include "logging.h"
 
 
@@ -60,7 +63,7 @@ sqlite3 *get_kwdb()
 		status = sqlite3_open(kwestdir,&db);
 		
 		if(status != SQLITE_OK) {
-			printf("Database Connection Failed.\n");
+			log_msg("%s\n",DBCFAIL_MSG);
 			return NULL;
 		}
 	}
@@ -107,15 +110,15 @@ int create_db(void)
 	status = sqlite3_exec(get_kwdb(),query,0,0,0);
 
 	/* Possible Tag-Tag Relations */
-	add_association_type("system");
-	add_association_type("probably_related");
-	add_association_type("subgroup");
-	add_association_type("related");
-	add_association_type("not_related");
+	add_association_type(ASSOCN_SYSTEM_STR);
+	add_association_type(ASSOCN_PR_STR);
+	add_association_type(ASSOCN_SUBG_STR);
+	add_association_type(ASSOCN_REL_STR);
+	add_association_type(ASSOCN_NOTREL_STR);
 
-	add_tag("root", SYSTEM_TAG);
-	add_tag("files", SYSTEM_TAG);
-	add_association("files", "root", ASSOC_SUBGROUP);
+	add_tag(TAG_ROOT, SYSTEM_TAG);
+	add_tag(TAG_FILES, SYSTEM_TAG);
+	add_association(TAG_FILES, TAG_ROOT, ASSOC_SUBGROUP);
 	
 	return status;
 }
@@ -131,7 +134,7 @@ int close_db(void)
 	status = sqlite3_close(get_kwdb());
 
 	if (status != SQLITE_OK) {  
-		printf("Error %d: Closing Database\n", status);
+		log_msg("%s\n", DBCLOSE_MSG);
 	}
 
 	return status;

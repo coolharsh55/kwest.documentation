@@ -55,7 +55,6 @@
 #define SYSTEM_TAG_START 1
 
 /* Error Codes */
-#define KWEST_FAIL    -1  /* Operation Failed */
 #define KWEST_TE      -2  /* Tag Exists */
 #define KWEST_TNF     -3  /* Tag Not Found */
 #define KWEST_FE      -4  /* File Exists */

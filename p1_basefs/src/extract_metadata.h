@@ -22,6 +22,4 @@
 
 int audio_metadata(void);
 
-int audio_metadata_associations(void);
-
 #endif

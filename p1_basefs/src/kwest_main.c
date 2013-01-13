@@ -26,13 +26,13 @@
 #include <unistd.h>
 #include "import.h"
 #include "fusefunc.h"
-/* #include "db_consistency.h" */	
+/* #include "db_consistency.h" */
 #include "logging.h"
 #include "flags.h"
 #include "dbinit.h"
 #include "import.h"
 #include "extract_metadata.h"
-
+#include "magicstrings.h"
 
 
 /* kwest main function
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 	
 	audio_metadata();
 	
-	printf("Importing files.........");
+	printf("Importing files.........\n");
 	if(import(musicdir) == KW_SUCCESS) {
 		log_msg("Importing files = SUCCESS\n");
 		printf("...SUCCESS!\n");
@@ -73,13 +73,10 @@ int main(int argc, char *argv[])
 		printf("Exiting program...\n");
 		free((char *)musicdir);
 		return -1;
-	}	
+	}
 	
-	/* Establish file-tag associations 
-	 * to tag all audio files under appropriate metadata tag */
-	audio_metadata_associations();
 	commit_transaction();
-	/*	
+	/*
 	printf("Checking Database consistency.........");
 	if(check_db_consistency() == KW_SUCCESS) {
 		log_msg("Database consistency check = SUCCESS");
@@ -91,7 +88,6 @@ int main(int argc, char *argv[])
 		log_close();
 		return -1;
 	}
-	*/	
+	*/
 	return call_fuse_daemon(argc,argv);
 }
-	

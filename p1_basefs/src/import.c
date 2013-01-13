@@ -24,17 +24,20 @@
  * int add_association(char *t1,char *t2,int associationid)
  */
  
-#include "import.h"
-#include "dbbasic.h" /* Kwest Datadase Functions */
-#include "extract_audio_taglib.h" /* Extract Audio Metadata */ 
-#include "logging.h"
-#include "flags.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <sys/stat.h> /* stat structure */
 #include <dirent.h>   /* DIR */
 #include <sqlite3.h>  /* SQLITE Functions */
+
+#include "dbbasic.h" /* Kwest Datadase Functions */
+#include "extract_audio_taglib.h" /* Extract Audio Metadata */ 
+
+#include "import.h"
+#include "flags.h"
+#include "magicstrings.h"
+#include "logging.h"
 
 /* import_semantics
  * import files and directories into kwest
@@ -117,25 +120,22 @@ static int import_semantics(const char *path,const char *dirname)
  */
 int import(const char *path)
 {
-	const char *dirname = strrchr(path,'/');
+	/* Extract Directory name from path */
+	const char *dirname = strrchr(path,'/') + 1; 
 	
 	log_msg("import: %s\n", path);
-
-	/* Extract Directory name from path */
-	/* begin_transaction(); */
 	
 	/* Create Tag for directory to be imported */
-	if(add_tag(dirname + 1, USER_TAG) == KW_SUCCESS){
-		printf("Creating Tag : %s\n",dirname+1);
+	if(add_tag(dirname, USER_TAG) == KW_SUCCESS){
+		printf("Creating Tag : %s\n",dirname);
+		add_association(dirname, TAG_FILES, ASSOC_SUBGROUP);
 	}
 
-	if (import_semantics(path, dirname + 1) == KW_SUCCESS) {
+	if (import_semantics(path, dirname) == KW_SUCCESS) {
 		printf("Tag(s) Imported\n");
-		/* commit_transaction(); */
 		return KW_SUCCESS;
 	}
 
 	printf("Operation Failed\n");
-	/* commit_transaction(); */
 	return KW_FAIL;
 }

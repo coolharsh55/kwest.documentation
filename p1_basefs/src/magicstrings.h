@@ -35,10 +35,29 @@
 #define ADDT_MSG "Error adding tag : "
 #define REMF_MSG "Error removing file : "
 #define REMT_MSG "Error removing tag : "
+#define PREP_MSG "Error Preparing query"
 
-#define TAG_UNKNOWN "unknown"
+#define DBCFAIL_MSG "Database Connection Failed"
+#define DBCLOSE_MSG "Error Closing Database"
+
 #define DATABASE_STORAGE "/.config/kwest"
 #define DATABASE_NAME "/kwest.db"
 
+#define ASSOCN_SYSTEM_STR "system"
+#define ASSOCN_PR_STR "probably_related"
+#define ASSOCN_SUBG_STR "subgroup"
+#define ASSOCN_REL_STR "related"
+#define ASSOCN_NOTREL_STR "not_related"
+
+#define TAG_ROOT "root"
+#define TAG_FILES "files"
+
+#define TAG_AUDIO "audio"
+#define TAG_TITLE "title"
+#define TAG_ALBUM "album"
+#define TAG_ARTIST "artist"
+#define TAG_GENRE "genre"
+
+#define TAG_UNKNOWN "unknown"
 
 #endif

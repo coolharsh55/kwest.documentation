@@ -31,6 +31,24 @@
 #include "flags.h"
 #include "magicstrings.h"
 
+/* ---------- Local Functions --------------------- */
+
+/* add_metadata_file: Extract and add metadata for file in kwest
+ * param: file ID, absolute path ,file name
+ * return: 0 on SUCCESS
+ * author: @SG
+ */
+static int add_metadata_file(int fno,const char *abspath,char *fname);
+
+/* associate_file_metadata: Form association for metadata in file
+ * param: metatype - Metadata Category
+ * param: tagname - Metadata
+ * peram: fname - File Name 
+ * return: 0 on SUCCESS
+ * author: @SG
+ */
+static int associate_file_metadata(const char *metatype,const char *tagname,
+                            const char *fname);
 
 /* ---------------- ADD/REMOVE -------------------- */
 
@@ -55,7 +73,7 @@ int add_tag(const char *tagname,int tagtype)
 	
 	/* Return if Tag Exists */
 	if(tno == KWEST_TE){
-		return KWEST_TE;
+		return KW_ERROR;
 	} 
 	
 	/* Insert (tno, tagname) in TagDetails Table */
@@ -72,7 +90,7 @@ int add_tag(const char *tagname,int tagtype)
 	}
 	
 	sqlite3_finalize(stmt);
-	return status;
+	return KW_FAIL;
 }
 
 /* remove_tag: Remove an existing tag from kwest 
@@ -89,9 +107,9 @@ int remove_tag(const char *tagname)
 	tno = get_tag_id(tagname); /* Get Tag ID */
 	
 	/* Return if Tag does not Exists */
-	if(tno == KWEST_TNF){ 
-		printf("%s%s\n",TNF_MSG,tagname);
-		return KWEST_TNF;
+	if(tno == KWEST_TNF){
+		log_msg("remove_tag : %s%s\n",TNF_MSG,tagname); 
+		return KW_ERROR;
 	} 
 	
 	/* Remove all Tag-Tag Associations */
@@ -107,7 +125,11 @@ int remove_tag(const char *tagname)
 	sprintf(query,"delete from TagDetails where tno = %d;",tno);
 	status = sqlite3_exec(get_kwdb(),query,0,0,0);
 	
-	return status;
+	if(status == SQLITE_OK){
+		return KW_SUCCESS;
+	}
+	
+	return KW_FAIL;
 }
 
 /* add_file: Add file to kwest
@@ -119,17 +141,15 @@ int add_file(const char *abspath)
 {
 	sqlite3_stmt *stmt;
 	char query[QUERY_SIZE];
-	int status,status_meta;
+	int status;
 	int fno;
 	char *fname;
-	struct METADATA_AUDIO M; /* Structure for holding metadata of a file */
-	void *meta;
 	
 	fno = set_file_id(abspath); /* Call Function to set fno for File */
 	fname = strrchr(abspath,'/')+1;
 	
 	if(fno == KWEST_FE){ /* Return if File already Exists */
-		return KWEST_FE;
+		return KW_ERROR;
 	} 
 	
 	/* Query : Insert (fno, fname, abspath) in FileDetails Table */
@@ -142,39 +162,103 @@ int add_file(const char *abspath)
 	
 	status = sqlite3_step(stmt);
 	if(status != SQLITE_DONE){
-		printf("%s%s\n",ADDF_MSG,fname);
+		log_msg("add_file : %s%s\n",ADDF_MSG,fname);
 		sqlite3_finalize(stmt);
-		return status;
+		return KW_FAIL;
 	}
 	sqlite3_finalize(stmt);
 	
 	/* Get Metadata for file */
-	meta = extract_metadata_file(abspath, &M);
-	if(meta != NULL) {
-		strcpy(query,"INSERT INTO Audio VALUES"
-		             "(:fno,:title,:artist,:album,:genre);");
-		sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0); 
-		
-		sqlite3_bind_int(stmt,1,fno);
-		sqlite3_bind_text(stmt,2,M.title,-1,SQLITE_STATIC);
-		sqlite3_bind_text(stmt,3,M.artist,-1,SQLITE_STATIC);
-		sqlite3_bind_text(stmt,4,M.album,-1,SQLITE_STATIC);
-		sqlite3_bind_text(stmt,5,M.genre,-1,SQLITE_STATIC);
-		
-		status_meta = sqlite3_step(stmt);
-		/* Handle if Error while Adding Metadata */
-		if(status_meta != SQLITE_DONE){
-			printf("%s%s\n",ADDM_MSG,fname);
-		}
-		extract_clear_strings(meta);
-		sqlite3_finalize(stmt);
-	}
+	add_metadata_file(fno,abspath,fname);
 	
-	if(status == SQLITE_DONE && status_meta == SQLITE_DONE){
+	if(status == SQLITE_DONE){
 		return KW_SUCCESS;
 	}
 	
-	return status;
+	return KW_FAIL;
+}
+
+/* add_metadata_file: Extract and add metadata for file in kwest
+ * param: file ID, absolute path ,file name
+ * return: 0 on SUCCESS
+ * author: @SG
+ */
+static int add_metadata_file(int fno,const char *abspath,char *fname)
+{
+	sqlite3_stmt *stmt;
+	char query[QUERY_SIZE];
+	int status;
+	struct METADATA_AUDIO M; /* Structure for holding metadata of a file */
+	void *meta;
+	
+	meta = extract_metadata_file(abspath, &M);
+	if(meta == NULL) {
+		extract_clear_strings(meta);
+		return KW_ERROR;
+	}
+	
+	strcpy(query,"INSERT INTO Audio VALUES"
+	             "(:fno,:title,:artist,:album,:genre);");
+	sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0); 
+	
+	sqlite3_bind_int(stmt,1,fno);
+	sqlite3_bind_text(stmt,2,M.title,-1,SQLITE_STATIC);
+	sqlite3_bind_text(stmt,3,M.artist,-1,SQLITE_STATIC);
+	sqlite3_bind_text(stmt,4,M.album,-1,SQLITE_STATIC);
+	sqlite3_bind_text(stmt,5,M.genre,-1,SQLITE_STATIC);
+	
+	status = sqlite3_step(stmt);
+	
+	if(status == SQLITE_DONE){
+		associate_file_metadata(TAG_ARTIST,M.artist,fname);
+		associate_file_metadata(TAG_ALBUM,M.album,fname);
+		associate_file_metadata(TAG_GENRE,M.genre,fname);
+	} else { /* Handle if Error while Adding Metadata */
+		log_msg("add_metadata_file : %s%s\n",ADDM_MSG,fname);
+	}
+	extract_clear_strings(meta);
+	sqlite3_finalize(stmt);
+	
+	return KW_SUCCESS;
+}
+
+/* associate_file_metadata: Form association for metadata in file
+ * param: metatype - Metadata Category
+ * param: tagname - Metadata
+ * peram: fname - File Name 
+ * return: 0 on SUCCESS
+ * author: @SG
+ */
+static int associate_file_metadata(const char *metatype,const char *tagname,
+                            const char *fname)
+{
+	char *newtag=NULL;
+	
+	/* TODO : Deal with slash */
+	
+	if( (strcmp(tagname,"") == 0) || /* No meta information */ 
+	    (strrchr(tagname,'/')!= NULL) || /* slash in dirname */
+	    (strcmp(metatype,tagname)==0) ||
+	    (strcmp(metatype,TAG_UNKNOWN)==0) ){ 
+		newtag=strdup(TAG_UNKNOWN);
+		newtag=strcat(newtag,metatype);
+		/* Create Tag Unknown */
+		add_tag(newtag,SYSTEM_TAG); 
+		/* Associate Tag Unknown with File Type*/
+		add_association(newtag,metatype,ASSOC_SUBGROUP);
+		/* Tag File to Metadata Tag */
+		tag_file(newtag,fname);
+		free((char *)newtag);
+	} else { /* Metadata Exist */
+		/* Create Tag for Metadata */
+		add_tag(tagname,USER_TAG);
+		/* Associate Metadata tag with File Type */
+		add_association(tagname,metatype,ASSOC_SUBGROUP);
+		/* Tag File to Metadata Tag */
+		tag_file(tagname,fname);
+	}
+	
+	return KW_SUCCESS;
 }
 
 /* remove_file: Remove file form kwest 
@@ -191,13 +275,13 @@ int remove_file(const char *fname)
 	fno = get_file_id(fname); /* Get File ID */
 	
 	if(fno == KWEST_FNF){ /* Return if File does not Exists */
-		printf("%s%s\n",FNF_MSG,fname);
-		return KWEST_FNF;
+		log_msg("remove_file : %s%s\n",FNF_MSG,fname);
+		return KW_ERROR;
 	} 
 	
 	/* Remove File-Tag Associations */
 	sprintf(query,"delete from FileAssociation where fno = %d;",fno);
-	status = sqlite3_exec(get_kwdb(),query,0,0,0); 
+	sqlite3_exec(get_kwdb(),query,0,0,0); 
 	
 	/* Remove File-metadata from Database */
 	sprintf(query,"delete from Audio where fno = %d;",fno);
@@ -207,7 +291,11 @@ int remove_file(const char *fname)
 	sprintf(query,"delete from FileDetails where fno = %d;",fno);
 	status = sqlite3_exec(get_kwdb(),query,0,0,0); 
 	
-	return status;
+	if(status == SQLITE_OK){
+		return KW_SUCCESS;
+	}
+	
+	return KW_FAIL;
 }
 
 /* add_meta_info: Add new category to identify metadata 
@@ -223,16 +311,15 @@ int add_meta_info(const char *filetype,const char *tag)
 	int status;
 	
 	/* Check if info already exists */
-	sprintf(query,
-	      "select count(*) from MetaInfo where filetype = '%s' and tag = '%s';",
-	      filetype,tag);
+	sprintf(query,"select count(*) from MetaInfo where "
+	              "filetype = '%s' and tag = '%s';",filetype,tag);
 	sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0);
 	
 	status = sqlite3_step(stmt);
 	if(status == SQLITE_ROW) {
 		if(atoi((const char*)sqlite3_column_text(stmt,0))>0) {
 			sqlite3_finalize(stmt);
-			return KWEST_IE;
+			return KW_ERROR;
 		}
 	}
 	sqlite3_finalize(stmt);
@@ -241,7 +328,11 @@ int add_meta_info(const char *filetype,const char *tag)
 	sprintf(query,"INSERT INTO MetaInfo VALUES('%s','%s');",filetype,tag);
 	status = sqlite3_exec(get_kwdb(),query,0,0,0);
 	
-	return status;
+	if(status == SQLITE_OK){
+		return KW_SUCCESS;
+	}
+	
+	return KW_FAIL;
 }
 
 /* --------------- Tag-File Relation ------------- */
@@ -261,39 +352,44 @@ int tag_file(const char *t,const char *f)
 	
 	fno = get_file_id(f); /* Get File ID */
 	if(fno == KWEST_FNF){ /* Return if File not found */
-		printf("%s%s\n",FNF_MSG,f);
-		return KWEST_FNF;
+		printf("tag_file : %s%s\n",FNF_MSG,f);
+		return KW_ERROR;
 	}
 	
 	tno = get_tag_id(t); /* Get Tag ID */
 	if(tno == KWEST_TNF){ /* Return if Tag not found */
-		printf("%s%s\n",TNF_MSG,t);
-		return KWEST_TNF;
+		printf("tag_file : %s%s\n",TNF_MSG,t);
+		return KW_ERROR;
 	}
 	
 	/* Query : check if entry exists in File Association Table */
 	sprintf(query,"select fno from FileAssociation where tno = %d;",tno);
 	status = sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0);
 	
-	while(1) { /* Query return all files under tag t */
+	do { /* Query return all files under tag t */
 		status = sqlite3_step(stmt);
 		
 		if(status == SQLITE_ROW) { /* check if f is in tag t */
-			if(fno == atoi((const char*)sqlite3_column_text(stmt,0))){
-				sqlite3_finalize(stmt);
-				return KWEST_IE; /* File is already tagged */
-			}
-		} else if(status == SQLITE_DONE) {
-			break; /* File not yet tagged */
+		      if(fno == atoi((const char*)sqlite3_column_text(stmt,0))){
+			      sqlite3_finalize(stmt);
+			      return KW_ERROR; /* File is already tagged */
+		      }
 		}
-	}
+	}while(status == SQLITE_ROW);
 	sqlite3_finalize(stmt);
 	
 	/* Query : add tno,fno to File Association Table */
-	sprintf(query,"insert into FileAssociation values(%d,%d);",tno,fno);
-	status = sqlite3_exec(get_kwdb(),query,0,0,0);
+	if(status == SQLITE_DONE) { /* File not yet tagged */
+		sprintf(query,"insert into FileAssociation values(%d,%d);"
+		             ,tno,fno);
+		status = sqlite3_exec(get_kwdb(),query,0,0,0);
+		
+		if(status == SQLITE_OK){
+			return KW_SUCCESS;
+		}
+	}
 	
-	return status;
+	return KW_FAIL;
 }
 
 /* untag_file: Remove the existing association between the tag and file
@@ -310,22 +406,26 @@ int untag_file(const char *t,const char *f)
 	
 	fno = get_file_id(f); /* Get File ID */
 	if(fno == KWEST_FNF){ /* Return if File not found */
-		printf("%s%s\n",FNF_MSG,f);
-		return KWEST_FNF;
+		printf("untag_file : %s%s\n",FNF_MSG,f);
+		return KW_ERROR;
 	}
 	
 	tno = get_tag_id(t); /* Get Tag ID */
 	if(tno == KWEST_TNF){ /* Return if Tag not found */
-		printf("%s%s\n",TNF_MSG,t);
-		return KWEST_TNF;
+		printf("untag_file : %s%s\n",TNF_MSG,t);
+		return KW_ERROR;
 	}
 	
 	/* Query to remove File-Tag Association */
-	sprintf(query,"delete from FileAssociation where fno = %d and tno = %d;",
-	        fno,tno);
+	sprintf(query,"delete from FileAssociation where fno = %d and tno = %d;"
+	             ,fno,tno);
 	status = sqlite3_exec(get_kwdb(),query,0,0,0);
 	
-	return status;
+	if(status == SQLITE_OK){
+		return KW_SUCCESS;
+	}
+	
+	return KW_FAIL;
 }
 
 /* get_fname_under_tag: Return list of files associated to given tag 
@@ -342,18 +442,17 @@ sqlite3_stmt *get_fname_under_tag(const char *t)
 	
 	tno = get_tag_id(t); /* Get Tag ID */
 	if(tno == KWEST_TNF){ /* Return if Tag not found */
-		printf("%s%s\n",TNF_MSG,t);
+		log_msg("get_fname_under_tag : %s%s\n",TNF_MSG,t);
 		return NULL;
 	}
 	
 	/* Query to get all files associated with tag t */
-	sprintf(query,
-	        "select fname from FileDetails where fno in"
-	        "(select fno from FileAssociation where tno = %d);",tno);
+	sprintf(query,"select fname from FileDetails where fno in"
+	              "(select fno from FileAssociation where tno = %d);",tno);
 	status = sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0);
 	
 	if(status != SQLITE_OK){ /* Error Preparing query */
-		printf("Error : get_fname_under_tag\n");
+		log_msg("get_fname_under_tag : %s\n",PREP_MSG);
 		return NULL;
 	}
 	
@@ -374,7 +473,7 @@ sqlite3_stmt *get_tags_for_file(const char *f)
 	
 	fno = get_file_id(f); /* Get File ID */
 	if(fno == KWEST_FNF){ /* Return if File not found */
-		printf("%s%s\n",FNF_MSG,f);
+		printf("get_tags_for_file : %s%s\n",FNF_MSG,f);
 		return NULL;
 	}
 	
@@ -384,7 +483,7 @@ sqlite3_stmt *get_tags_for_file(const char *f)
 	status = sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0);
 	
 	if(status != SQLITE_OK){ /* Error Preparing query */
-		printf("Error : get_tags_for_file\n");
+		log_msg("get_tags_for_file : %s\n",PREP_MSG);
 		return NULL;
 	}
 	
@@ -408,25 +507,25 @@ int add_association(const char *t1,const char *t2,int associationid)
 	
 	/* Return if relation Undefined */
 	if(is_association_type(associationid) == 0){ 
-		printf("%s%d\n",RNF_MSG,associationid);
-		return KWEST_RNF;
+		log_msg("add_association : %s%d\n",RNF_MSG,associationid);
+		return KW_ERROR;
 	}
 	
 	t1_id = get_tag_id(t1); /* Get Tag ID for tag t1*/
 	if(t1_id == KWEST_TNF){ /* Return if Tag not found */
-		printf("%s%s\n",TNF_MSG,t1);
-		return KWEST_TNF;
+		log_msg("add_association : %s%s\n",TNF_MSG,t1);
+		return KW_ERROR;
 	}
 	
 	t2_id = get_tag_id(t2); /* Get Tag ID for tag t2*/
 	if(t2_id == KWEST_TNF){ /* Return if Tag not found */
-		printf("%s%s\n",TNF_MSG,t2);
-		return KWEST_TNF;
+		log_msg("add_association : %s%s\n",TNF_MSG,t2);
+		return KW_ERROR;
 	}
 	
 	/* Query : check if entry already exists in TagAssociation Table */
-	if(get_association(t1,t2)!= KWEST_FAIL){
-		return KWEST_IE;
+	if(get_association(t1,t2)!= KW_FAIL){
+		return KW_ERROR;
 	}
 	
 	/* Query : add (t1, t2, associationtype) to TagAssociation Table */
@@ -434,7 +533,11 @@ int add_association(const char *t1,const char *t2,int associationid)
 	        t1_id,t2_id,associationid);
 	status = sqlite3_exec(get_kwdb(),query,0,0,0);
 	
-	return status;
+	if(status == SQLITE_OK){
+		return KW_SUCCESS;
+	}
+	
+	return KW_FAIL;
 }
 
 /* remove_association: Remove the existing association between the two tags 
@@ -451,20 +554,20 @@ int remove_association(const char *t1,const char *t2,int associationid)
 	
 	/* Return if relation Undefined */
 	if(is_association_type(associationid) == 0){ 
-		printf("%s%d\n",RNF_MSG,associationid);
-		return KWEST_RNF;
+		printf("remove_association : %s%d\n",RNF_MSG,associationid);
+		return KW_ERROR;
 	}
 	
 	t1_id = get_tag_id(t1); /* Get Tag ID for tag t1*/
 	if(t1_id == KWEST_TNF){ /* Return if Tag not found */
-		printf("%s%s\n",TNF_MSG,t1);
-		return KWEST_TNF;
+		printf("remove_association : %s%s\n",TNF_MSG,t1);
+		return KW_ERROR;
 	}
 	
 	t2_id = get_tag_id(t2); /* Get Tag ID for tag t2*/
 	if(t2_id == KWEST_TNF){ /* Return if Tag not found */
-		printf("%s%s\n",TNF_MSG,t2);
-		return KWEST_TNF;
+		printf("remove_association : %s%s\n",TNF_MSG,t2);
+		return KW_ERROR;
 	}
 	
 	/* Query to remove association between t1 and t2 */
@@ -473,7 +576,11 @@ int remove_association(const char *t1,const char *t2,int associationid)
 	              t1_id,t2_id,associationid);
 	status = sqlite3_exec(get_kwdb(),query,0,0,0);
 	
-	return status;
+	if(status == SQLITE_OK){
+		return KW_SUCCESS;
+	}
+	
+	return KW_FAIL;
 }
 
 /* get_association: Return type of association between the two tags
@@ -490,20 +597,19 @@ int get_association(const char *t1,const char *t2)
 	
 	t1_id = get_tag_id(t1); /* Get Tag ID for tag t1*/
 	if(t1_id == KWEST_TNF){ /* Return if Tag not found */
-		printf("%s%s\n",TNF_MSG,t1);
-		return KWEST_TNF;
+		log_msg("get_association : %s%s\n",TNF_MSG,t1);
+		return KW_ERROR;
 	}
 	
 	t2_id = get_tag_id(t2); /* Get Tag ID for tag t2*/
 	if(t2_id == KWEST_TNF){ /* Return if Tag not found */
-		printf("%s%s\n",TNF_MSG,t2);
-		return KWEST_TNF;
+		log_msg("get_association : %s%s\n",TNF_MSG,t2);
+		return KW_ERROR;
 	}
 	
 	/* Query to get association between t1 and t2 */
-	sprintf(query,
-	      "select associationid from TagAssociation where t1 = %d and t2 = %d;",
-	        t1_id,t2_id);
+	sprintf(query,"select associationid from TagAssociation where "
+	              "t1 = %d and t2 = %d;",t1_id,t2_id);
 	status = sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0);
 	
 	status = sqlite3_step(stmt);
@@ -514,7 +620,7 @@ int get_association(const char *t1,const char *t2)
 	}
 	
 	sqlite3_finalize(stmt);
-	return KWEST_FAIL; /*No association between tags*/
+	return KW_FAIL; /*No association between tags*/
 }
 
 /* get_tags_by_association: Get tags having association with another tag 
@@ -532,13 +638,13 @@ sqlite3_stmt *get_tags_by_association(const char *t,int associationid)
 	
 	/* Return if relation Undefined */
 	if(is_association_type(associationid) == 0){ 
-		printf("%s%d\n",RNF_MSG,associationid);
+		log_msg("get_tags_by_assocn : %s%d\n",RNF_MSG,associationid);
 		return NULL;
 	}
 	
 	t_id = get_tag_id(t); /* Get Tag ID */
 	if(t_id == KWEST_TNF){ /* Return if Tag not found */
-		printf("%s%s\n",TNF_MSG,t);
+		log_msg("get_tags_by_assocn : %s%s\n",TNF_MSG,t);
 		return NULL;
 	}
 	
@@ -579,7 +685,7 @@ int add_association_type(const char *associationtype)
 	if(status == SQLITE_ROW) {
 		if(atoi((const char*)sqlite3_column_text(stmt,0))!= 0) {
 			sqlite3_finalize(stmt);
-			return KWEST_IE; /* Relation Exists */
+			return KW_ERROR; /* Relation Exists */
 		}
 	}
 	sqlite3_finalize(stmt);
@@ -603,11 +709,14 @@ int add_association_type(const char *associationtype)
 		sprintf(query,"INSERT INTO Associations VALUES(%d,'%s');",
 		        associationid,associationtype);
 		status = sqlite3_exec(get_kwdb(),query,0,0,0);
-		return status;
+		
+		if(status == SQLITE_OK){
+			return KW_SUCCESS;
+		}
 	}
 	
 	sqlite3_finalize(stmt); 
-	return KWEST_FAIL;
+	return KW_FAIL;
 }
 
 /* is_association_type: Check if relation exists
@@ -633,7 +742,7 @@ int is_association_type(int associationid)
 	}
 	
 	sqlite3_finalize(stmt);
-	return KWEST_FAIL;
+	return KW_FAIL;
 
 }
 
@@ -655,115 +764,11 @@ sqlite3_stmt *list_user_tags(void)
 	status = sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0);
 	
 	if(status != SQLITE_OK){ /* Error Preparing query */
-		printf("Error : list_user_tags\n");
+		log_msg("list_user_tags : %s\n",PREP_MSG);
 		return NULL;
 	}
 	
 	return stmt;
-}
-
-/* associate_file_metadata: Form association for metadata in file
- * param: filetype - Type of File
- * param: tag - Metadata Category
- * return: 0 on SUCCESS
- * author: @SG
- */
-int associate_file_metadata(const char *filetype,const char *tag)
-{
-	sqlite3_stmt* stmt;
-	char query[QUERY_SIZE];
-	int status;
-	const char *tmp; /* Hold result of query */
-	char *newtag=NULL;
-	
-	/* Query : get all metadata under metadata-category */
-	sprintf(query,"select %s from %s;",tag,filetype);
-	sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0);
-	
-	while(1){
-		status = sqlite3_step(stmt);
-		if(status == SQLITE_ROW) {
-			tmp = (const char*)sqlite3_column_text(stmt,0);
-			if(strrchr(tmp,'/')!= NULL){ /* Special Character */
-				continue;
-			} 
-			if(strcmp(tmp,"") == 0){ /* No meta information */
-				newtag=strdup(TAG_UNKNOWN);
-				newtag=strcat(newtag,tag);
-				/* Create Tag Unknown */
-				add_tag(newtag,SYSTEM_TAG); 
-				/* Associate Tag Unknown with File Type*/
-				add_association(newtag,tag,ASSOC_SUBGROUP);
-				/* Tag File to Unknown Tag */
-				tag_file_with_metadata(filetype,tag,tmp);
-				free((char *)newtag);
-			} else { /* Metadata Exist */
-				/* Create Tag for Metadata */
-				add_tag(tmp,USER_TAG);
-				/* Associate Metadata tag with File Type */
-				add_association(tmp,tag,ASSOC_SUBGROUP);
-				/* Tag File to Metadata Tag */
-				tag_file_with_metadata(filetype,tag,tmp);
-			}
-		} else if(status == SQLITE_DONE){
-			sqlite3_finalize(stmt);
-			return status;
-		} else {
-			sqlite3_finalize(stmt);
-			return KWEST_FAIL;
-		}
-	}
-	
-	return KWEST_FAIL;
-}
-
-/* tag_file_with_metadata: Form association between file and associated metadata
- * param: tag - Metadata Category
- * param: name - Metadata
- * return: 1 on SUCCESS
- * author: @SG
- */
-int tag_file_with_metadata(const char *filetype,const char *tag,
-                           const char *name)
-{
-	sqlite3_stmt* stmt; 
-	char query[QUERY_SIZE];
-	int status;
-	const char *tmp; /* hold absolute path */
-	char *newtag=NULL;
-	
-	/* Query : get file to be tagged under Metadata Category */
-	sprintf(query,"select fno from %s where %s = :name;",filetype,tag);
-	sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0);
-	sqlite3_bind_text(stmt,1,name,-1,SQLITE_STATIC);
-	
-	while(1){ /* If multile files present under same Metadata Category*/
-		status = sqlite3_step(stmt);
-		
-		if(status == SQLITE_ROW) {
-			tmp = get_file_name( /* Get absolute path */
-			    atoi((const char*)sqlite3_column_text(stmt,0)));
-			if((strcmp(name,"") == 0) || (strcmp(name,tag) == 0)){ 
-				/* No Metadata exist */
-				newtag=strdup(TAG_UNKNOWN);
-				newtag=strcat(newtag,tag);
-				tag_file(newtag,tmp); /* Tag under Unknown */
-				free((char *)newtag);
-			} else {
-				/* Metadata exist */
-				tag_file(name,tmp); /* Tag File to Metadata */
-			}
-			free((char *)tmp);
-		} else if(status == SQLITE_DONE){
-			sqlite3_finalize(stmt);
-			return status;
-		} else {
-			sqlite3_finalize(stmt);
-			return KWEST_FAIL;
-		}
-	}
-	
-	return KWEST_FAIL;
 }
 
 /* string_from_stmt: Returns data for multiple rows is query
@@ -774,8 +779,10 @@ int tag_file_with_metadata(const char *filetype,const char *tag,
 const char* string_from_stmt(sqlite3_stmt *stmt)
 {
 	int status;
+	
 	if(stmt == NULL) {
-		log_msg("string_from_stmt: stmt is NULL");
+		log_msg("string_from_stmt: NULL");
+		return NULL;
 	}
 	
 	status = sqlite3_step(stmt); /* Execute Query */
@@ -794,7 +801,7 @@ const char* string_from_stmt(sqlite3_stmt *stmt)
  * return: 1 if tag present
  * author: @SG 
  */
-int istag(const char *t)
+BOOL istag(const char *t)
 {
 	sqlite3_stmt *stmt;
 	char query[QUERY_SIZE];
@@ -814,7 +821,7 @@ int istag(const char *t)
 	}
 	
 	sqlite3_finalize(stmt);
-	return KWEST_FAIL;
+	return KW_FAIL;
 }
 
 /* isfile: Check if given file is present in system
@@ -822,7 +829,7 @@ int istag(const char *t)
  * return: 1 if file present
  * author: @SG
  */
-int isfile(const char *f)
+BOOL isfile(const char *f)
 {
 	sqlite3_stmt *stmt;
 	char query[QUERY_SIZE];
@@ -842,7 +849,7 @@ int isfile(const char *f)
 	}
 	
 	sqlite3_finalize(stmt);
-	return KWEST_FAIL;
+	return KW_FAIL;
 }
 
 /* get_abspath_by_fname: return absolute path of file
@@ -850,27 +857,17 @@ int isfile(const char *f)
  * return: char * absolute path
  * author: @SG 
  */
-char *get_abspath_by_fname(const char *path)
+char *get_abspath_by_fname(const char *fname)
 {
 	sqlite3_stmt *stmt;
 	char query[QUERY_SIZE];
 	int status;
-	const char *tmp; /* To hold filename */
 	char *abspath;
 	
-	/*TODO: Ckeck if path is valid*/
-	
-	/* Get filename from path */
-	if((tmp = strrchr(path,'/')) == NULL){
-		tmp = path;
-	} else {
-		tmp = tmp+1;
-	}
-	
 	/* Query to get absolute path from file name */
-	strcpy(query,"select abspath from FileDetails where fname = :tmp;");
+	strcpy(query,"select abspath from FileDetails where fname = :fname;");
 	sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0);
-	sqlite3_bind_text(stmt,1,tmp,-1,SQLITE_STATIC);
+	sqlite3_bind_text(stmt,1,fname,-1,SQLITE_STATIC);
 	
 	status = sqlite3_step(stmt);
 	if(status == SQLITE_ROW) {
