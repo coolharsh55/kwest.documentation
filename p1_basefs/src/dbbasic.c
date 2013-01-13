@@ -122,7 +122,7 @@ int add_file(const char *abspath)
 	int status,status_meta;
 	int fno;
 	char *fname;
-	struct METADATA_AUDIO M; /* Structure for holding metadata of a file */
+	struct metadata_audio M; /* Structure for holding metadata of a file */
 	void *meta;
 	
 	fno = set_file_id(abspath); /* Call Function to set fno for File */

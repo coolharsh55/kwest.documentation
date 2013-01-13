@@ -44,7 +44,7 @@ BOOL _is_path_root(const char *path)
 /* get_entry_name
  * get last filename/tagname from path
  */
-static char *get_entry_name(const char *path)
+static const char *get_entry_name(const char *path)
 {
 	return (strrchr(path, '/') + 1);
 }
@@ -179,14 +179,14 @@ int remove_this_file(const char *path)
 {
 	log_msg ("remove_this_file: %s\n",path);
 	
-	char *f=get_entry_name(path);
+	char *f = (char *)get_entry_name(path);
 	log_msg ("filename: %s\n",f);
 	
 	strncpy((char *)path,path,(strlen(path)-strlen(f)+1));
-	char *t=get_entry_name(path);
+	char *t = (char *)get_entry_name(path);
 	log_msg ("tagname: %s\n",t);
 	
-	if(untag_file(t,f)==0) {
+	if(untag_file(t,f) == KW_SUCCESS) {
 	return KW_SUCCESS;
 	}
 	
@@ -204,18 +204,18 @@ int make_directory(const char *path, mode_t mode)
 	
 	log_msg ("make_directory: %s\n",path);
 	
-	newtag=get_entry_name(path);
+	newtag = (char *)get_entry_name(path);
 	log_msg ("new tagname: %s\n",newtag);
 	
-	if(add_tag(newtag,USER_TAG)!=1) {
+	if(add_tag(newtag,USER_TAG) != 1) {
 		return KW_FAIL;
 	}
 
-	strncpy((char *)path,path,(strlen(path)-strlen(newtag)+1));
-	parenttag=get_entry_name(path);
+	strncpy((char *)path, path, (strlen(path)-strlen(newtag) + 1));
+	parenttag = (char *)get_entry_name(path);
 	log_msg ("parent tagname: %s\n",parenttag);
 	
-	if(add_association(newtag,parenttag,ASSOC_SUBGROUP)!=1) {
+	if(add_association(newtag, parenttag, ASSOC_SUBGROUP) != 1) {
 		return KW_FAIL;
 	}
 	
@@ -230,7 +230,7 @@ int remove_directory(const char *path)
 {
 	log_msg ("remove_directory: %s\n",path);
 	
-	if(remove_tag(get_entry_name(path))==0) {
+	if(remove_tag(get_entry_name(path)) == KW_SUCCESS) {
 		return KW_SUCCESS;
 	}
 	

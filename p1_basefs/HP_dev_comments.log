@@ -28,3 +28,8 @@ could have caused problems in the running.
 need to see and search for more such tools as it makes debugging 
 easier and allows the developer to focus more on working code
 rather than spending hours debugging some weird stupid stuff.
+
+	#return code from operations
+the return code for operations is clearly defined in flags.h
+yet, some places contain stray integer values which are actually
+magic numbers

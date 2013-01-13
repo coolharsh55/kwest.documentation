@@ -23,13 +23,21 @@
 #include <taglib/tag_c.h>
 #include <stdio.h>
 
-struct METADATA_AUDIO {
+struct metadata_audio {
 	const char *title;
 	const char *artist;
 	const char *album;
 	const char *genre;
 };
 
+#ifndef METADATA_STRUCTURE
+#define METADATA_STRUCTURE
+	struct metadata 
+	{
+		int argc;
+		char **argv;
+	};
+#endif
 
 /* extract_metadata_file: extract from physical location
  * param: const char* path - path of file
@@ -37,7 +45,7 @@ struct METADATA_AUDIO {
  * author: @HP
  * */
 TagLib_File *extract_metadata_file(const char* path, 
-                                   struct METADATA_AUDIO *M);
+                                   struct metadata_audio *M);
 
 
 /* extract_metadata_fileid: extract from fileid
@@ -47,12 +55,12 @@ TagLib_File *extract_metadata_file(const char* path,
  * */
 int extract_metadata_fileid(int file_id);
 
-/* _is_audio: check if filetype = audio
+/* is_audio: check if filetype = audio
  * param: const char* path - path of file
  * return: 0 AUDIO, 1 NO, -1 ERROR
  * author: @HP
  * */
-int _is_audio(const char* path);
+int is_audio(const char* path);
 
 void extract_clear_strings(TagLib_File* file);
 

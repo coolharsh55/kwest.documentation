@@ -42,7 +42,7 @@ int audio_metadata()
 	add_association("album","audio",ASSOC_SUBGROUP);
 	add_association("genre","audio",ASSOC_SUBGROUP);
 	
-	return 0;
+	return KW_SUCCESS;
 }
 
 int audio_metadata_associations()
@@ -51,5 +51,5 @@ int audio_metadata_associations()
 	associate_file_metadata("audio","album");
 	associate_file_metadata("audio","genre");
 	
-	return 0;
+	return KW_SUCCESS;
 }
