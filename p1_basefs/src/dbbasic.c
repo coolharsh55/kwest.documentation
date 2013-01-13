@@ -188,7 +188,7 @@ static int add_metadata_file(int fno,const char *abspath,char *fname)
 	sqlite3_stmt *stmt;
 	char query[QUERY_SIZE];
 	int status;
-	struct METADATA_AUDIO M; /* Structure for holding metadata of a file */
+	struct metadata_audio M; /* Structure for holding metadata of a file */
 	void *meta;
 	
 	meta = extract_metadata_file(abspath, &M);

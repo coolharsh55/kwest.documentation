@@ -20,6 +20,15 @@
 #ifndef KWEST_EXTRACT_METADATA_H
 #define KWEST_EXTRACT_METADATA_H
 
+#ifndef METADATA_STRUCTURE
+#define METADATA_STRUCTURE
+	struct metadata 
+	{
+		int argc;
+		char **argv;
+	};
+#endif
+
 int audio_metadata(void);
 
 #endif

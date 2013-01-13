@@ -43,5 +43,5 @@ int audio_metadata()
 	add_association(TAG_ALBUM, TAG_AUDIO, ASSOC_SUBGROUP);
 	add_association(TAG_GENRE, TAG_AUDIO, ASSOC_SUBGROUP);
 	
-	return 0;
+	return KW_SUCCESS;
 }
