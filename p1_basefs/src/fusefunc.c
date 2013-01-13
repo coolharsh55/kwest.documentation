@@ -65,7 +65,7 @@ static int kwest_getattr(const char *path, struct stat *stbuf)
 		return 0;
 	} else if(path_is_file(path) == TRUE) {
 		abspath=get_absolute_path(path);
-		stbuf->st_mode= S_IFDIR | KW_STFIL;
+		stbuf->st_mode= S_IFREG | KW_STFIL;
 		if(abspath == NULL) {
 			return -EIO;
 		}
@@ -109,24 +109,23 @@ static int kwest_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 	*/
 	memset(&st, 0, sizeof(st));
 	st.st_mode = S_IFDIR | KW_STDIR;
-	filler(buf, "harsh", NULL, 0);
 	
 	while((direntry = readdir_dirs(path, &ptr)) != NULL) {
 		if (filler(buf, direntry, &st, 0) == 1) {
 			break;
 		}
 	}
-	/*
-	dirdata = NULL; ptr = NULL;
-	memset(&st, 0, sizeof(st));
-	st.st_mode = S_IFDIR | KW_STFIL;
 	
-	while((direntry = readdir_files(path,&st, &ptr)) != NULL) {
+	direntry = NULL; ptr = NULL;
+	memset(&st, 0, sizeof(st));
+	st.st_mode = S_IFREG | KW_STFIL;
+	
+	while((direntry = readdir_files(path, &ptr)) != NULL) {
 		if (filler(buf, direntry, &st, 0) == 1) {
 			break;
 		}
-	}		
-	*/
+	}
+	
 	return 0;
 }
 
@@ -179,16 +178,16 @@ static struct fuse_operations kwest_oper = {
 	/*.open		= kwest_open,
 	.release	= kwest_release,
 	.mknod		= kwest_mknod,
-	.rename		= kwest_rename,	
+	.rename		= kwest_rename,*/
 	.unlink		= kwest_unlink,
-	.read		= kwest_read,
+	/*.read		= kwest_read,
 	.write		= kwest_write,
 	.chmod		= kwest_chmod,
 	.chown		= kwest_chown,*/
 
 /* DIRECTORY RELATED FILESYSTEM OPERATIONS */
-	/*.mkdir		= kwest_mkdir,
-	.rmdir		= kwest_rmdir,*/
+	.mkdir		= kwest_mkdir,
+	.rmdir		= kwest_rmdir,
 
 /* NOT IMPLEMENTED */
 /*	.symlink	= kwest_symlink, */

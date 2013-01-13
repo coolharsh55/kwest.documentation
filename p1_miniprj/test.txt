@@ -5,13 +5,10 @@ int A()
 	test
 }
 
-int B()
-{
-	test
-}
 
 int C()
 {
+	test
 	test
 }
 

@@ -91,7 +91,7 @@ char *readdir_dirs(const char *path, void **ptr);
  * @return char * as file entry
  * @author @HP
  */
-char *readdir_files(const char *path);
+char *readdir_files(const char *path, void **ptr);
 
 
 /* get_newfile_path

@@ -29,6 +29,7 @@
 #include "dbbasic.h"
 #include "logging.h"
 #include "flags.h"
+#include "magicstrings.h"
 
 
 /* ---------------- ADD/REMOVE -------------------- */
@@ -673,6 +674,7 @@ int associate_file_metadata(const char *filetype,const char *tag)
 	char query[QUERY_SIZE];
 	int status;
 	const char *tmp; /* Hold result of query */
+	char *newtag=NULL;
 	
 	/* Query : get all metadata under metadata-category */
 	sprintf(query,"select %s from %s;",tag,filetype);
@@ -686,12 +688,15 @@ int associate_file_metadata(const char *filetype,const char *tag)
 				continue;
 			} 
 			if(strcmp(tmp,"") == 0){ /* No meta information */
+				newtag=strdup(TAG_UNKNOWN);
+				newtag=strcat(newtag,tag);
 				/* Create Tag Unknown */
-				add_tag(TAG_UNKNOWN,SYSTEM_TAG); 
+				add_tag(newtag,SYSTEM_TAG); 
 				/* Associate Tag Unknown with File Type*/
-				add_association(TAG_UNKNOWN,tag,ASSOC_SUBGROUP);
+				add_association(newtag,tag,ASSOC_SUBGROUP);
 				/* Tag File to Unknown Tag */
 				tag_file_with_metadata(filetype,tag,tmp);
+				free((char *)newtag);
 			} else { /* Metadata Exist */
 				/* Create Tag for Metadata */
 				add_tag(tmp,USER_TAG);
@@ -725,6 +730,7 @@ int tag_file_with_metadata(const char *filetype,const char *tag,
 	char query[QUERY_SIZE];
 	int status;
 	const char *tmp; /* hold absolute path */
+	char *newtag=NULL;
 	
 	/* Query : get file to be tagged under Metadata Category */
 	sprintf(query,"select fno from %s where %s = :name;",filetype,tag);
@@ -739,7 +745,10 @@ int tag_file_with_metadata(const char *filetype,const char *tag,
 			    atoi((const char*)sqlite3_column_text(stmt,0)));
 			if((strcmp(name,"") == 0) || (strcmp(name,tag) == 0)){ 
 				/* No Metadata exist */
-				tag_file(TAG_UNKNOWN,tmp); /* Tag under Unknown */
+				newtag=strdup(TAG_UNKNOWN);
+				newtag=strcat(newtag,tag);
+				tag_file(newtag,tmp); /* Tag under Unknown */
+				free((char *)newtag);
 			} else {
 				/* Metadata exist */
 				tag_file(name,tmp); /* Tag File to Metadata */
@@ -875,19 +884,24 @@ char *get_abspath_by_fname(const char *path)
 }
 
 int check_path(const char *path)
-{ /*
+{
+	/*
 	char *tmp = path+1;
 	char *tag1,*tag2;
-	int ass;
+	int assocn;
 	
 	while((tag1 = strchr(tmp,'/')) != NULL)
 	{
-		tmp = strchr(tmp,'/');
+		tmp = strchr(tmp,'/')+1;
 		tag2 = strchr(tmp,'/');
-		if(tag2 == NULL) 
-		ass = get_association(tag1,tag2);
-		if(ass<0) return 0; 
+		if(tag2 == NULL){
+			if(istag(tag1)==1) {
+				return 1;
+			}
+		} 
+		assocn = get_association(tag1,tag2);
+		if(assocn < 0) return 0; 
 	}
-*/
-	return 0;
+	*/
+	return 1;
 }

@@ -48,7 +48,6 @@ static char *get_entry_name(const char *path)
 {
 	return (strrchr(path, '/') + 1);
 }
-	
 
 
 /* check_path_validity
@@ -57,11 +56,11 @@ static char *get_entry_name(const char *path)
 int check_path_validity(const char *path)
 {
 	/* @TODO
-	 * write check_path_validity for FILES
 	 * check associations between consecutive dir entries
 	 */
-	if(istag(get_entry_name(path)) == TRUE)
-	{
+	if(istag(get_entry_name(path)) == TRUE) {
+		return KW_SUCCESS;
+	} else if(isfile(get_entry_name(path)) == TRUE) {
 		return KW_SUCCESS;
 	} else {
 		return -ENOENT;	
@@ -75,7 +74,7 @@ int check_path_validity(const char *path)
  */
 BOOL path_is_dir(const char *path)
 {
-	if(istag(get_entry_name(path)) == FALSE)
+	if(istag(get_entry_name(path)) != TRUE)
 		return FALSE;
 	return TRUE;
 }
@@ -86,7 +85,7 @@ BOOL path_is_dir(const char *path)
  */
 BOOL path_is_file(const char *path)
 {
-	if(isfile(get_entry_name(path)) == FALSE) {
+	if(isfile(get_entry_name(path)) != TRUE) {
 		return FALSE;
 	}
 	
@@ -99,7 +98,7 @@ BOOL path_is_file(const char *path)
  */
 const char *get_absolute_path(const char *path)
 {
-	return get_abspath_by_fname(path);
+	return get_abspath_by_fname(get_entry_name(path));
 }
 
 
@@ -107,7 +106,7 @@ const char *get_absolute_path(const char *path)
  * get directory entries for said path
  */
 char *readdir_dirs(const char *path, void **ptr)
-{		
+{
 	log_msg ("readdir_dirs: %s\n",path);
 	if(*ptr == NULL) {
 		log_msg("ptr is NULL\n");
@@ -126,15 +125,30 @@ char *readdir_dirs(const char *path, void **ptr)
 	
 	return (char *)string_from_stmt(*ptr);
 }
-	
 
 
 /* readdir_files
  * get file entries for said path
  */
-char *readdir_files(const char *path)
+char *readdir_files(const char *path, void **ptr)
 {
-	return KW_RETURN_ERROR;
+	log_msg ("readdir_files: %s\n",path);
+	if(*ptr == NULL) {
+		log_msg("ptr is NULL\n");
+		if(*(path + 1) == '\0') {
+			log_msg("path is ROOT\n");
+			*ptr = get_fname_under_tag("root");
+		} else {
+			const char *t = strrchr(path,'/');
+			*ptr = get_fname_under_tag(t + 1); 
+		}
+		if(*ptr == NULL) {
+			log_msg("pointer p is NULL\n");
+			return NULL;
+		}
+	}
+	
+	return (char *)string_from_stmt(*ptr);
 }
 
 
@@ -163,8 +177,19 @@ int rename_file(const char *from, const char *to)
  */
 int remove_this_file(const char *path)
 {
+	log_msg ("remove_this_file: %s\n",path);
+	
+	char *f=get_entry_name(path);
+	log_msg ("filename: %s\n",f);
+	
+	strncpy((char *)path,path,(strlen(path)-strlen(f)+1));
+	char *t=get_entry_name(path);
+	log_msg ("tagname: %s\n",t);
+	
+	if(untag_file(t,f)==0) {
 	return KW_SUCCESS;
-
+	}
+	
 	return KW_FAIL;
 }
 
@@ -174,9 +199,27 @@ int remove_this_file(const char *path)
  */
 int make_directory(const char *path, mode_t mode)
 {
-	return KW_SUCCESS;
+	char *newtag;
+	char *parenttag;
+	
+	log_msg ("make_directory: %s\n",path);
+	
+	newtag=get_entry_name(path);
+	log_msg ("new tagname: %s\n",newtag);
+	
+	if(add_tag(newtag,USER_TAG)!=1) {
+		return KW_FAIL;
+	}
 
-	return KW_FAIL;
+	strncpy((char *)path,path,(strlen(path)-strlen(newtag)+1));
+	parenttag=get_entry_name(path);
+	log_msg ("parent tagname: %s\n",parenttag);
+	
+	if(add_association(newtag,parenttag,ASSOC_SUBGROUP)!=1) {
+		return KW_FAIL;
+	}
+	
+	return KW_SUCCESS;
 }
 
 
@@ -185,7 +228,11 @@ int make_directory(const char *path, mode_t mode)
  */
 int remove_directory(const char *path)
 {
-	return KW_SUCCESS;
-
+	log_msg ("remove_directory: %s\n",path);
+	
+	if(remove_tag(get_entry_name(path))==0) {
+		return KW_SUCCESS;
+	}
+	
 	return KW_FAIL;
 }
