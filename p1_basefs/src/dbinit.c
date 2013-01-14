@@ -53,7 +53,7 @@ sqlite3 *get_kwdb()
 		/* Set path for database file to /home/user/.config */
 		pw = getpwuid(getuid());
 		homedir = pw->pw_dir; /* initial working directory */
-		strcpy(kwestdir,strcat((char *)homedir,DATABASE_STORAGE));
+		strcpy(kwestdir,strcat((char *)homedir,CONFIG_LOCATION));
 		
 		if(mkdir(kwestdir, KW_STDIR) == -1 && errno != EEXIST) {
 			return NULL;
@@ -63,7 +63,8 @@ sqlite3 *get_kwdb()
 		status = sqlite3_open(kwestdir,&db);
 		
 		if(status != SQLITE_OK) {
-			log_msg("%s\n",DBCFAIL_MSG);
+			printf("DB INIT FAIL!!!\n");
+			log_msg("%s\n",ERR_DB_CONN);
 			return NULL;
 		}
 	}
@@ -110,11 +111,11 @@ int create_db(void)
 	status = sqlite3_exec(get_kwdb(),query,0,0,0);
 
 	/* Possible Tag-Tag Relations */
-	add_association_type(ASSOCN_SYSTEM_STR);
-	add_association_type(ASSOCN_PR_STR);
-	add_association_type(ASSOCN_SUBG_STR);
-	add_association_type(ASSOCN_REL_STR);
-	add_association_type(ASSOCN_NOTREL_STR);
+	add_association_type(ASSOC_SYSTEM);
+	add_association_type(ASSOC_PROBAB);
+	add_association_type(ASSOC_SUBGRP);
+	add_association_type(ASSOC_RELATD);
+	add_association_type(ASSOC_NOTREL);
 
 	add_tag(TAG_ROOT, SYSTEM_TAG);
 	add_tag(TAG_FILES, SYSTEM_TAG);
@@ -134,7 +135,7 @@ int close_db(void)
 	status = sqlite3_close(get_kwdb());
 
 	if (status != SQLITE_OK) {  
-		log_msg("%s\n", DBCLOSE_MSG);
+		log_msg("%s\n", ERR_DB_CLOSE);
 	}
 
 	return status;

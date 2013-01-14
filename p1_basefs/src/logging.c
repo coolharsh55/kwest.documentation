@@ -20,6 +20,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <sys/stat.h>
+#include <pwd.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "logging.h"
 #include "flags.h"
@@ -33,7 +37,20 @@
  */
 int log_init(void)
 {
-	logfile = fopen("kwest.log","w");
+	struct passwd *pw;
+	const char *homedir;
+	char kwestdir[QUERY_SIZE];
+	
+	/* Set path for database file to /home/user/.config */
+	pw = getpwuid(getuid());
+	homedir = pw->pw_dir; /* initial working directory */
+	strcpy(kwestdir,strcat((char *)homedir,CONFIG_LOCATION));
+	
+	if(mkdir(kwestdir, KW_STDIR) == -1 && errno != EEXIST) {
+		return KW_FAIL;
+	} 
+	strcat(kwestdir, LOGFILE_STORAGE);
+	logfile = fopen(kwestdir,"w");
 	if(logfile == NULL) {
 		return KW_FAIL;
 	}

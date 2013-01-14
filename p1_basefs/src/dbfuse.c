@@ -25,6 +25,7 @@
 
 #include <string.h>
 #include <sys/stat.h>
+#include <stdlib.h>
 
 
 /* log_init
@@ -58,6 +59,9 @@ int check_path_validity(const char *path)
 	/* @TODO
 	 * check associations between consecutive dir entries
 	 */
+	if(*(path + 1) == '\0') {
+		return KW_SUCCESS;
+	}
 	if(istag(get_entry_name(path)) == TRUE) {
 		return KW_SUCCESS;
 	} else if(isfile(get_entry_name(path)) == TRUE) {
@@ -177,18 +181,31 @@ int rename_file(const char *from, const char *to)
  */
 int remove_this_file(const char *path)
 {
-	log_msg ("remove_this_file: %s\n",path);
 	
-	char *f = (char *)get_entry_name(path);
-	log_msg ("filename: %s\n",f);
+	char *filename = (char *)get_entry_name(path);
+	char *tptr = filename -2;
+	while(*tptr != '/') tptr--;
+	tptr++;
 	
-	strncpy((char *)path,path,(strlen(path)-strlen(f)+1));
-	char *t = (char *)get_entry_name(path);
-	log_msg ("tagname: %s\n",t);
-	
-	if(untag_file(t,f) == KW_SUCCESS) {
-	return KW_SUCCESS;
+	char *tagname = malloc(filename - tptr);
+	char *t2 = tagname;
+	while(*tptr != '/') {
+		*t2 = *tptr;
+		t2++; tptr++;
 	}
+	*t2 = '\0';
+	
+	log_msg ("remove_this_file: %s\n",path);	
+	log_msg ("filename: %s\n",filename);
+	log_msg("tagname: %s\n", tagname);
+	
+	if(untag_file(tagname, filename) == KW_SUCCESS) {
+		log_msg("untag file successful\n");
+		free(tagname);
+		return KW_SUCCESS;
+	}
+	free(tagname);
+	log_msg("untag file has failed\n");
 	
 	return KW_FAIL;
 }

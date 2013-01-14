@@ -44,12 +44,10 @@ int main(int argc, char *argv[])
 	const char *musicdir = strdup(strcat((char *)homedir,"/Music"));
 	
 	printf("KWEST - A Semantically Tagged Virtual File System\n");
-	printf("version xx.xx.xx\n");
 	
 	printf("Initiating logging file(s).........");
 	if(log_init() == KW_SUCCESS) {
 		log_msg("KWEST - A Semantically Tagged Virtual File System\n");
-		log_msg("version xx.xx.xx\n");
 		log_msg("program initiated\n");
 		printf("SUCCESS!\n");
 	} else {
@@ -76,18 +74,6 @@ int main(int argc, char *argv[])
 	}
 	
 	commit_transaction();
-	/*
-	printf("Checking Database consistency.........");
-	if(check_db_consistency() == KW_SUCCESS) {
-		log_msg("Database consistency check = SUCCESS");
-		printf("SUCCESS!\n");
-	} else {
-		log_msg("Database consistency check = FAILED");
-		printf("FAILED\n");
-		printf("Exiting program...\n");
-		log_close();
-		return -1;
-	}
-	*/
+	
 	return call_fuse_daemon(argc,argv);
 }

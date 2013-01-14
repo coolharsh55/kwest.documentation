@@ -55,12 +55,7 @@
 #define SYSTEM_TAG_START 1
 
 /* Error Codes */
-#define KWEST_TE      -2  /* Tag Exists */
-#define KWEST_TNF     -3  /* Tag Not Found */
-#define KWEST_FE      -4  /* File Exists */
-#define KWEST_FNF     -5  /* File Not Found */
-#define KWEST_RNF     -6  /* Relation Not Found */
-#define KWEST_IE      -7  /* Information Exists */
+
 
 /* Tag-Tag Association Types */
 #define ASSOC_PROBABLY_RELATED 1

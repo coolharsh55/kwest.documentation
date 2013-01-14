@@ -49,6 +49,7 @@ static int kwest_getattr(const char *path, struct stat *stbuf)
 	log_msg("getattribute: %s\n",path);
 	
 	if(_is_path_root(path) == TRUE) {
+		log_msg("PATH IS ROOT\n");
 		stbuf->st_mode= S_IFDIR | KW_STDIR;
 		stbuf->st_nlink=1;
 		return 0;
@@ -100,8 +101,8 @@ static int kwest_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 	struct stat st;
 	log_msg("readdir: %s\n",path);
 	
-	(void) offset;
-	(void) fi;
+	(void *) offset;
+	(void *) fi;
 	/*
 	if(check_path_validity(path) != KW_SUCCESS) {
 		return -ENOENT;
@@ -141,11 +142,17 @@ static int kwest_access(const char *path, int mask)
 {
 	int res;
 	const char *abspath = NULL;
-	log_msg("getattribute: %s\n",path);
+	log_msg("access: %s\n",path);
+	
+	return 0; 
+	/* for time being */
 	
 	if(check_path_validity(path) != KW_SUCCESS) {
 		log_msg("PATH NOT VALID\n");
 		return -ENOENT;
+	}
+	if(*(path + 1) == '\0') {
+		return 0;
 	}
 	
 	abspath = get_absolute_path(path);

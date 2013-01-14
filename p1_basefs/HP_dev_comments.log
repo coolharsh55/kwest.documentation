@@ -31,5 +31,4 @@ rather than spending hours debugging some weird stupid stuff.
 
 	#return code from operations
 the return code for operations is clearly defined in flags.h
-yet, some places contain stray integer values which are actually
-magic numbers
+yet, some places contain stray integer values which are actually magic numbers

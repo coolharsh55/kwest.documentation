@@ -37,12 +37,12 @@
 		return -ENOENT;
 	}
 	
-	abspath = get_absolute_path(path);
+	abspath = get_absolute_path(path); /* get absolute path on disk */
 	if(abspath == NULL) {
 		return -EIO;
 	}
 	
-	res = open(abspath, fi->flags);
+	res = open(abspath, fi->flags); /* open system call */
 	if (res == -1) {
 		return -errno;
 	}
@@ -66,8 +66,8 @@ static int kwest_release(const char *path, struct fuse_file_info *fi)
 	   unimplemented */
 	log_msg("release: %s\n",path);
 	
-	(void) path;
-	(void) fi;
+	(void *) path;
+	(void *) fi;
 	return 0;
 }
 
@@ -93,19 +93,19 @@ static int kwest_mknod(const char *path, mode_t mode, dev_t rdev)
 		return -ENOENT;
 	}
 	
-	newfilepath = get_newfile_path(path);
-	if(newfilepath == NULL) {
+	newfilepath = get_newfile_path(path); /* where should the new file */
+	if(newfilepath == NULL) {                     /* be stored */
 		return -EIO;
 	}
 
-	if (S_ISREG(mode)) {
+	if (S_ISREG(mode)) { /* check permissions */
 		res = open(newfilepath, O_CREAT | O_EXCL | O_WRONLY, mode);
-		if (res >= 0)
+		if (res >= 0) /* call system calls to create file */
 			res = close(res);
 	} else {
-		if (S_ISFIFO(mode)) {
+		if (S_ISFIFO(mode)) { /* file is a pipe */
 			res = mkfifo(newfilepath, mode);
-		} else {
+		} else { /* its a file */
 			res = mknod(newfilepath, mode, rdev);
 		}
 	}
@@ -177,7 +177,7 @@ static int kwest_read(const char *path, char *buf, size_t size, off_t offset,
 	int res = 0;
 	const char *abspath = NULL;
 	
-	(void) fi;
+	(void *) fi;
 	log_msg ("read: %s\n",path);
 	
 	if(check_path_validity(path) != KW_SUCCESS) {
@@ -190,12 +190,12 @@ static int kwest_read(const char *path, char *buf, size_t size, off_t offset,
 		return -EIO;
 	}
 
-	fd = open(abspath, O_RDONLY);
+	fd = open(abspath, O_RDONLY); /* open file for reading */
 	if (fd == -1) {
 		return -errno;
 	}
 
-	res = pread(fd, buf, size, offset);
+	res = pread(fd, buf, size, offset); /* pread doesn't lock file */
 	if (res == -1) {
 		res = -errno;
 	}
@@ -223,7 +223,7 @@ static int kwest_write(const char *path, const char *buf, size_t size,
 	int res = 0;
 	const char *abspath = NULL;
 	
-	(void) fi;
+	(void *) fi;
 	log_msg ("write: %s\n",path);
 	
 	if(check_path_validity(path) != KW_SUCCESS) {
@@ -236,12 +236,12 @@ static int kwest_write(const char *path, const char *buf, size_t size,
 		return -EIO;
 	}
 
-	fd = open(abspath, O_WRONLY);
+	fd = open(abspath, O_WRONLY); /* open file for writing */
 	if (fd == -1) {
 		return -errno;
 	}
 	
-	res = pwrite(fd, buf, size, offset);
+	res = pwrite(fd, buf, size, offset); /* pwrite system call */
 	if (res == -1) {
 		res = -errno;
 	}
@@ -275,7 +275,7 @@ static int kwest_chmod(const char *path, mode_t mode)
 	if(abspath == NULL) {
 		return -EIO;
 	}
-
+	/* get absolute path, pass to syscall chmod */
 	res = chmod(abspath, mode);
 	if (res == -1) {
 		return -errno;
@@ -310,7 +310,7 @@ static int kwest_chown(const char *path, uid_t uid, gid_t gid)
 	if(abspath == NULL) {
 		return -EIO;
 	}
-	
+	/* get absolute path, pass to syscall lchown */
 	res = lchown(abspath, uid, gid);
 	if (res == -1)
 		return -errno;

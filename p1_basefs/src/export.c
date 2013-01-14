@@ -129,11 +129,11 @@ int main(int argc,const char *argv[])
 
 	if(export(argv[1],argv[2]) == EXPORT_SUCCESS){
 		printf("Tag Exported\n");
-		close_db(void);
+		close_db();
 		return EXPORT_SUCCESS;
 	}
 
 	printf("Operation Failed\n");
-	close_db(void); 
+	close_db(); 
 	return EXPORT_FAIL;
 }

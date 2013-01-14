@@ -23,7 +23,7 @@
 
 /* metadata_audio_fields
  */
-struct metadata metadata_audio_fields()
+struct metadata audio_fields()
 {
 	struct metadata M;
 	M.argc = 4;
