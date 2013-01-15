@@ -4,3 +4,7 @@ working: ls cd rm rmdir
 fixed some memory leaks
 refactored code to reduce redundancy
 fixed multiple/duplicate flags
+
+**2012 Jan 15**
+fixed code for mkdir, added code for rename_file function
+working: ls cd rm rmdir mkdir
