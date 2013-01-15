@@ -112,7 +112,7 @@ const char *get_newfile_path(const char *path);
  * @return KW_SUCCESS: SUCCESS, KW_FAIL: FAIL, KW_ERROR: ERROR
  * @author @HP
  */
-int rename_file(const char *from, const char *to);
+int rename_this_file(const char *from, const char *to);
 
 
 /* remove_file

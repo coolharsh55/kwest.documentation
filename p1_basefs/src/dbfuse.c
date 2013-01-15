@@ -4,6 +4,7 @@
 
 /* LICENSE
  * Copyright 2013 Harshvardhan Pandit
+ * Copyright 2013 Sahil Gupta
  * Licensed under the Apache License, Version 2.0 (the "License");
  * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -168,11 +169,9 @@ const char *get_newfile_path(const char *path)
 /* rename_file
  * rename the said file from -> to
  */
-int rename_file(const char *from, const char *to)
+int rename_this_file(const char *from, const char *to)
 {
-	return KW_SUCCESS;
-
-	return KW_FAIL;
+	return rename_file(from,to);
 }
 
 
@@ -195,7 +194,7 @@ int remove_this_file(const char *path)
 	}
 	*t2 = '\0';
 	
-	log_msg ("remove_this_file: %s\n",path);	
+	log_msg ("remove_this_file: %s\n",path);
 	log_msg ("filename: %s\n",filename);
 	log_msg("tagname: %s\n", tagname);
 	
@@ -217,25 +216,33 @@ int remove_this_file(const char *path)
 int make_directory(const char *path, mode_t mode)
 {
 	char *newtag;
-	char *parenttag;
 	
 	log_msg ("make_directory: %s\n",path);
-	
 	newtag = (char *)get_entry_name(path);
-	log_msg ("new tagname: %s\n",newtag);
 	
-	if(add_tag(newtag,USER_TAG) != 1) {
-		return KW_FAIL;
-	}
-
-	strncpy((char *)path, path, (strlen(path)-strlen(newtag) + 1));
-	parenttag = (char *)get_entry_name(path);
-	log_msg ("parent tagname: %s\n",parenttag);
-	
-	if(add_association(newtag, parenttag, ASSOC_SUBGROUP) != 1) {
+	if(add_tag(newtag,USER_TAG) != KW_SUCCESS) {
+		log_msg ("make_directory: failed to add tag %s\n",newtag);
 		return KW_FAIL;
 	}
 	
+	char *tptr = newtag -2;
+	while(*tptr != '/') tptr--;
+	tptr++;
+	
+	char *parenttag = malloc(newtag - tptr);
+	char *t2 = parenttag;
+	while(*tptr != '/') {
+		*t2 = *tptr;
+		t2++; tptr++;
+	}
+	*t2 = '\0';
+	
+	if(add_association(newtag, parenttag, ASSOC_SUBGROUP) != KW_SUCCESS) {
+		log_msg ("make_directory: failed to add association \n");
+		return KW_FAIL;
+	}
+	
+	log_msg ("make_directory: success\n");
 	return KW_SUCCESS;
 }
 

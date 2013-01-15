@@ -36,6 +36,7 @@
 #define ERR_REMV_FILE "Error removing file : "
 #define ERR_REMV_TAG "Error removing tag : "
 #define ERR_PREP_QUERY "Error Preparing query"
+#define ERR_RENAMING_FILE "Error renaming file : "
 
 #define ERR_DB_CONN "Database Connection Failed"
 #define ERR_DB_CLOSE "Error Closing Database"

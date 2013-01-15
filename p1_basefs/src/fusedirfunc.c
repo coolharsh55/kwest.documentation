@@ -29,7 +29,7 @@
 {
 	log_msg("mkdir: %s\n",path);
 
-	if(check_path_validity(path) != KW_SUCCESS) {
+	if(check_path_validity(path) == KW_SUCCESS) {
 		log_msg("PATH NOT VALID\n");
 		return -ENOENT;
 	}

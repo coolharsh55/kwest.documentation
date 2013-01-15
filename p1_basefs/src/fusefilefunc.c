@@ -134,7 +134,7 @@ static int kwest_rename(const char *from, const char *to)
 		return -ENOENT;
 	}
 	
-	return rename_file(from, to);
+	return rename_this_file(from, to);
 }
 
 

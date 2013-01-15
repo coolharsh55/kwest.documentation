@@ -182,4 +182,12 @@ BOOL isfile(const char *f);
  */
 char *get_abspath_by_fname(const char *path);
 
+/* rename_file: rename file existing in kwest
+ * param: char *from - existing name of file
+ * param: char *to - new name of file
+ * return: KW_SUCCESS, KW_ERROR, KW_FAIL
+ * author: @SG 
+ */
+int rename_file(const char *from, const char *to);
+
 #endif

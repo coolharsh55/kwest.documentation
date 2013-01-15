@@ -184,8 +184,8 @@ static struct fuse_operations kwest_oper = {
 /* FILE RELATED FILESYSTEM OPERATIONS */
 	/*.open		= kwest_open,
 	.release	= kwest_release,
-	.mknod		= kwest_mknod,
-	.rename		= kwest_rename,*/
+	.mknod		= kwest_mknod,*/
+	.rename		= kwest_rename,
 	.unlink		= kwest_unlink,
 	/*.read		= kwest_read,
 	.write		= kwest_write,

@@ -884,25 +884,42 @@ char *get_abspath_by_fname(const char *fname)
 	return NULL;
 }
 
-int check_path(const char *path)
+/* rename_file: rename file existing in kwest
+ * param: char *from - existing name of file
+ * param: char *to - new name of file
+ * return: KW_SUCCESS, KW_ERROR, KW_FAIL
+ * author: @SG 
+ */
+int rename_file(const char *from, const char *to)
 {
-	/*
-	char *tmp = path+1;
-	char *tag1,*tag2;
-	int assocn;
+	sqlite3_stmt *stmt;
+	char query[QUERY_SIZE];
+	int status;
+	int fno;
 	
-	while((tag1 = strchr(tmp,'/')) != NULL)
-	{
-		tmp = strchr(tmp,'/')+1;
-		tag2 = strchr(tmp,'/');
-		if(tag2 == NULL){
-			if(istag(tag1)==1) {
-				return 1;
-			}
-		} 
-		assocn = get_association(tag1,tag2);
-		if(assocn < 0) return 0; 
+	log_msg("rename_file: %s :: %s\n", from, to);
+	
+	fno = get_file_id(from); /* Get File ID */
+	
+	if(fno == KW_FAIL){ /* Return if File does not Exists */
+		log_msg("rename_file : %s%s\n",ERR_FILE_NOT_FOUND,from);
+		return KW_ERROR;
+	} 
+	
+	strcpy(query,"update FileDetails set fname=:from where fno=:fno;");
+	sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0);
+	
+	sqlite3_bind_text(stmt,1,from,-1,SQLITE_STATIC);
+	sqlite3_bind_int(stmt,2,fno);
+	
+	status = sqlite3_step(stmt);
+	if(status == SQLITE_DONE){
+		log_msg("rename operation successful");
+		sqlite3_finalize(stmt);
+		return KW_SUCCESS;
 	}
-	*/
-	return 1;
+	sqlite3_finalize(stmt);
+	
+	log_msg("rename_file : %s%s\n",ERR_RENAMING_FILE,from);
+	return KW_FAIL;
 }
