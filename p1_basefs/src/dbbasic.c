@@ -400,6 +400,7 @@ int tag_file(const char *t,const char *f)
  */
 int untag_file(const char *t,const char *f)
 {
+	sqlite3_stmt *stmt;
 	char query[QUERY_SIZE];
 	int status;
 	int fno,tno;
@@ -423,13 +424,31 @@ int untag_file(const char *t,const char *f)
 	             ,fno,tno);
 	status = sqlite3_exec(get_kwdb(),query,0,0,0);
 	
-	if(status == SQLITE_OK){
-		log_msg("untag operation success");
-		return KW_SUCCESS;
+	if(status != SQLITE_OK){
+		log_msg("untag operation failed");
+		return KW_FAIL;
+	}
+	log_msg("untag operation success");
+	
+	/* Remove file if not under any tag */
+	sprintf(query,"select count(*) from FileAssociation where fno = %d;"
+	             ,fno);
+	sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0);
+	
+	status = sqlite3_step(stmt);
+	if(status == SQLITE_ROW) {
+		if(atoi((const char*)sqlite3_column_text(stmt,0)) == 0) { 
+			sqlite3_finalize(stmt);
+			status = remove_file(f);
+			if(status == KW_SUCCESS){
+				log_msg("removing file from database");
+				return KW_SUCCESS;
+			}
+		}
 	}
 	
-	log_msg("untag operation failed");
-	return KW_FAIL;
+	sqlite3_finalize(stmt);
+	return KW_SUCCESS;
 }
 
 /* get_fname_under_tag: Return list of files associated to given tag 
