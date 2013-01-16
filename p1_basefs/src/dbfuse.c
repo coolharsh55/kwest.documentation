@@ -183,11 +183,14 @@ int remove_this_file(const char *path)
 	
 	char *filename = (char *)get_entry_name(path);
 	char *tptr = filename -2;
-	while(*tptr != '/') tptr--;
+	char *tagname = NULL;
+	char *t2 = NULL;
+	
+	while(*tptr != '/') tptr--; /* seperat directory name */
 	tptr++;
 	
-	char *tagname = malloc(filename - tptr);
-	char *t2 = tagname;
+	tagname = malloc(filename - tptr);
+	t2 = tagname;
 	while(*tptr != '/') {
 		*t2 = *tptr;
 		t2++; tptr++;
@@ -215,7 +218,10 @@ int remove_this_file(const char *path)
  */
 int make_directory(const char *path, mode_t mode)
 {
-	char *newtag;
+	char *newtag = NULL;
+	char *tptr = NULL;
+	char *parenttag = NULL;
+	char *t2 = NULL;
 	
 	log_msg ("make_directory: %s\n",path);
 	newtag = (char *)get_entry_name(path);
@@ -225,12 +231,12 @@ int make_directory(const char *path, mode_t mode)
 		return KW_FAIL;
 	}
 	
-	char *tptr = newtag -2;
+	tptr = newtag -2;
 	while(*tptr != '/') tptr--;
 	tptr++;
 	
-	char *parenttag = malloc(newtag - tptr);
-	char *t2 = parenttag;
+	parenttag = malloc(newtag - tptr);
+	t2 = parenttag;
 	while(*tptr != '/') {
 		*t2 = *tptr;
 		t2++; tptr++;

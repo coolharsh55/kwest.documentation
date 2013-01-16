@@ -18,6 +18,18 @@
  */
 
 #include "export.h"
+#include "dbbasic.h" /* Database Functions */
+#include "dbinit.h"
+#include "dbkey.h"
+#include<stdio.h>
+#include<string.h>
+#include<dirent.h>
+#include<sys/stat.h>
+#include<errno.h>
+#include<fcntl.h>
+#include<sys/sendfile.h>
+#include<sqlite3.h>
+#include "flags.h"
 
 /* send_file_fun : copies file from source to destination
  * param: char *source - source of file
@@ -37,13 +49,13 @@ static int send_file(const char *source,const char *destination)
 	read_src = open(source, O_RDONLY);
 	if(read_src == -1) {
 		printf("Cannot open source file : %s\n", source);
-		return EXPORT_COPY_FAIL;
+		return KW_FAIL;
 	}
 	 
 	/* Call Stat on input file to obtain its size */
 	if(fstat(read_src, &stat_buf) == -1) {
 		printf("Error accessing source file : %s\n", source);
-		return EXPORT_COPY_FAIL;
+		return KW_FAIL;
 	}
 	
 	/* Open the dstput file for writing, 
@@ -54,25 +66,25 @@ static int send_file(const char *source,const char *destination)
 	write_dst = open(dst , O_WRONLY | O_CREAT, stat_buf.st_mode);
 	if( write_dst == -1 ) {
 		printf("Cannot open destination file : %s\n", dst);
-		return EXPORT_COPY_FAIL;
+		return KW_FAIL;
 	}
 
 	/* Blast the bytes from one file to the other */
 	if(sendfile(write_dst, read_src, &offset, stat_buf.st_size) == -1){
-		return EXPORT_COPY_FAIL; 
+		return KW_FAIL; 
 	}
 	
 	/* Close Files */
 	close (read_src);
 	close (write_dst);
 	 
-	return EXPORT_COPY_SUCCESS;
+	return KW_SUCCESS;
 }
 
 /* export: Exports a tag in kwest as Directory-file structure on FS
  * param: char *tag - Tag name in Kwest
  * param: char *path - Absolute Path of Location where tag is to be exported
- * return: EXPORT_SUCCESS on SUCCESS
+ * return: KW_SUCCESS on SUCCESS
  * author: @SG
  */
 int export(const char *tag,const char *path)
@@ -85,7 +97,7 @@ int export(const char *tag,const char *path)
 	/* Check if path is valid */
 	if((directory = opendir(path)) == NULL) {
 		printf("Error opening path\n");
-		return EXPORT_FAIL;
+		return KW_FAIL;
 	}
 	if(closedir(directory) != 0){
 		printf("Error closing path\n");
@@ -97,16 +109,16 @@ int export(const char *tag,const char *path)
 
 	/* Create Directory for tag */ 
 	printf("Creating Dir : %s\n",tag);
-	if(mkdir(tagpath,0777) == -1 && errno != EEXIST) {
+	if(mkdir(tagpath, KW_STDIR) == -1 && errno != EEXIST) {
 		printf("Error Creating Directory\n");
-		return EXPORT_FAIL;
+		return KW_FAIL;
 	} 
 
 	/* Copy Files in Directory */
 	ptr = get_fname_under_tag(tag); /* Get Path */
 	while((filename = string_from_stmt(ptr))!= NULL) {
 		filepath = get_abspath_by_fname(filename);
-		if(send_file(filepath,tagpath) == EXPORT_COPY_FAIL){ 
+		if(send_file(filepath,tagpath) == KW_FAIL){ 
 			printf("Error copying file %s\n",filename);
 		} else {
 			printf("Copy File : %s\n",filename);
@@ -120,20 +132,20 @@ int export(const char *tag,const char *path)
 		export(tagname,tagpath); 
 	}
 
-	return EXPORT_SUCCESS;
+	return KW_SUCCESS;
 } 
 
 int main(int argc,const char *argv[])
 {
 	if(argc<3) return -1;
 
-	if(export(argv[1],argv[2]) == EXPORT_SUCCESS){
+	if(export(argv[1],argv[2]) == KW_SUCCESS){
 		printf("Tag Exported\n");
 		close_db();
-		return EXPORT_SUCCESS;
+		return KW_SUCCESS;
 	}
 
 	printf("Operation Failed\n");
 	close_db(); 
-	return EXPORT_FAIL;
+	return KW_FAIL;
 }

@@ -185,7 +185,7 @@ static struct fuse_operations kwest_oper = {
 /* FILE RELATED FILESYSTEM OPERATIONS */
 	.open		= kwest_open,
 	.release	= kwest_release,
-	/*.mknod		= kwest_mknod,*/
+	.mknod		= kwest_mknod,
 	.rename		= kwest_rename,
 	.unlink		= kwest_unlink,
 	.read		= kwest_read,
@@ -201,7 +201,7 @@ static struct fuse_operations kwest_oper = {
 /*	.symlink	= kwest_symlink, */
 /*	.readlink	= kwest_readlink, */
 /*	.link		= kwest_link, */
-/*	.truncate	= kwest_truncate, */
+	.truncate	= kwest_truncate, 
 /*	.utimens	= kwest_utimens, */
 /*	.statfs		= kwest_statfs, */
 /*	.fsync		= kwest_fsync, */

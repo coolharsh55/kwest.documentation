@@ -41,15 +41,28 @@ int main(int argc, char *argv[])
 {
 	struct passwd *pw = getpwuid(getuid());
 	const char *homedir = pw->pw_dir;
-	const char *musicdir = strdup(strcat((char *)homedir,"/Music"));
+	FILE *stderror = NULL;
+	char logdir[QUERY_SIZE];
+	char musicdir[QUERY_SIZE];
+	
+	strcpy(musicdir, homedir);
+	strcat(musicdir,"/Music");
+	strcpy(logdir, homedir);
+	strcat(logdir, CONFIG_LOCATION);
+	strcat(logdir, LOGFILE_STORAGE);
+	
+	stderror = freopen(logdir, "w", stderr); 
+	if(stderror == NULL) { /* redirect stderr to logfile */
+		printf("could not redirect stderror\n");
+	}
 	
 	printf("KWEST - A Semantically Tagged Virtual File System\n");
-	
 	printf("Initiating logging file(s).........");
 	if(log_init() == KW_SUCCESS) {
 		log_msg("KWEST - A Semantically Tagged Virtual File System\n");
 		log_msg("program initiated\n");
 		printf("SUCCESS!\n");
+		
 	} else {
 		printf("FAILED\n");
 		printf("Exiting program...\n");
@@ -60,20 +73,21 @@ int main(int argc, char *argv[])
 	
 	audio_metadata();
 	
-	printf("Importing files.........\n");
+	printf("Importing file from %s\n",musicdir);
 	if(import(musicdir) == KW_SUCCESS) {
 		log_msg("Importing files = SUCCESS\n");
-		printf("...SUCCESS!\n");
-		free((char *)musicdir);
+		printf("Import completed SUCCESSFULLY\n");
 	} else {
 		log_msg("Importing files = FAILED\n");
 		printf("FAILED\n");
 		printf("Exiting program...\n");
-		free((char *)musicdir);
 		return -1;
 	}
 	
 	commit_transaction();
+	if(stderror != NULL) { /* restore stderr to stdout */
+		stderr = stderror;
+	}
 	
 	return call_fuse_daemon(argc,argv);
 }

@@ -33,5 +33,4 @@ cleanall:
 	rm -rf *.db
 	rm -rf kwest
 	rm -rf ~/.config/kwest/*.*
-	rmdir ~/.config/kwest
 

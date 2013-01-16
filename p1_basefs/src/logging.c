@@ -54,6 +54,7 @@ int log_init(void)
 	if(logfile == NULL) {
 		return KW_FAIL;
 	}
+	
 	return KW_SUCCESS;
 }
 

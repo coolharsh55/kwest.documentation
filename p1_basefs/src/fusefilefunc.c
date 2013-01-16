@@ -85,28 +85,31 @@ static int kwest_release(const char *path, struct fuse_file_info *fi)
 static int kwest_mknod(const char *path, mode_t mode, dev_t rdev)
 {
 	int res;
-	const char *newfilepath = NULL;
+	const char *abspath = get_absolute_path(path);
 	log_msg("mknod: %s\n",path);
 
 	if(check_path_validity(path) != KW_SUCCESS) {
 		log_msg("PATH NOT VALID\n");
 		return -ENOENT;
-	}
+	}	
 	
-	newfilepath = get_newfile_path(path); /* where should the new file */
-	if(newfilepath == NULL) {                     /* be stored */
+	if(abspath == NULL) {
+		log_msg("ABSOLUTE PATH ERROR\n");
 		return -EIO;
 	}
 
 	if (S_ISREG(mode)) { /* check permissions */
-		res = open(newfilepath, O_CREAT | O_EXCL | O_WRONLY, mode);
-		if (res >= 0) /* call system calls to create file */
+		log_msg("MKNOD FILE MODE\n");
+		res = open(abspath, O_CREAT | O_EXCL | O_WRONLY, mode);
+		if (res >= 0) { /* call system calls to create file */
 			res = close(res);
+		}
 	} else {
 		if (S_ISFIFO(mode)) { /* file is a pipe */
-			res = mkfifo(newfilepath, mode);
+			res = mkfifo(abspath, mode);
 		} else { /* its a file */
-			res = mknod(newfilepath, mode, rdev);
+			log_msg("FILE MODE PROGRAM\n");
+			res = mknod(abspath, mode, rdev);
 		}
 	}
 	if (res == -1) {
@@ -251,6 +254,34 @@ static int kwest_write(const char *path, const char *buf, size_t size,
 	return res;
 }
 
+
+static int kwest_truncate(const char *path, off_t size)
+{
+	log_msg("truncate: %s\n", path);
+	
+	int res;
+
+	const char *abspath = NULL;
+	
+	if(check_path_validity(path) != KW_SUCCESS) {
+		log_msg("PATH NOT VALID\n");
+		return -ENOENT;
+	}
+	
+	abspath = get_absolute_path(path);
+	if(abspath == NULL) {
+		log_msg("ABSOLUTE PATH ERROR");
+		return -EIO;
+	}
+	
+	res = truncate(abspath, size);
+	if (res == -1) {
+		log_msg("TRUNCATE FILE ERROR");
+		return -errno;
+	}
+
+	return 0;
+}
 
 /* kwest_chmod
  * chande file modes and permissions

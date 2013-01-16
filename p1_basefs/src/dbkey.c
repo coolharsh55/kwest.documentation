@@ -175,27 +175,6 @@ int get_file_id(const char *fname)
 	return get_field_id("select fno from FileDetails where "
 	                     "fname = :fieldname;", fname);
 }
- int get_file_id2(const char *fname)
-{
-	sqlite3_stmt *stmt = NULL;
-	char query[QUERY_SIZE];
-	int status;
-	
-	/* Query to get fno */
-	strcpy(query,"select fno from FileDetails where fname = :fname;");
-	sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0);
-	sqlite3_bind_text(stmt,1,fname,-1,SQLITE_STATIC);
-	
-	status = sqlite3_step(stmt);
-	if(status == SQLITE_ROW) { /* Return fno if file exists */
-		status = atoi((const char*)sqlite3_column_text(stmt,0));
-		sqlite3_finalize(stmt);
-		return status;
-	}
-	
-	sqlite3_finalize(stmt);
-	return KW_FAIL; /* File not found Error */
-}
 
 
 /* get_tag_id
@@ -209,29 +188,6 @@ int get_tag_id(const char *tname)
 {
 	return get_field_id("select tno from TagDetails where "
 	                     "tagname = :fieldname;", tname);
-}
-
-
-int get_tag_id2(const char *tagname)
-{
-	sqlite3_stmt *stmt = NULL;  
-	char query[QUERY_SIZE];
-	int status;
-	
-	/* Query to get tno */
-	sprintf(query,"select tno from TagDetails where tagname = :tagname;");
-	sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0);
-	sqlite3_bind_text(stmt,1,tagname,-1,SQLITE_STATIC);
-	
-	status = sqlite3_step(stmt);
-	if(status == SQLITE_ROW) { /* Return tno if tag exists */
-		status = atoi((const char*)sqlite3_column_text(stmt,0));
-		sqlite3_finalize(stmt);
-		return status; 
-	}
-	
-	sqlite3_finalize(stmt);
-	return KW_FAIL; /* Tag not found Error */
 }
 
 

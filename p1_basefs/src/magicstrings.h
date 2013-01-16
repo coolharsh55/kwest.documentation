@@ -44,7 +44,7 @@
 #define CONFIG_LOCATION "/.config/kwest/"
 #define DATABASE_NAME "kwest.db"
 
-#define LOGFILE_STORAGE "/logfile.log"
+#define LOGFILE_STORAGE "logfile.log"
 
 
 #define ASSOC_SYSTEM "system"
