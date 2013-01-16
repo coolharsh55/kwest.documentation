@@ -101,8 +101,6 @@ static int kwest_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 	struct stat st;
 	log_msg("readdir: %s\n",path);
 	
-	(void *) offset;
-	(void *) fi;
 	/*
 	if(check_path_validity(path) != KW_SUCCESS) {
 		return -ENOENT;
@@ -157,12 +155,15 @@ static int kwest_access(const char *path, int mask)
 	
 	abspath = get_absolute_path(path);
 	if(abspath == NULL) {
+		log_msg("ABSOLUTE PATH ERROR");
 		return -EIO;
 	}
 	
 	res = access(path, mask);
-	if (res == -1)
+	if (res == -1) {
+		log_msg("ERROR ACCESSING FILE");
 		return -errno;
+	}
 
 	return 0;
 }
@@ -182,15 +183,15 @@ static struct fuse_operations kwest_oper = {
 	.access = kwest_access,
 	
 /* FILE RELATED FILESYSTEM OPERATIONS */
-	/*.open		= kwest_open,
+	.open		= kwest_open,
 	.release	= kwest_release,
-	.mknod		= kwest_mknod,*/
+	/*.mknod		= kwest_mknod,*/
 	.rename		= kwest_rename,
 	.unlink		= kwest_unlink,
-	/*.read		= kwest_read,
+	.read		= kwest_read,
 	.write		= kwest_write,
 	.chmod		= kwest_chmod,
-	.chown		= kwest_chown,*/
+	.chown		= kwest_chown,
 
 /* DIRECTORY RELATED FILESYSTEM OPERATIONS */
 	.mkdir		= kwest_mkdir,

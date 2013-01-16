@@ -39,11 +39,13 @@
 	
 	abspath = get_absolute_path(path); /* get absolute path on disk */
 	if(abspath == NULL) {
+		log_msg("ABSOLUTE PATH ERROR\n");
 		return -EIO;
 	}
 	
 	res = open(abspath, fi->flags); /* open system call */
 	if (res == -1) {
+		log_msg("COULD NOT OPEN FILE\n");
 		return -errno;
 	}
 
@@ -66,8 +68,6 @@ static int kwest_release(const char *path, struct fuse_file_info *fi)
 	   unimplemented */
 	log_msg("release: %s\n",path);
 	
-	(void *) path;
-	(void *) fi;
 	return 0;
 }
 
@@ -177,7 +177,6 @@ static int kwest_read(const char *path, char *buf, size_t size, off_t offset,
 	int res = 0;
 	const char *abspath = NULL;
 	
-	(void *) fi;
 	log_msg ("read: %s\n",path);
 	
 	if(check_path_validity(path) != KW_SUCCESS) {
@@ -187,16 +186,19 @@ static int kwest_read(const char *path, char *buf, size_t size, off_t offset,
 	
 	abspath = get_absolute_path(path);
 	if(abspath == NULL) {
+		log_msg("ABSOLUTE PATH ERROR");
 		return -EIO;
 	}
 
 	fd = open(abspath, O_RDONLY); /* open file for reading */
 	if (fd == -1) {
+		log_msg("COULD NOT OPEN FILE");
 		return -errno;
 	}
 
 	res = pread(fd, buf, size, offset); /* pread doesn't lock file */
 	if (res == -1) {
+		log_msg("FILE READ ERROR");
 		res = -errno;
 	}
 
@@ -223,7 +225,6 @@ static int kwest_write(const char *path, const char *buf, size_t size,
 	int res = 0;
 	const char *abspath = NULL;
 	
-	(void *) fi;
 	log_msg ("write: %s\n",path);
 	
 	if(check_path_validity(path) != KW_SUCCESS) {
