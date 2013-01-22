@@ -108,7 +108,7 @@ int remove_tag(const char *tagname)
 	
 	/* Return if Tag does not Exists */
 	if(tno == KW_FAIL){
-		log_msg("remove_tag : %s%s\n",ERR_TAG_NOT_FOUND,tagname); 
+		log_msg("remove_tag : %s%s",ERR_TAG_NOT_FOUND,tagname); 
 		return KW_ERROR;
 	} 
 	
@@ -162,7 +162,7 @@ int add_file(const char *abspath)
 	
 	status = sqlite3_step(stmt);
 	if(status != SQLITE_DONE){
-		log_msg("add_file : %s%s\n",ERR_ADDING_FILE,fname);
+		log_msg("add_file : %s%s",ERR_ADDING_FILE,fname);
 		sqlite3_finalize(stmt);
 		return KW_FAIL;
 	}
@@ -229,7 +229,7 @@ static int add_metadata_file(int fno,const char *abspath,char *fname)
 		associate_file_metadata(TAG_ALBUM,M.album,fname);
 		associate_file_metadata(TAG_GENRE,M.genre,fname);
 	} else { /* Handle if Error while Adding Metadata */
-		log_msg("add_metadata_file : %s%s\n",ERR_ADDING_META,fname);
+		log_msg("add_metadata_file : %s%s",ERR_ADDING_META,fname);
 	}
 	extract_clear_strings(meta);
 	sqlite3_finalize(stmt);
@@ -290,7 +290,7 @@ int remove_file(const char *fname)
 	fno = get_file_id(fname); /* Get File ID */
 	
 	if(fno == KW_FAIL){ /* Return if File does not Exists */
-		log_msg("remove_file : %s%s\n",ERR_FILE_NOT_FOUND,fname);
+		log_msg("remove_file : %s%s",ERR_FILE_NOT_FOUND,fname);
 		return KW_ERROR;
 	} 
 	
@@ -367,13 +367,13 @@ int tag_file(const char *t,const char *f)
 	
 	fno = get_file_id(f); /* Get File ID */
 	if(fno == KW_FAIL){ /* Return if File not found */
-		printf("tag_file : %s%s\n",ERR_FILE_NOT_FOUND,f);
+		printf("tag_file : %s%s",ERR_FILE_NOT_FOUND,f);
 		return KW_ERROR;
 	}
 	
 	tno = get_tag_id(t); /* Get Tag ID */
 	if(tno == KW_FAIL){ /* Return if Tag not found */
-		printf("tag_file : %s%s\n",ERR_TAG_NOT_FOUND,t);
+		printf("tag_file : %s%s",ERR_TAG_NOT_FOUND,t);
 		return KW_ERROR;
 	}
 	
@@ -420,17 +420,17 @@ int untag_file(const char *t,const char *f)
 	int status;
 	int fno,tno;
 	
-	log_msg("untag file: %s :: %s\n", t, f);
+	log_msg("untag file: %s :: %s", t, f);
 	
 	fno = get_file_id(f); /* Get File ID */
 	if(fno == KW_FAIL){ /* Return if File not found */
-		log_msg("untag_file : %s%s\n",ERR_FILE_NOT_FOUND,f);
+		log_msg("untag_file : %s%s",ERR_FILE_NOT_FOUND,f);
 		return KW_ERROR;
 	}
 	
 	tno = get_tag_id(t); /* Get Tag ID */
 	if(tno == KW_FAIL){ /* Return if Tag not found */
-		log_msg("untag_file : %s%s\n",ERR_TAG_NOT_FOUND,t);
+		log_msg("untag_file : %s%s",ERR_TAG_NOT_FOUND,t);
 		return KW_ERROR;
 	}
 	
@@ -480,7 +480,7 @@ sqlite3_stmt *get_fname_under_tag(const char *t)
 	
 	tno = get_tag_id(t); /* Get Tag ID */
 	if(tno == KW_FAIL){ /* Return if Tag not found */
-		log_msg("get_fname_under_tag : %s%s\n",ERR_TAG_NOT_FOUND,t);
+		log_msg("get_fname_under_tag : %s%s",ERR_TAG_NOT_FOUND,t);
 		return NULL;
 	}
 	
@@ -490,7 +490,7 @@ sqlite3_stmt *get_fname_under_tag(const char *t)
 	status = sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0);
 	
 	if(status != SQLITE_OK){ /* Error Preparing query */
-		log_msg("get_fname_under_tag : %s\n",ERR_PREP_QUERY);
+		log_msg("get_fname_under_tag : %s",ERR_PREP_QUERY);
 		return NULL;
 	}
 	
@@ -511,7 +511,7 @@ sqlite3_stmt *get_tags_for_file(const char *f)
 	
 	fno = get_file_id(f); /* Get File ID */
 	if(fno == KW_FAIL){ /* Return if File not found */
-		printf("get_tags_for_file : %s%s\n",ERR_FILE_NOT_FOUND,f);
+		printf("get_tags_for_file : %s%s",ERR_FILE_NOT_FOUND,f);
 		return NULL;
 	}
 	
@@ -521,7 +521,7 @@ sqlite3_stmt *get_tags_for_file(const char *f)
 	status = sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0);
 	
 	if(status != SQLITE_OK){ /* Error Preparing query */
-		log_msg("get_tags_for_file : %s\n",ERR_PREP_QUERY);
+		log_msg("get_tags_for_file : %s",ERR_PREP_QUERY);
 		return NULL;
 	}
 	
@@ -545,19 +545,19 @@ int add_association(const char *t1,const char *t2,int associationid)
 	
 	/* Return if relation Undefined */
 	if(is_association_type(associationid) == 0){ 
-		log_msg("add_association : %s%d\n",ERR_REL_NOT_DEF,associationid);
+		log_msg("add_association : %s%d",ERR_REL_NOT_DEF,associationid);
 		return KW_ERROR;
 	}
 	
 	t1_id = get_tag_id(t1); /* Get Tag ID for tag t1*/
 	if(t1_id == KW_FAIL){ /* Return if Tag not found */
-		log_msg("add_association : %s%s\n",ERR_TAG_NOT_FOUND,t1);
+		log_msg("add_association : %s%s",ERR_TAG_NOT_FOUND,t1);
 		return KW_ERROR;
 	}
 	
 	t2_id = get_tag_id(t2); /* Get Tag ID for tag t2*/
 	if(t2_id == KW_FAIL){ /* Return if Tag not found */
-		log_msg("add_association : %s%s\n",ERR_TAG_NOT_FOUND,t2);
+		log_msg("add_association : %s%s",ERR_TAG_NOT_FOUND,t2);
 		return KW_ERROR;
 	}
 	
@@ -592,19 +592,19 @@ int remove_association(const char *t1,const char *t2,int associationid)
 	
 	/* Return if relation Undefined */
 	if(is_association_type(associationid) == 0){ 
-		printf("remove_association : %s%d\n",ERR_REL_NOT_DEF,associationid);
+		printf("remove_association : %s%d",ERR_REL_NOT_DEF,associationid);
 		return KW_ERROR;
 	}
 	
 	t1_id = get_tag_id(t1); /* Get Tag ID for tag t1*/
 	if(t1_id == KW_FAIL){ /* Return if Tag not found */
-		printf("remove_association : %s%s\n",ERR_TAG_NOT_FOUND,t1);
+		printf("remove_association : %s%s",ERR_TAG_NOT_FOUND,t1);
 		return KW_ERROR;
 	}
 	
 	t2_id = get_tag_id(t2); /* Get Tag ID for tag t2*/
 	if(t2_id == KW_FAIL){ /* Return if Tag not found */
-		printf("remove_association : %s%s\n",ERR_TAG_NOT_FOUND,t2);
+		printf("remove_association : %s%s",ERR_TAG_NOT_FOUND,t2);
 		return KW_ERROR;
 	}
 	
@@ -635,13 +635,13 @@ int get_association(const char *t1,const char *t2)
 	
 	t1_id = get_tag_id(t1); /* Get Tag ID for tag t1*/
 	if(t1_id == KW_FAIL){ /* Return if Tag not found */
-		log_msg("get_association : %s%s\n",ERR_TAG_NOT_FOUND,t1);
+		log_msg("get_association : %s%s",ERR_TAG_NOT_FOUND,t1);
 		return KW_ERROR;
 	}
 	
 	t2_id = get_tag_id(t2); /* Get Tag ID for tag t2*/
 	if(t2_id == KW_FAIL){ /* Return if Tag not found */
-		log_msg("get_association : %s%s\n",ERR_TAG_NOT_FOUND,t2);
+		log_msg("get_association : %s%s",ERR_TAG_NOT_FOUND,t2);
 		return KW_ERROR;
 	}
 	
@@ -676,13 +676,13 @@ sqlite3_stmt *get_tags_by_association(const char *t,int associationid)
 	
 	/* Return if relation Undefined */
 	if(is_association_type(associationid) == 0){ 
-		log_msg("get_tags_by_assocn : %s%d\n",ERR_REL_NOT_DEF,associationid);
+		log_msg("get_tags_by_assocn : %s%d",ERR_REL_NOT_DEF,associationid);
 		return NULL;
 	}
 	
 	t_id = get_tag_id(t); /* Get Tag ID */
 	if(t_id == KW_FAIL){ /* Return if Tag not found */
-		log_msg("get_tags_by_assocn : %s%s\n",ERR_TAG_NOT_FOUND,t);
+		log_msg("get_tags_by_assocn : %s%s",ERR_TAG_NOT_FOUND,t);
 		return NULL;
 	}
 	
@@ -802,7 +802,7 @@ sqlite3_stmt *list_user_tags(void)
 	status = sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0);
 	
 	if(status != SQLITE_OK){ /* Error Preparing query */
-		log_msg("list_user_tags : %s\n",ERR_PREP_QUERY);
+		log_msg("list_user_tags : %s",ERR_PREP_QUERY);
 		return NULL;
 	}
 	
@@ -931,12 +931,12 @@ int rename_file(const char *from, const char *to)
 	int status;
 	int fno;
 	
-	log_msg("rename_file: %s :: %s\n", from, to);
+	log_msg("rename_file: %s :: %s", from, to);
 	
 	fno = get_file_id(from); /* Get File ID */
 	
 	if(fno == KW_FAIL){ /* Return if File does not Exists */
-		log_msg("rename_file : %s%s\n",ERR_FILE_NOT_FOUND,from);
+		log_msg("rename_file : %s%s",ERR_FILE_NOT_FOUND,from);
 		return KW_ERROR;
 	} 
 	
@@ -954,6 +954,6 @@ int rename_file(const char *from, const char *to)
 	}
 	sqlite3_finalize(stmt);
 	
-	log_msg("rename_file : %s%s\n",ERR_RENAMING_FILE,from);
+	log_msg("rename_file : %s%s",ERR_RENAMING_FILE,from);
 	return KW_FAIL;
 }

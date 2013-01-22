@@ -30,22 +30,22 @@
 {
 	int res;
 	const char *abspath = NULL;
-	log_msg("open: %s\n",path);
+	log_msg("open: %s",path);
 
 	if(check_path_validity(path) != KW_SUCCESS) {
-		log_msg("PATH NOT VALID\n");
+		log_msg("PATH NOT VALID");
 		return -ENOENT;
 	}
 	
 	abspath = get_absolute_path(path); /* get absolute path on disk */
 	if(abspath == NULL) {
-		log_msg("ABSOLUTE PATH ERROR\n");
+		log_msg("ABSOLUTE PATH ERROR");
 		return -EIO;
 	}
 	
 	res = open(abspath, fi->flags); /* open system call */
 	if (res == -1) {
-		log_msg("COULD NOT OPEN FILE\n");
+		log_msg("COULD NOT OPEN FILE");
 		return -errno;
 	}
 
@@ -66,7 +66,7 @@ static int kwest_release(const char *path, struct fuse_file_info *fi)
 {
 	/* Just a stub.	 This method is optional and can safely be left
 	   unimplemented */
-	log_msg("release: %s\n",path);
+	log_msg("release: %s",path);
 	
 	return 0;
 }
@@ -86,20 +86,20 @@ static int kwest_mknod(const char *path, mode_t mode, dev_t rdev)
 {
 	int res;
 	const char *abspath = get_absolute_path(path);
-	log_msg("mknod: %s\n",path);
+	log_msg("mknod: %s",path);
 
 	if(check_path_validity(path) != KW_SUCCESS) {
-		log_msg("PATH NOT VALID\n");
+		log_msg("PATH NOT VALID");
 		return -ENOENT;
 	}	
 	
 	if(abspath == NULL) {
-		log_msg("ABSOLUTE PATH ERROR\n");
+		log_msg("ABSOLUTE PATH ERROR");
 		return -EIO;
 	}
 
 	if (S_ISREG(mode)) { /* check permissions */
-		log_msg("MKNOD FILE MODE\n");
+		log_msg("MKNOD FILE MODE");
 		res = open(abspath, O_CREAT | O_EXCL | O_WRONLY, mode);
 		if (res >= 0) { /* call system calls to create file */
 			res = close(res);
@@ -108,7 +108,7 @@ static int kwest_mknod(const char *path, mode_t mode, dev_t rdev)
 		if (S_ISFIFO(mode)) { /* file is a pipe */
 			res = mkfifo(abspath, mode);
 		} else { /* its a file */
-			log_msg("FILE MODE PROGRAM\n");
+			log_msg("FILE MODE PROGRAM");
 			res = mknod(abspath, mode, rdev);
 		}
 	}
@@ -130,10 +130,10 @@ static int kwest_mknod(const char *path, mode_t mode, dev_t rdev)
  */ 
 static int kwest_rename(const char *from, const char *to)
 {
-	log_msg("rename: %s to %s\n",from,to);
+	log_msg("rename: %s to %s",from,to);
 
 	if(check_path_validity(from) != KW_SUCCESS) {
-		log_msg("PATH NOT VALID\n");
+		log_msg("PATH NOT VALID");
 		return -ENOENT;
 	}
 	
@@ -151,10 +151,10 @@ static int kwest_rename(const char *from, const char *to)
 static int kwest_unlink(const char *path)
 {
 	
-	log_msg("unlink: %s\n",path);
+	log_msg("unlink: %s",path);
 
 	if(check_path_validity(path) != KW_SUCCESS) {
-		log_msg("PATH NOT VALID\n");
+		log_msg("PATH NOT VALID");
 		return -ENOENT;
 	}
 	
@@ -180,10 +180,10 @@ static int kwest_read(const char *path, char *buf, size_t size, off_t offset,
 	int res = 0;
 	const char *abspath = NULL;
 	
-	log_msg ("read: %s\n",path);
+	log_msg ("read: %s",path);
 	
 	if(check_path_validity(path) != KW_SUCCESS) {
-		log_msg("PATH NOT VALID\n");
+		log_msg("PATH NOT VALID");
 		return -ENOENT;
 	}
 	
@@ -228,10 +228,10 @@ static int kwest_write(const char *path, const char *buf, size_t size,
 	int res = 0;
 	const char *abspath = NULL;
 	
-	log_msg ("write: %s\n",path);
+	log_msg ("write: %s",path);
 	
 	if(check_path_validity(path) != KW_SUCCESS) {
-		log_msg("PATH NOT VALID\n");
+		log_msg("PATH NOT VALID");
 		return -ENOENT;
 	}
 	
@@ -257,14 +257,14 @@ static int kwest_write(const char *path, const char *buf, size_t size,
 
 static int kwest_truncate(const char *path, off_t size)
 {
-	log_msg("truncate: %s\n", path);
+	log_msg("truncate: %s", path);
 	
 	int res;
 
 	const char *abspath = NULL;
 	
 	if(check_path_validity(path) != KW_SUCCESS) {
-		log_msg("PATH NOT VALID\n");
+		log_msg("PATH NOT VALID");
 		return -ENOENT;
 	}
 	
@@ -296,10 +296,10 @@ static int kwest_chmod(const char *path, mode_t mode)
 	int res;
 	const char *abspath = NULL;
 	
-	log_msg ("chmod: %s\n",path);
+	log_msg ("chmod: %s",path);
 	
 	if(check_path_validity(path) != KW_SUCCESS) {
-		log_msg("PATH NOT VALID\n");
+		log_msg("PATH NOT VALID");
 		return -ENOENT;
 	}
 	
@@ -331,10 +331,10 @@ static int kwest_chown(const char *path, uid_t uid, gid_t gid)
 	int res;
 	const char *abspath = NULL;
 	
-	log_msg ("chown: %s\n",path);
+	log_msg ("chown: %s",path);
 	
 	if(check_path_validity(path) != KW_SUCCESS) {
-		log_msg("PATH NOT VALID\n");
+		log_msg("PATH NOT VALID");
 		return -ENOENT;
 	}
 	

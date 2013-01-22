@@ -48,13 +48,13 @@ static int send_file(const char *source,const char *destination)
 	/* Open the input file */
 	read_src = open(source, O_RDONLY);
 	if(read_src == -1) {
-		printf("Cannot open source file : %s\n", source);
+		printf("Cannot open source file : %s", source);
 		return KW_FAIL;
 	}
 	 
 	/* Call Stat on input file to obtain its size */
 	if(fstat(read_src, &stat_buf) == -1) {
-		printf("Error accessing source file : %s\n", source);
+		printf("Error accessing source file : %s", source);
 		return KW_FAIL;
 	}
 	
@@ -65,7 +65,7 @@ static int send_file(const char *source,const char *destination)
 	strcat(dst,strrchr(source,'/'));
 	write_dst = open(dst , O_WRONLY | O_CREAT, stat_buf.st_mode);
 	if( write_dst == -1 ) {
-		printf("Cannot open destination file : %s\n", dst);
+		printf("Cannot open destination file : %s", dst);
 		return KW_FAIL;
 	}
 
@@ -96,11 +96,11 @@ int export(const char *tag,const char *path)
 
 	/* Check if path is valid */
 	if((directory = opendir(path)) == NULL) {
-		printf("Error opening path\n");
+		printf("Error opening path");
 		return KW_FAIL;
 	}
 	if(closedir(directory) != 0){
-		printf("Error closing path\n");
+		printf("Error closing path");
 	}
 
 	/* Form path for creating Directory */
@@ -108,9 +108,9 @@ int export(const char *tag,const char *path)
 	strcat(strcat(tagpath,"/"),tag);
 
 	/* Create Directory for tag */ 
-	printf("Creating Dir : %s\n",tag);
+	printf("Creating Dir : %s",tag);
 	if(mkdir(tagpath, KW_STDIR) == -1 && errno != EEXIST) {
-		printf("Error Creating Directory\n");
+		printf("Error Creating Directory");
 		return KW_FAIL;
 	} 
 
@@ -119,9 +119,9 @@ int export(const char *tag,const char *path)
 	while((filename = string_from_stmt(ptr))!= NULL) {
 		filepath = get_abspath_by_fname(filename);
 		if(send_file(filepath,tagpath) == KW_FAIL){ 
-			printf("Error copying file %s\n",filename);
+			printf("Error copying file %s",filename);
 		} else {
-			printf("Copy File : %s\n",filename);
+			printf("Copy File : %s",filename);
 		}
 	}
 
@@ -140,12 +140,12 @@ int main(int argc,const char *argv[])
 	if(argc<3) return -1;
 
 	if(export(argv[1],argv[2]) == KW_SUCCESS){
-		printf("Tag Exported\n");
+		printf("Tag Exported");
 		close_db();
 		return KW_SUCCESS;
 	}
 
-	printf("Operation Failed\n");
+	printf("Operation Failed");
 	close_db(); 
 	return KW_FAIL;
 }

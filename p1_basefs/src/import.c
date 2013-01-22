@@ -51,10 +51,10 @@ static int import_semantics(const char *path,const char *dirname)
 	size_t path_len = strlen(path);
 	size_t dir_len;
 
-	log_msg("import semantics: %s into %s\n", path, dirname);
+	log_msg("import semantics: %s into %s", path, dirname);
 	 
 	if (directory == NULL) {
-		log_msg("ERROR: Couldn't open the directory\n");
+		log_msg("ERROR: Couldn't open the directory");
 		perror ("Couldn't open the directory");
 		return KW_FAIL;
 	}
@@ -90,7 +90,7 @@ static int import_semantics(const char *path,const char *dirname)
 		if (S_ISDIR(fstat.st_mode)) { /* Directory */
 
 			if(add_tag(entry->d_name,USER_TAG) == KW_SUCCESS){
-				printf("Created Tag : %s\n",entry->d_name);
+				printf("Created Tag : %s",entry->d_name);
 			}
 
 			/* Access Sub-Directories */
@@ -103,7 +103,7 @@ static int import_semantics(const char *path,const char *dirname)
 		} else if(S_ISREG(fstat.st_mode)) { /* Regular File */
 
 			if(add_file(full_name) == KW_SUCCESS){
-				printf("Added File  : %s\n",entry->d_name);
+				printf("Added File  : %s",entry->d_name);
 
 				/* Tag-File Relation */
 				tag_file(dirname,entry->d_name);
@@ -123,11 +123,11 @@ int import(const char *path)
 	/* Extract Directory name from path */
 	const char *dirname = strrchr(path,'/') + 1; 
 	
-	log_msg("import: %s\n", path);
+	log_msg("import: %s", path);
 	
 	/* Create Tag for directory to be imported */
 	if(add_tag(dirname, USER_TAG) == KW_SUCCESS){
-		printf("Creating Tag : %s\n",dirname);
+		printf("Creating Tag : %s",dirname);
 		add_association(dirname, TAG_FILES, ASSOC_SUBGROUP);
 	}
 
@@ -135,6 +135,6 @@ int import(const char *path)
 		return KW_SUCCESS;
 	}
 
-	printf("Operation Failed\n");
+	printf("Operation Failed");
 	return KW_FAIL;
 }

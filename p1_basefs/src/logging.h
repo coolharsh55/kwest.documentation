@@ -22,8 +22,6 @@
 
 #include <stdio.h>
 
-FILE *logfile; /* file pointer for logfile */
-
 
 /* log_init
  * initialize logging

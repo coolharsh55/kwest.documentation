@@ -27,10 +27,10 @@
  * @author @HP
  */  int kwest_mkdir(const char *path, mode_t mode)
 {
-	log_msg("mkdir: %s\n",path);
+	log_msg("mkdir: %s",path);
 
 	if(check_path_validity(path) == KW_SUCCESS) {
-		log_msg("PATH NOT VALID\n");
+		log_msg("PATH NOT VALID");
 		return -ENOENT;
 	}
 	return make_directory(path, mode);
@@ -46,10 +46,10 @@
  */
   int kwest_rmdir(const char *path)
 {
-	log_msg("rmdir: %s\n",path);
+	log_msg("rmdir: %s",path);
 	
 	if(check_path_validity(path) != KW_SUCCESS) {
-		log_msg("PATH NOT VALID\n");
+		log_msg("PATH NOT VALID");
 		return -ENOENT;
 	}
 	

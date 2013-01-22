@@ -57,10 +57,10 @@ int main(int argc, char *argv[])
 	}
 	
 	printf("KWEST - A Semantically Tagged Virtual File System\n");
-	printf("Initiating logging file(s).........");
+	printf("Initiating logging file(s).........\n");
 	if(log_init() == KW_SUCCESS) {
-		log_msg("KWEST - A Semantically Tagged Virtual File System\n");
-		log_msg("program initiated\n");
+		log_msg("KWEST - A Semantically Tagged Virtual File System");
+		log_msg("program initiated");
 		printf("SUCCESS!\n");
 		
 	} else {
@@ -75,11 +75,11 @@ int main(int argc, char *argv[])
 	
 	printf("Importing file from %s\n",musicdir);
 	if(import(musicdir) == KW_SUCCESS) {
-		log_msg("Importing files = SUCCESS\n");
+		log_msg("Importing files = SUCCESS");
 		printf("Import completed SUCCESSFULLY\n");
 	} else {
-		log_msg("Importing files = FAILED\n");
-		printf("FAILED\n");
+		log_msg("Importing files = FAILED");
+		printf("FAILED");
 		printf("Exiting program...\n");
 		return -1;
 	}

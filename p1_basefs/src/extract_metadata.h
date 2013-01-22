@@ -24,8 +24,10 @@
 #define METADATA_STRUCTURE
 	struct metadata 
 	{
-		int argc;
-		char **argv;
+		int fieldcount;
+		char *mime;
+		char **tagtype;
+		char **tagvalue;
 	};
 #endif
 

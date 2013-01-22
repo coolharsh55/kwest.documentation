@@ -63,8 +63,8 @@ sqlite3 *get_kwdb()
 		status = sqlite3_open(kwestdir,&db);
 		
 		if(status != SQLITE_OK) {
-			printf("DB INIT FAIL!!!\n");
-			log_msg("%s\n",ERR_DB_CONN);
+			printf("DB INIT FAIL!!!");
+			log_msg("%s",ERR_DB_CONN);
 			return NULL;
 		}
 	}
@@ -135,7 +135,7 @@ int close_db(void)
 	status = sqlite3_close(get_kwdb());
 
 	if (status != SQLITE_OK) {  
-		log_msg("%s\n", ERR_DB_CLOSE);
+		log_msg("%s", ERR_DB_CLOSE);
 	}
 
 	return status;

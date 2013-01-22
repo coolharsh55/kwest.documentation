@@ -77,10 +77,7 @@ int check_path_validity(const char *path)
 	 * const char *tag2 = strchr(tag1 - 1);
 	 * 
 	 */
-	else {
-		return KW_SUCCESS;
-	}
-	return KW_FAIL;
+	return KW_SUCCESS;
 }
 
 
@@ -122,18 +119,18 @@ const char *get_absolute_path(const char *path)
  */
 char *readdir_dirs(const char *path, void **ptr)
 {
-	log_msg ("readdir_dirs: %s\n",path);
+	log_msg ("readdir_dirs: %s",path);
 	if(*ptr == NULL) {
-		log_msg("ptr is NULL\n");
+		log_msg("ptr is NULL");
 		if(*(path + 1) == '\0') {
-			log_msg("path is ROOT\n");
+			log_msg("path is ROOT");
 			*ptr = get_tags_by_association("root", ASSOC_SUBGROUP);
 		} else {
 			const char *t = strrchr(path,'/');
 			*ptr = get_tags_by_association(t + 1, ASSOC_SUBGROUP); 
 		}
 		if(*ptr == NULL) {
-			log_msg("pointer p is NULL\n");
+			log_msg("pointer p is NULL");
 			return NULL;
 		}
 	}
@@ -147,18 +144,15 @@ char *readdir_dirs(const char *path, void **ptr)
  */
 char *readdir_files(const char *path, void **ptr)
 {
-	log_msg ("readdir_files: %s\n",path);
+	log_msg ("readdir_files: %s",path);
 	if(*ptr == NULL) {
-		log_msg("ptr is NULL\n");
 		if(*(path + 1) == '\0') {
-			log_msg("path is ROOT\n");
 			*ptr = get_fname_under_tag("root");
 		} else {
 			const char *t = strrchr(path,'/');
 			*ptr = get_fname_under_tag(t + 1); 
 		}
 		if(*ptr == NULL) {
-			log_msg("pointer p is NULL\n");
 			return NULL;
 		}
 	}
@@ -207,17 +201,17 @@ int remove_this_file(const char *path)
 	}
 	*t2 = '\0';
 	
-	log_msg ("remove_this_file: %s\n",path);
-	log_msg ("filename: %s\n",filename);
-	log_msg("tagname: %s\n", tagname);
+	log_msg ("remove_this_file: %s",path);
+	log_msg ("filename: %s",filename);
+	log_msg("tagname: %s", tagname);
 	
 	if(untag_file(tagname, filename) == KW_SUCCESS) {
-		log_msg("untag file successful\n");
+		log_msg("untag file successful");
 		free(tagname);
 		return KW_SUCCESS;
 	}
 	free(tagname);
-	log_msg("untag file has failed\n");
+	log_msg("untag file has failed");
 	
 	return KW_FAIL;
 }
@@ -233,11 +227,11 @@ int make_directory(const char *path, mode_t mode)
 	char *parenttag = NULL;
 	char *t2 = NULL;
 	
-	log_msg ("make_directory: %s\n",path);
+	log_msg ("make_directory: %s",path);
 	newtag = (char *)get_entry_name(path);
 	
 	if(add_tag(newtag,USER_TAG) != KW_SUCCESS) {
-		log_msg ("make_directory: failed to add tag %s\n",newtag);
+		log_msg ("make_directory: failed to add tag %s",newtag);
 		return KW_FAIL;
 	}
 	
@@ -254,11 +248,11 @@ int make_directory(const char *path, mode_t mode)
 	*t2 = '\0';
 	
 	if(add_association(newtag, parenttag, ASSOC_SUBGROUP) != KW_SUCCESS) {
-		log_msg ("make_directory: failed to add association \n");
+		log_msg ("make_directory: failed to add association ");
 		return KW_FAIL;
 	}
 	
-	log_msg ("make_directory: success\n");
+	log_msg ("make_directory: success");
 	return KW_SUCCESS;
 }
 
@@ -268,7 +262,7 @@ int make_directory(const char *path, mode_t mode)
  */
 int remove_directory(const char *path)
 {
-	log_msg ("remove_directory: %s\n",path);
+	log_msg ("remove_directory: %s",path);
 	
 	if(remove_tag(get_entry_name(path)) == KW_SUCCESS) {
 		return KW_SUCCESS;

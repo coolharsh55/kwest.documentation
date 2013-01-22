@@ -23,6 +23,8 @@
 #include "flags.h"
 #include "magicstrings.h"
 
+
+/* is this really necessary to put in this file? */
 int audio_metadata()
 {
 	/* Create tags to browse Audio Files */
@@ -45,3 +47,5 @@ int audio_metadata()
 	
 	return KW_SUCCESS;
 }
+
+

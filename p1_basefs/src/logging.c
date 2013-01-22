@@ -35,26 +35,35 @@
  * @return KW_SUCCESS on success, KW_FAIL on fail
  * @author @HP
  */
+ 
+static void *get_logfile()
+{
+	static FILE *logfile = NULL; /* file pointer for logfile */
+	struct passwd *pw = NULL;
+	const char *homedir = NULL;
+	char *kwestdir = NULL;
+	
+	if(logfile == NULL) {
+		/* Set path for database file to /home/user/.config */
+		pw = getpwuid(getuid());
+		homedir = pw->pw_dir; /* initial working directory */
+		kwestdir = (char *)malloc(QUERY_SIZE * sizeof(char));
+		strcpy(kwestdir,strcat((char *)homedir,CONFIG_LOCATION));
+		
+		if(mkdir(kwestdir, KW_STDIR) == -1 && errno != EEXIST) {
+			return NULL;
+		} 
+		strcat(kwestdir, LOGFILE_STORAGE);
+		logfile = fopen(kwestdir,"w");
+		free(kwestdir);
+	}
+	return logfile;
+}
 int log_init(void)
 {
-	struct passwd *pw;
-	const char *homedir;
-	char kwestdir[QUERY_SIZE];
-	
-	/* Set path for database file to /home/user/.config */
-	pw = getpwuid(getuid());
-	homedir = pw->pw_dir; /* initial working directory */
-	strcpy(kwestdir,strcat((char *)homedir,CONFIG_LOCATION));
-	
-	if(mkdir(kwestdir, KW_STDIR) == -1 && errno != EEXIST) {
-		return KW_FAIL;
-	} 
-	strcat(kwestdir, LOGFILE_STORAGE);
-	logfile = fopen(kwestdir,"w");
-	if(logfile == NULL) {
+	if(get_logfile() == NULL) {
 		return KW_FAIL;
 	}
-	
 	return KW_SUCCESS;
 }
 
@@ -69,7 +78,8 @@ void log_msg(const char *msg, ...)
 {
     va_list argptr;
     va_start(argptr, msg);
-    vfprintf(logfile, msg, argptr);
+    vfprintf(get_logfile(), msg, argptr);
+    vfprintf(get_logfile(), "\n", argptr);
     va_end(argptr);
 }
 
@@ -82,7 +92,7 @@ void log_msg(const char *msg, ...)
  */
 int log_close(void)
 {
-	if(fclose(logfile) == 0) {
+	if(fclose(get_logfile()) == 0) {
 		return KW_SUCCESS;
 	}
 	return -errno;
