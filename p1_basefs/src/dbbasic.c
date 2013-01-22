@@ -188,19 +188,34 @@ static int add_metadata_file(int fno,const char *abspath,char *fname)
 	sqlite3_stmt *stmt;
 	char query[QUERY_SIZE];
 	int status;
-	struct metadata_audio M; /* Structure for holding metadata of a file */
+	struct metadata_audio M; 
+	/*! struct metadata M; */
 	void *meta;
 	
+	/*!
+	 * meta = extract_metadata(abspath, &M);
+	 * if(meta == NULL) {
+		 * return KW_ERROR;
+	 * }
+	 */
 	meta = extract_metadata_file(abspath, &M);
 	if(meta == NULL) {
 		extract_clear_strings(meta);
 		return KW_ERROR;
 	}
 	
+	/*! is this title,artist,album etc field necessary?
+	 * how are we supposed to store metadata in an abstract way?
+	 */
 	strcpy(query,"INSERT INTO Audio VALUES"
 	             "(:fno,:title,:artist,:album,:genre);");
 	sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0); 
 	
+	/*! int i = 1;
+	 * for(; i<=M.argc ; i++) {
+		 * sqlite3_bind_text(stmt,i,M.argv[i],-1,SQLITE_STATIC);
+	 * }
+	 */
 	sqlite3_bind_int(stmt,1,fno);
 	sqlite3_bind_text(stmt,2,M.title,-1,SQLITE_STATIC);
 	sqlite3_bind_text(stmt,3,M.artist,-1,SQLITE_STATIC);

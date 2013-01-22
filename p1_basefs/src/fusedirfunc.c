@@ -37,7 +37,7 @@
 }
 
 
-/* kwest_chown
+/* kwest_rmdir
  * remove given directory
  *  
  * @param const char *path

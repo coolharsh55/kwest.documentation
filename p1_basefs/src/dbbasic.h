@@ -25,7 +25,9 @@
 
 /* ---------------- ADD/REMOVE -------------------- */
 
-/* add_tag: Create a new tag in kwest
+/* add_tag
+ * Create a new tag in kwest
+ * 
  * param: char *tagname
  * return: 0 on SUCCESS
  * author: @SG

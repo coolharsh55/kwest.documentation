@@ -63,12 +63,22 @@ int check_path_validity(const char *path)
 	if(*(path + 1) == '\0') {
 		return KW_SUCCESS;
 	}
-	if(istag(get_entry_name(path)) == TRUE) {
+	if(istag(get_entry_name(path)) != TRUE) {
+		if(isfile(get_entry_name(path)) != TRUE) {
+			return -ENOENT;
+		}
+	}
+	/*
+	 * const char *tag1 = strchr(path);
+	 * if(tag1 == path) { / * no of entries = 1 * /
+		 * return KW_SUCCESS;
+	 * }
+	 * 
+	 * const char *tag2 = strchr(tag1 - 1);
+	 * 
+	 */
+	else {
 		return KW_SUCCESS;
-	} else if(isfile(get_entry_name(path)) == TRUE) {
-		return KW_SUCCESS;
-	} else {
-		return -ENOENT;	
 	}
 	return KW_FAIL;
 }
@@ -162,7 +172,7 @@ char *readdir_files(const char *path, void **ptr)
  */
 const char *get_newfile_path(const char *path)
 {
-	return KW_RETURN_ERROR;
+	return NULL;
 }
 
 

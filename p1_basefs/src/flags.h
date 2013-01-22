@@ -24,10 +24,11 @@
 #include <errno.h>
 #include "magicstrings.h"
 
-/* in case it comes to NOT_DEFINED */
+/* in case it comes to NOT_DEFINED * /
 #ifndef NULL
 	#define NULL 0
 #endif
+*/
 
 #define BOOL int /* allows more clarity in return types */
 /* RETURN VALUES FOR KWEST FUNCTIONS */
@@ -36,12 +37,11 @@
 #define KW_SUCCESS 0 /* return SUCCESS as status */
 #define KW_FAIL -1 /* return FAILED as status */
 #define KW_ERROR 1 /* return ERROR as status */
-#define KW_RETURN_ERROR 0 /* return ERROR when expecting data */
-	
+
 /* FLAGS RELATED TO FUSE, DIRECTORY VALUES */
 #define KW_STDIR 0755 /* DIR entry in struct stat */
 #define KW_STFIL 0444 /* FILE entry in struct stat */
-	
+
 /* FLAGS RELATED TO DATABASE OPERATIONS */
 /* CONSTANTS START FROM 101 */
 

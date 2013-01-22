@@ -26,18 +26,29 @@
 struct metadata audio_fields()
 {
 	struct metadata M;
+	int i;
+	
 	M.argc = 4;
+	
 	M.argv = malloc(M.argc * sizeof(char *));
 	/* store character array of metadata */
+	/* depreciated in favor of strdup
 	M.argv[0] = malloc(sizeof(char) * strlen("artist") + 1);
 	M.argv[1] = malloc(sizeof(char) * strlen("album") + 1);
 	M.argv[2] = malloc(sizeof(char) * strlen("title") + 1);
 	M.argv[3] = malloc(sizeof(char) * strlen("genre") + 1);
-	/* access through M.argv[i] */
+	
+	/* access through M.argv[i] * /
 	strcpy(M.argv[0], "artist");
 	strcpy(M.argv[1], "album");
 	strcpy(M.argv[2], "title");
 	strcpy(M.argv[3], "genre");
+	*/
+	
+	M.argv[0] = strdup("artist");
+	M.argv[1] = strdup("album");
+	M.argv[2] = strdup("title");
+	M.argv[3] = strdup("genre");
 	
 	return M;
 }

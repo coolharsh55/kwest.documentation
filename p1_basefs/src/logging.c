@@ -82,6 +82,8 @@ void log_msg(const char *msg, ...)
  */
 int log_close(void)
 {
-	fclose(logfile);
-	return KW_SUCCESS;
+	if(fclose(logfile) == 0) {
+		return KW_SUCCESS;
+	}
+	return -errno;
 }
