@@ -15,3 +15,8 @@ fixed some more memory leaks
 worked on previos code refactoring
 added read, open, write, truncate, release, rename
 working: ls cd cp mv cat rm mkdir rmdir chmod chown
+
+**2013 Jan 25**
+Implemented function to Check Path Validity 
+Refactor dbkey, extract_audio_taglib files
+Convert extracted tags to title case
