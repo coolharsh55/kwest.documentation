@@ -53,15 +53,15 @@
 #define ASSOC_RELATD "related"
 #define ASSOC_NOTREL "not_related"
 
-#define TAG_ROOT "root"
-#define TAG_FILES "files"
+#define TAG_ROOT "Root"
+#define TAG_FILES "Files"
 
-#define TAG_AUDIO "audio"
-#define TAG_TITLE "title"
-#define TAG_ALBUM "album"
-#define TAG_ARTIST "artist"
-#define TAG_GENRE "genre"
+#define TAG_AUDIO "Audio"
+#define TAG_TITLE "Title"
+#define TAG_ALBUM "Album"
+#define TAG_ARTIST "Artist"
+#define TAG_GENRE "Genre"
 
-#define TAG_UNKNOWN "unknown"
+#define TAG_UNKNOWN "Unknown"
 
 #endif

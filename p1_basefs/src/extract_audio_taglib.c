@@ -18,39 +18,67 @@
 */
 
 #include "extract_audio_taglib.h"
+#include "magicstrings.h"
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 /* metadata_audio_fields
  */
 struct metadata audio_fields()
 {
 	struct metadata M;
-	int i;
+	/* int i; */
 	
 	M.argc = 4;
 	
 	M.argv = malloc(M.argc * sizeof(char *));
-	/* store character array of metadata */
-	/* depreciated in favor of strdup
-	M.argv[0] = malloc(sizeof(char) * strlen("artist") + 1);
-	M.argv[1] = malloc(sizeof(char) * strlen("album") + 1);
-	M.argv[2] = malloc(sizeof(char) * strlen("title") + 1);
-	M.argv[3] = malloc(sizeof(char) * strlen("genre") + 1);
+	/* store character array of metadata * /
+	/ * depreciated in favor of strdup * /
+	M.argv[0] = malloc(sizeof(char) * strlen(TAG_ARTIST) + 1);
+	M.argv[1] = malloc(sizeof(char) * strlen(TAG_ALBUM) + 1);
+	M.argv[2] = malloc(sizeof(char) * strlen(TAG_TITLE) + 1);
+	M.argv[3] = malloc(sizeof(char) * strlen(TAG_GENRE) + 1);
 	
-	/* access through M.argv[i] * /
-	strcpy(M.argv[0], "artist");
-	strcpy(M.argv[1], "album");
-	strcpy(M.argv[2], "title");
-	strcpy(M.argv[3], "genre");
+	/ * access through M.argv[i] * /
+	strcpy(M.argv[0], TAG_ARTIST);
+	strcpy(M.argv[1], TAG_ALBUM);
+	strcpy(M.argv[2], TAG_TITLE);
+	strcpy(M.argv[3], TAG_GENRE);
 	*/
 	
-	M.argv[0] = strdup("artist");
-	M.argv[1] = strdup("album");
-	M.argv[2] = strdup("title");
-	M.argv[3] = strdup("genre");
+	M.argv[0] = strdup(TAG_ARTIST);
+	M.argv[1] = strdup(TAG_ALBUM);
+	M.argv[2] = strdup(TAG_TITLE);
+	M.argv[3] = strdup(TAG_GENRE);
 	
 	return M;
+}
+
+/* format_string 
+ * convert string to Title Case and trim Whitespaces
+ * author : @RS @SG
+ */
+static char *format_string(char *string)
+{
+	int i;
+	
+	for(i = 0; string[i] != '\0'; i++) {
+		
+		if(i == 0 || !isalpha(string[i-1])) {
+			string[i] = toupper(string[i]);
+		} else {
+			string[i] = tolower(string[i]);
+		}
+		if(string[i] == '/' || string[i] == '\\') {
+		string[i] = ' ';
+		}
+	}
+	
+	/* Remove End of string White Spaces */
+	while(string[--i]==' '); string[++i]='\0';
+	
+	return string;
 }
 
 /* extract_metadata_file: extract from physical location
@@ -72,10 +100,10 @@ TagLib_File *extract_metadata_file(const char* path, struct metadata_audio *M)
 		
 	TagLib_Tag* tag = taglib_file_tag(file);
 	/* struct metadata_audio to store audio keywords */
-	M->title = taglib_tag_title(tag);
-	M->artist = taglib_tag_artist(tag);
-	M->album = taglib_tag_album(tag);
-	M->genre = taglib_tag_genre(tag);
+	M->title = format_string(taglib_tag_title(tag));
+	M->artist = format_string(taglib_tag_artist(tag));
+	M->album = format_string(taglib_tag_album(tag));
+	M->genre = format_string(taglib_tag_genre(tag));
 	
 	/* extract_clear_strings(file); */
 	return file;

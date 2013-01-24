@@ -28,6 +28,34 @@
 #include "flags.h"
 
 
+/* get_field_count
+ * Return count of entries in database
+ * 
+ * @param const char *querystring 
+ * @return int count
+ * @author @SG
+ */
+static int get_field_count(const char *querystring)
+{
+	sqlite3_stmt *stmt = NULL;
+	char query[QUERY_SIZE];
+	int status;
+	
+	/* Query to get field count */
+	strcpy(query, querystring);
+	sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0);
+	
+	status = sqlite3_step(stmt);
+	if(status == SQLITE_ROW) { /* Return field count */
+		status = atoi((const char*)sqlite3_column_text(stmt,0));
+		sqlite3_finalize(stmt);
+		return status;
+	}
+	
+	sqlite3_finalize(stmt);
+	return KW_FAIL;
+}
+
 /* set_file_id: Generate id for new file to be added in kwest
  * param: char *abspath - Absolute Path of File
  * return: int fno
@@ -35,36 +63,24 @@
  */
 int set_file_id(const char *abspath)
 {
-	sqlite3_stmt *stmt = NULL;
-	char query[QUERY_SIZE];
-	int status;
-	int fno;
+	int tmp;
 	
 	/* Check if file exists */
-	fno = get_file_id((strrchr(abspath,'/')+1)); /* Get File ID */
-	if(fno != KW_FAIL){ 
+	tmp = get_file_id((strrchr(abspath,'/')+1)); /* Get File ID */
+	if(tmp != KW_FAIL){ 
 		return KW_FAIL; /* Return if file already exists */
 	}
 	
 	/* Query to get maximum no of files existing in database */
-	strcpy(query,"select max(fno) from FileDetails;");
-	status = sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0); 
+	tmp = get_field_count("select count(fno) from FileDetails;");
 	
-	status = sqlite3_step(stmt);
-	if(status == SQLITE_ROW) {
-		if((const char*)sqlite3_column_text(stmt,0) == NULL) { 
-			sqlite3_finalize(stmt);
-			return 1; /* NO ENTRY */
-		} else { /* Increment file count */
-			status = atoi((const char*)sqlite3_column_text(stmt,0));
-			status = status + 1;
-			sqlite3_finalize(stmt); 
-			return status;
-		} 
+	if(tmp == KW_FAIL) {
+		return KW_FAIL;
+	} else if(tmp == NO_DB_ENTRY) { /* No Entry */
+		return FILE_START;
+	} else { /* Increment File ID */
+		return (tmp + 1);
 	}
-	
-	sqlite3_finalize(stmt);
-	return KW_FAIL;
 }
 
 
@@ -75,59 +91,43 @@ int set_file_id(const char *abspath)
  */
 int set_tag_id(const char *tagname,int tagtype)
 {
-	sqlite3_stmt *stmt = NULL;  
 	char query[QUERY_SIZE];
-	int status;
-	const char *tmp; /* Hold result of query */
-	int tno;
+	int tmp;
 	
 	/* Check if tag exists */
-	tno = get_tag_id(tagname); /* Get Tag ID */
-	if(tno != KW_FAIL){
+	tmp = get_tag_id(tagname); /* Get Tag ID */
+	if(tmp != KW_FAIL){
 		return KW_FAIL; /* Return if tag already exists */
 	}
 	
 	/* Check type of tag : USER / SYSTEM */
 	if(tagtype == USER_TAG){
-		/* Start adding user tag at tno = USER_TAG_START */
+		/* Get count of existing User Tags */
 		sprintf(query,"select count(tno) from TagDetails where tno>=%d;"
 		             ,USER_TAG_START);
-		status = sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0);
+		tmp = get_field_count(query);
 		
-		status = sqlite3_step(stmt);
-		if(status == SQLITE_ROW) {
-			tmp = (const char*)sqlite3_column_text(stmt,0);
-			if(atoi(tmp) == 0) { 
-				sqlite3_finalize(stmt);
-				return USER_TAG_START; /* NO ENTRY */
-			} else { /* increment Tag ID */
-				tno = atoi(tmp) + USER_TAG_START;
-				sqlite3_finalize(stmt);
-				return tno;
-			}
+		if(tmp == KW_FAIL) { 
+			return KW_FAIL;
+		} else if (tmp == NO_DB_ENTRY) { /* No Entry */
+			return USER_TAG_START; 
+		} else { /* Increment Tag ID */
+			return (tmp + USER_TAG_START);
 		}
-	} else if(tagtype == SYSTEM_TAG){
-		/* Start adding system tag at tno = 0 */
+	} else { /* tagtype == SYSTEM_TAG */
+		/* Get count of existing System Tags */
 		sprintf(query,"select count(tno) from TagDetails where tno<%d;"
 		             ,USER_TAG_START);
-		status = sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0);
+		tmp = get_field_count(query);
 		
-		status = sqlite3_step(stmt);
-		if(status == SQLITE_ROW) {
-			tmp = (const char*)sqlite3_column_text(stmt,0);
-			if(tmp == NULL) { 
-				sqlite3_finalize(stmt);
-				return SYSTEM_TAG_START; /* NO ENTRY */
-			} else { /* Increment Tag ID */
-				tno = atoi(tmp) + 1;
-				sqlite3_finalize(stmt);
-				return tno;
-			}
+		if(tmp == KW_FAIL) {
+			return KW_FAIL;
+		} else if (tmp == NO_DB_ENTRY) { /* No Entry */
+			return SYSTEM_TAG_START;
+		} else { /* Increment Tag ID */
+			return (tmp + 1);
 		}
 	}
-	
-	sqlite3_finalize(stmt); 
-	return KW_FAIL;
 }
 
 
@@ -136,7 +136,7 @@ int set_tag_id(const char *tagname,int tagtype)
  * 
  * @param const char *querystring 
  * @param const char *fieldname
- * @return int tno 
+ * @return int field_id
  * @author @SG @HP
  */
 static int get_field_id(const char *querystring, const char *fieldname)
@@ -145,21 +145,20 @@ static int get_field_id(const char *querystring, const char *fieldname)
 	char query[QUERY_SIZE];
 	int status;
 	
-	/* Query to get fno */
+	/* Query to get field_id */
 	strcpy(query, querystring);
 	sqlite3_prepare_v2(get_kwdb(),query,-1,&stmt,0);
 	sqlite3_bind_text(stmt,1, fieldname,-1,SQLITE_STATIC);
 	
 	status = sqlite3_step(stmt);
-	if(status == SQLITE_ROW) { /* Return fno if file exists */
+	if(status == SQLITE_ROW) { /* Return field_id if entry exists */
 		status = atoi((const char*)sqlite3_column_text(stmt,0));
 		sqlite3_finalize(stmt);
 		return status;
 	}
 	
 	sqlite3_finalize(stmt);
-	return KW_FAIL; /* File not found Error */
-
+	return KW_FAIL;
 }
 
 

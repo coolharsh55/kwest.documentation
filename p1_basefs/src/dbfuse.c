@@ -52,21 +52,63 @@ static const char *get_entry_name(const char *path)
 }
 
 
+/* check_association
+ * check if association exists between consecutive tags in path
+ */
+static int check_association(const char *path)
+{
+	char *tmp_ptr,*tmp_path;
+	char *tag1,*tag2;
+	int assn;
+	
+	tmp_path = strdup(path);
+	
+	while( (tmp_ptr = strrchr(tmp_path,'/')) != NULL)
+	{
+		tag1 = tmp_ptr + 1;
+		*tmp_ptr = '\0';
+		
+		if((tmp_ptr = strrchr(tmp_path,'/')) == NULL) {
+			break;
+		}
+		tag2 = tmp_ptr + 1;
+		
+		assn = get_association(tag1,tag2);
+		if(assn == KW_ERROR || assn == KW_FAIL) {
+			return KW_FAIL;
+		}
+	}
+	
+	free((char*)tmp_path);
+	return KW_SUCCESS;
+}
+
+
 /* check_path_validity
  * checks whether current path is valid in database
  */
 int check_path_validity(const char *path)
 {
-	/* @TODO
-	 * check associations between consecutive dir entries
-	 */
+	char *tmp_path,*tmp_ptr;
+	
 	if(*(path + 1) == '\0') {
 		return KW_SUCCESS;
 	}
-	if(istag(get_entry_name(path)) != TRUE) {
-		if(isfile(get_entry_name(path)) != TRUE) {
-			return -ENOENT;
+	if(istag(get_entry_name(path)) == TRUE) {
+		if(check_association(path) == KW_SUCCESS) {
+			return KW_SUCCESS;
 		}
+	} else if(isfile(get_entry_name(path)) == TRUE) {
+		tmp_path = strdup(path);
+		tmp_ptr = strrchr(tmp_path,'/');
+		*tmp_ptr='\0';
+		if(check_association(tmp_path) == KW_SUCCESS) {
+			free((char *)tmp_path);
+			return KW_SUCCESS;
+		}
+		free((char *)tmp_path);
+	} else {
+		return -ENOENT;	
 	}
 	/*
 	 * const char *tag1 = strchr(path);
@@ -77,7 +119,7 @@ int check_path_validity(const char *path)
 	 * const char *tag2 = strchr(tag1 - 1);
 	 * 
 	 */
-	return KW_SUCCESS;
+	return KW_FAIL;
 }
 
 
@@ -119,18 +161,16 @@ const char *get_absolute_path(const char *path)
  */
 char *readdir_dirs(const char *path, void **ptr)
 {
-	log_msg ("readdir_dirs: %s",path);
+	log_msg ("readdir_dirs: %s\n",path);
 	if(*ptr == NULL) {
-		log_msg("ptr is NULL");
 		if(*(path + 1) == '\0') {
-			log_msg("path is ROOT");
-			*ptr = get_tags_by_association("root", ASSOC_SUBGROUP);
+			*ptr=get_tags_by_association(TAG_ROOT, ASSOC_SUBGROUP);
 		} else {
 			const char *t = strrchr(path,'/');
 			*ptr = get_tags_by_association(t + 1, ASSOC_SUBGROUP); 
 		}
 		if(*ptr == NULL) {
-			log_msg("pointer p is NULL");
+			log_msg("pointer p is NULL\n");
 			return NULL;
 		}
 	}
@@ -144,10 +184,10 @@ char *readdir_dirs(const char *path, void **ptr)
  */
 char *readdir_files(const char *path, void **ptr)
 {
-	log_msg ("readdir_files: %s",path);
+	log_msg ("readdir_files: %s\n",path);
 	if(*ptr == NULL) {
 		if(*(path + 1) == '\0') {
-			*ptr = get_fname_under_tag("root");
+			*ptr = get_fname_under_tag(TAG_ROOT);
 		} else {
 			const char *t = strrchr(path,'/');
 			*ptr = get_fname_under_tag(t + 1); 

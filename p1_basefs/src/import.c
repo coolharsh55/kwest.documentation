@@ -103,7 +103,7 @@ static int import_semantics(const char *path,const char *dirname)
 		} else if(S_ISREG(fstat.st_mode)) { /* Regular File */
 
 			if(add_file(full_name) == KW_SUCCESS){
-				printf("Added File  : %s",entry->d_name);
+				printf("Added File  : %s\n",entry->d_name);
 
 				/* Tag-File Relation */
 				tag_file(dirname,entry->d_name);
@@ -127,7 +127,7 @@ int import(const char *path)
 	
 	/* Create Tag for directory to be imported */
 	if(add_tag(dirname, USER_TAG) == KW_SUCCESS){
-		printf("Creating Tag : %s",dirname);
+		printf("Creating Tag : %s\n",dirname);
 		add_association(dirname, TAG_FILES, ASSOC_SUBGROUP);
 	}
 

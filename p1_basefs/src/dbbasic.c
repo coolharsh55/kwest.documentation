@@ -249,14 +249,11 @@ static int associate_file_metadata(const char *metatype,const char *tagname,
 {
 	char *newtag=NULL;
 	
-	/* TODO : Deal with slash */
-	
 	if( (strcmp(tagname,"") == 0) || /* No meta information */ 
-	    (strrchr(tagname,'/')!= NULL) || /* slash in dirname */
 	    (strcmp(metatype,tagname)==0) ||
 	    (strcmp(metatype,TAG_UNKNOWN)==0) ){ 
 		newtag=strdup(TAG_UNKNOWN);
-		newtag=strcat(newtag,metatype);
+		newtag=strcat(strcat(newtag," "),metatype);
 		/* Create Tag Unknown */
 		add_tag(newtag,SYSTEM_TAG); 
 		/* Associate Tag Unknown with File Type*/

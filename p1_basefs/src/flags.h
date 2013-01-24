@@ -50,12 +50,11 @@
 #define USER_TAG   1 /* Tag Accessible to user */
 #define SYSTEM_TAG 2 /* Size of array holding query */
 
-/* Starting id for tags */
+/* Starting id for tags and files */
+#define NO_DB_ENTRY      0
+#define FILE_START       0
+#define SYSTEM_TAG_START 0
 #define USER_TAG_START   100
-#define SYSTEM_TAG_START 1
-
-/* Error Codes */
-
 
 /* Tag-Tag Association Types */
 #define ASSOC_PROBABLY_RELATED 1
