@@ -32,13 +32,13 @@
 /* log_init
  * initialize logging
  */
-BOOL _is_path_root(const char *path) 
+bool _is_path_root(const char *path) 
 {
 	if(*(path+1) == '\0') {
-		return TRUE;
+		return true;
 	}
 	else {
-		return FALSE;
+		return false;
 	}
 }
 
@@ -94,11 +94,11 @@ int check_path_validity(const char *path)
 	if(*(path + 1) == '\0') {
 		return KW_SUCCESS;
 	}
-	if(istag(get_entry_name(path)) == TRUE) {
+	if(istag(get_entry_name(path)) == true) {
 		if(check_association(path) == KW_SUCCESS) {
 			return KW_SUCCESS;
 		}
-	} else if(isfile(get_entry_name(path)) == TRUE) {
+	} else if(isfile(get_entry_name(path)) == true) {
 		tmp_path = strdup(path);
 		tmp_ptr = strrchr(tmp_path,'/');
 		*tmp_ptr='\0';
@@ -126,24 +126,24 @@ int check_path_validity(const char *path)
 /* path_is_dir
  * checks whether given path has a directory entry
  */
-BOOL path_is_dir(const char *path)
+bool path_is_dir(const char *path)
 {
-	if(istag(get_entry_name(path)) != TRUE)
-		return FALSE;
-	return TRUE;
+	if(istag(get_entry_name(path)) != true)
+		return false;
+	return true;
 }
 
 
 /* path_is_file
  * checks whether given path has a file entry
  */
-BOOL path_is_file(const char *path)
+bool path_is_file(const char *path)
 {
-	if(isfile(get_entry_name(path)) != TRUE) {
-		return FALSE;
+	if(isfile(get_entry_name(path)) != true) {
+		return false;
 	}
 	
-	return TRUE;
+	return true;
 }
 
 

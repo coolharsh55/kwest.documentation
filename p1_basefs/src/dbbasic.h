@@ -168,14 +168,14 @@ const char* string_from_stmt(sqlite3_stmt *stmt);
  * return: 1 if tag present
  * author: @SG 
  */
-BOOL istag(const char *t);
+bool istag(const char *t);
 
 /* isfile: Check if given file is present in system
  * param: char *f - filename
  * return: 1 if file present
  * author: @SG 
  */
-BOOL isfile(const char *f);
+bool isfile(const char *f);
 
 /* get_abspath_by_fname: return absolute path of file
  * param: char *path - kwest path

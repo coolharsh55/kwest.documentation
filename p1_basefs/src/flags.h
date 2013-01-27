@@ -22,18 +22,10 @@
 #define KWEST_FLAGS_H
 
 #include <errno.h>
+#include <stdbool.h>
 #include "magicstrings.h"
 
-/* in case it comes to NOT_DEFINED * /
-#ifndef NULL
-	#define NULL 0
-#endif
-*/
-
-#define BOOL int /* allows more clarity in return types */
 /* RETURN VALUES FOR KWEST FUNCTIONS */
-#define TRUE 1 /* boolean TRUE */
-#define FALSE 0 /* boolean FALSE */
 #define KW_SUCCESS 0 /* return SUCCESS as status */
 #define KW_FAIL -1 /* return FAILED as status */
 #define KW_ERROR 1 /* return ERROR as status */

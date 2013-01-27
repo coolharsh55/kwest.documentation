@@ -836,7 +836,7 @@ const char* string_from_stmt(sqlite3_stmt *stmt)
  * return: 1 if tag present
  * author: @SG 
  */
-BOOL istag(const char *t)
+bool istag(const char *t)
 {
 	sqlite3_stmt *stmt;
 	char query[QUERY_SIZE];
@@ -864,7 +864,7 @@ BOOL istag(const char *t)
  * return: 1 if file present
  * author: @SG
  */
-BOOL isfile(const char *f)
+bool isfile(const char *f)
 {
 	sqlite3_stmt *stmt;
 	char query[QUERY_SIZE];

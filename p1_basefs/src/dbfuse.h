@@ -28,10 +28,10 @@
  * checks whether given path is ROOT
  * 
  * @param const char *path
- * @return TRUE if _is_root else FALSE
+ * @return true if _is_root else false
  * @author @HP
  */
-BOOL _is_path_root(const char *path);
+bool _is_path_root(const char *path);
 
 
 /* check_path_validity
@@ -48,20 +48,20 @@ int check_path_validity(const char *path);
  * checks whether given path has a directory entry
  * 
  * @param const char *path
- * @return TRUE if _is_dir else FALSE
+ * @return true if _is_dir else false
  * @author @HP
  */
-BOOL path_is_dir(const char *path);
+bool path_is_dir(const char *path);
 
 
 /* path_is_file
  * checks whether given path has a file entry
  * 
  * @param const char *path
- * @return TRUE if _is_file else FALSE
+ * @return true if _is_file else false
  * @author @HP
  */
-BOOL path_is_file(const char *path);
+bool path_is_file(const char *path);
 
 
 /* get_absolute_path
