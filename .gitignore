@@ -5,6 +5,7 @@
 *.toc
 *.out
 *.pdf
+*.lof
 
 doxygen/
 

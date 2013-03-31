@@ -2,6 +2,11 @@
 
 KWEST is a virtual filesystem. This means that the folders and files represented by it are a part of its virtual organisation. Each file in KWEST represents an actual file stored somewhere on the underlying file system. The main focus of using KWEST is organisation.
 
+\section{Installing}
+\begin{itemize}
+\item Once can get the latest copy of KWEST by downloading from the project hosting site: \url{https://code.google.com/p/kwest/downloads/list}
+\end{itemize}
+
 \section{Mounting and Unmounting}
 
 \begin{itemize}
@@ -13,7 +18,10 @@ KWEST is a virtual filesystem. This means that the folders and files represented
 
 \begin{itemize}
 \item By default KWEST imports from the users \textbf{HOME} folder. It recursively scans all the subfolders and imports the folder hierarchy into KWEST. Hidden and System files are ignored by KWEST.
+
 \item The user can also explicitly use the \textbf{import} tool to import files and folders into KWEST. The import tool accepts the folder to import as argument and imports all files and folders within it. It can work regardless of whether the file system is mounted or not.
+
+\item While importing, the metadata of the file is used to organise each file. For eg: A music file contains the song's artist, which is used to categorise that file.
 \end{itemize}
 
 \section{Folder Structure}
@@ -26,4 +34,16 @@ This folder contains the user's folders as they  appear on their underlying file
 \item \textbf{Audio} \newline
 This folder contains all the files recognised by the system as being of type audio. Upon accessing the folder, each Audio file is further categorised by \textbf{Album}, \textbf{Artist}, \textbf{Genre}. If a particular metadata is absent for the audio file, KWEST categorises it in the Unkown folder. \newline
 For e.g. If the audio file does not have any artist associated with it, it can be found in \textbf{UnknownArtist}.
+
+\item \textbf{Image} \newline
+This folder contains all the image files recognised by the system. Inside, the images are organised by ImageCreator and ImageDate. 
+The ImageCreator subfolder is based on \textit{Creators} like software - Adobe Photoshop, or hardware - Camera Models. Each ImageCreator tag is further organised by ImageDate. 
+The ImageDate folder contains images sorted by \textit{Month-Year} of creation. Eg: A picture taken on ``\textit{2nd March 1992}'' will appear under ``\textit{1992Mar}''.
+As with Audio, files with metadata missing will appear under appropriate \textit{Unkown} subfolders.
+
+\item \textbf{PDF} \newline
+All PDF documents are tagged with the PDF tag. Each PDF document is organised by its \textit{Author,Publisher,Subject} and \textit{Title}. Files with metadata missing are appropriately tagged under \textit{Unknown} tags.
+
+\item \textbf{Video} \newline
+Currently, the system organises video based only on Length, with the categories being \textit{Short, Medium and Long}. A short video is anything with less than 1800s of playtime. Videos with play time equal to or greater than 5400s are considered Long, and anything between them is considered Medium.	
 \end{enumerate}
