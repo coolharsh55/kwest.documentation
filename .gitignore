@@ -1,0 +1,10 @@
+*.log
+*.aux
+*.ref
+*.idx
+*.toc
+*.out
+*.pdf
+
+doxygen/
+

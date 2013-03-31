@@ -1,0 +1,29 @@
+\chapter{User Manual}
+
+KWEST is a virtual filesystem. This means that the folders and files represented by it are a part of its virtual organisation. Each file in KWEST represents an actual file stored somewhere on the underlying file system. The main focus of using KWEST is organisation.
+
+\section{Mounting and Unmounting}
+
+\begin{itemize}
+\item To mount a KWEST filesystem, the user needs to run the \textit{mount} script which will mount the file system in the specified folder. 
+\item To unmount a KWEST filesystem, the user needs to run the \textit{fusermount -u} command with the argument \textit{path of KWEST mount point}. A successful unmount operation does not return any message.
+\end{itemize}
+
+\section{Importing Files and Folders}
+
+\begin{itemize}
+\item By default KWEST imports from the users \textbf{HOME} folder. It recursively scans all the subfolders and imports the folder hierarchy into KWEST. Hidden and System files are ignored by KWEST.
+\item The user can also explicitly use the \textbf{import} tool to import files and folders into KWEST. The import tool accepts the folder to import as argument and imports all files and folders within it. It can work regardless of whether the file system is mounted or not.
+\end{itemize}
+
+\section{Folder Structure}
+
+The first layout when viewing a KWEST file system is called the Base folder. This folder contains a proper organisational view of the imported data, categorised by their metadata types. It contains the following folders:
+
+\begin{enumerate}
+\item \textbf{Files} \newline
+This folder contains the user's folders as they  appear on their underlying file system. The folder is provided to give the user a quick access to their previous data organisation, as well as to demonstrate the superiority of a KWEST organisation.
+\item \textbf{Audio} \newline
+This folder contains all the files recognised by the system as being of type audio. Upon accessing the folder, each Audio file is further categorised by \textbf{Album}, \textbf{Artist}, \textbf{Genre}. If a particular metadata is absent for the audio file, KWEST categorises it in the Unkown folder. \newline
+For e.g. If the audio file does not have any artist associated with it, it can be found in \textbf{UnknownArtist}.
+\end{enumerate}

@@ -1,0 +1,101 @@
+\documentclass[10pt,a4paper]{scrreprt}
+%page setup
+\usepackage[top=1in, bottom=1in, left=1.5in,right=1in]{geometry}
+%generate pdf
+\usepackage[pdftex]{graphicx}
+%links in Contents
+\usepackage[bookmarks, colorlinks=false]{hyperref} 
+%embedding pdf
+\usepackage[final]{pdfpages} 
+%font = times new roman
+\usepackage{pslatex}
+\usepackage[english]{babel}
+%title and section styling
+\usepackage{titlesec}
+\usepackage{sectsty}
+%For the header and footer
+\usepackage{fancyhdr}
+\fancypagestyle{plain}{
+	%\fancyhf{} % clear all header and footer fields
+	\fancyfoot[L]{Department of Computer Engg.}
+	\fancyfoot[R]{\thepage}
+	\renewcommand{\headrulewidth}{0.4pt}
+	\renewcommand{\footrulewidth}{0.4pt} 	}
+%header - Project title
+\rhead{Kwest : A Semantically Tagged Virtual File System}
+\lhead{}
+%footer on every page
+\fancyfoot[LO,LE]{Department of Computer Engg.}
+\cfoot{}
+\fancyfoot[RO, RE]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+%page of Contents - title alignment
+%set contents title
+\renewcommand{\contentsname}{\begin{center}\textsc{Contents}\end{center}} 
+\renewcommand{\chapterheadstartvskip}{\vspace*{-\baselineskip }}
+\titleformat{\chapter}[display]
+	{\normalfont\Large\bfseries\centering}
+	{\chaptertitlename\thechapter}{12pt}{\LARGE}
+	\titlespacing*{\chapter}{0pt}{0pt}{15pt}
+	\chapterfont{\raggedleft}
+%add Bib to chapter list with chapter name
+\usepackage{natbib}
+\renewcommand{\bibsection}{\chapter{BIBLIOGRAPHY}}
+%justification awesome set :)
+\usepackage[tracking=true,kerning=true,spacing=true]{microtype}
+%page clearence for sections
+%Latex does this by default 
+%EXPERIMENTAL STUFF
+%--------------------------------------------------------------------------------------------------------
+
+%--------------------------------------------------------------------------------------------------------
+%--------------------------------------------------------------------------------------------------------
+\begin{document}
+%remove hyphenation
+\hyphenpenalty = 100000
+\pretolerance = 100000
+
+\input{abstract.tex}
+\pagenumbering{roman} %numbering before main content starts
+%To reset the Header & Footer for TOC and LOF
+\pagestyle{empty}
+
+\addtocontents{toc}{\protect\thispagestyle{empty}}
+
+\tableofcontents % adds Index Page
+
+%set alignment for list of figures
+%\renewcommand{\chapterheadstartvskip}{\vspace*{-\baselineskip }}
+\titleformat{\chapter}[display]
+	{\normalfont\Large\bfseries\centering}
+	{\chaptertitlename\ \thechapter}{12pt}{\Large}
+	\titlespacing*{\chapter}{0pt}{0pt}{15pt}
+	\chapterfont{\raggedleft}
+\pagestyle{empty}
+\addtocontents{lof}{\protect\thispagestyle{empty}}
+\listoffigures % adds List of Figures
+\cleardoublepage
+%And reset back the settings we choose for Header and Footer
+\pagestyle{fancy}
+\newpage
+\pagenumbering{arabic} %reset numbering to normal for the main content
+%reset chapter name alignment
+\titleformat{\chapter}[display]
+	{\normalfont\Large\bfseries\raggedleft}
+	{\chaptertitlename\ \thechapter}{12pt}{\Large}
+	\titlespacing*{\chapter}{0pt}{0pt}{20pt}
+	\chapterfont{\raggedleft}
+
+%\input{prob_def.tex} % adds the introduction page
+%\input{literature.tex} % adds the Literatu	re Survey page
+%\input{SRS.tex} %software requirment specification
+%\input{sysdesign.tex} %system design
+%\input{tech.tex} %technical specification
+%\input{appendix.tex} %appendices
+
+\input{UserManual.tex}
+
+\bibliographystyle{plain}	
+\input{bibliography.tex} %bibliography
+\end{document}
