@@ -1,0 +1,109 @@
+Data Mining
+The overall goal of the data mining process is to extract information from a data set and transform it into an understandable structure for further use.
+
+Association Rule Learning
+In data mining, association rule learning is a popular and well researched method for discovering interesting relations between different data entities in large databases.
+It is intended to identify strong rules discovered in databases using different measures of interestingness.
+
+Apriori Algorithm
+The apriori algorithm is a classic algorithm for learning association rules. The
+ algorithm is designed to operate on databases containing transactions. As is
+common in association rule mining, given a set of itemsets (for instance, sets
+of retail transactions, each listing individual items purchased), the algorithm
+attempts to find subsets which are common to at least a minimum number C of the
+itemsets. Apriori uses a "bottom up" approach, where frequent subsets are
+extended one item at a time (a step known as candidate generation), and groups
+of candidates are tested against the data. The algorithm terminates when no
+further successful extensions are found.
+
+The purpose of the Apriori Algorithm is to find associations between different sets of data.
+Each set of data has a number of items and is called a transaction.
+The output of Apriori is sets of rules that tell us how often items are contained in sets of data.
+
+
+Itemset
+A collection of one or more items
+Example: {A, B, C}
+
+k-itemset
+An itemset that contains k items
+
+
+Support count (σ)
+Number of transactions containing an itemset
+Example: σ({A, B}) = 2
+
+
+Support (s)
+The support supp(X) of an itemset X is defined as the proportion of transactions in the data set which contain the itemset
+Example: s({A, B}) = 2/5
+Suppose minsup is the minimum support threshold.
+
+Frequent Itemset (L)
+
+An itemset satisfies minimum support if the occurrence frequency of the itemset
+is greater or equal to minsup. If an itemset satisfies minimum support, then it is a frequent itemset.
+Thus an itemset whose support is greater than or equal to a minsup threshold is a frequent itemset.
+
+
+Confidence
+The confidence of a rule is defined
+\begin{equation*}
+Conf(A \rightarrow B) = supp(A \rightarrow B) / supp(A)
+\end{equation*}
+Suppose minconf is the minimum confidence threshold.
+
+
+Rule Generation
+Given a set of transactions T, the goal of association rule mining is to find all rules having
+support \geq minsup threshold
+confidence \geq minconf threshold
+
+Given a frequent itemset L, find all non-empty subsets f \subset L such that f \rightarrow L – f satisfies the minimum confidence requirement
+Example: If {A, B, C} is a frequent itemset, candidate rules:
+{ AB \rightarrow C, AC \rightarrow B, BC \rightarrow A, A \rightarrow BC, B \rightarrow AC, C \rightarrow AB }
+If |L| = k, then there are (2 ^ k) – 2 candidate association rules (ignoring L \rightarrow \Phi and /Phi \rightarrow L)
+
+
+Apriori principle:
+If an itemset is frequent, then all of its subsets must also be frequent
+Apriori principle holds due to the following property of the support measure:
+\begin{equation*}
+\forall X , Y : ( X \subseteq Y ) \Rightarrow s( X ) \geq s(Y )
+\end{equation*}
+Support of an itemset never exceeds the support of its subsets
+This is known as the anti-monotone property of support
+
+
+Algorithm
+Input:
+T //Database of Transactions
+I //Items
+L //Itemset
+s //support
+c //confidence
+
+Output:
+R //Association Rules satisfying s and c
+
+Algorithm to Generate Frequent Itemsets
+Apriori(T,s)
+L_{1} \leftarrow {Large 1-itemset}
+k \leftarrow 2
+while L_{k - 1} \neq \Phi
+C_{k} = Generate(L_{k - 1})
+for transactions t \in T
+C_{t} \leftarrow Subset(C_{k}, t)
+for candidates c \in C_{t}
+count[c] \leftarrow count[c] + 1
+L_{k} \leftarrow {c \in C_{k} | count[c] \geq s}
+k \leftarrow k + 1
+return \cup L_{k}
+
+Algorithm to Generate Association Rules
+GenRule
+R = \Phi;
+for each l \in L do
+for each x \subset l such that x \neq \Phi and x \neq l do
+if (supp(l) / supp(x)) \geq c then
+R = R \cup ( x \rightarrow ( l - x ) );
