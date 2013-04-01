@@ -48,29 +48,29 @@ Thus an itemset whose support is greater than or equal to a minsup threshold is 
 
 Confidence
 The confidence of a rule is defined
-\begin{equation*}
+\begin{equation}
 Conf(A \rightarrow B) = supp(A \rightarrow B) / supp(A)
-\end{equation*}
+\end{equation}
 Suppose minconf is the minimum confidence threshold.
 
 
 Rule Generation
 Given a set of transactions T, the goal of association rule mining is to find all rules having
-support \geq minsup threshold
-confidence \geq minconf threshold
+$support \geq minsup threshold$
+$confidence \geq minconf threshold$
 
-Given a frequent itemset L, find all non-empty subsets f \subset L such that f \rightarrow L – f satisfies the minimum confidence requirement
-Example: If {A, B, C} is a frequent itemset, candidate rules:
-{ AB \rightarrow C, AC \rightarrow B, BC \rightarrow A, A \rightarrow BC, B \rightarrow AC, C \rightarrow AB }
-If |L| = k, then there are (2 ^ k) – 2 candidate association rules (ignoring L \rightarrow \Phi and /Phi \rightarrow L)
+Given a frequent itemset L, find all non-empty subsets $f \subset$ L such that $f \rightarrow L – f$ satisfies the minimum confidence requirement
+Example: If ${A, B, C}$ is a frequent itemset, candidate rules:
+${ AB \rightarrow C, AC \rightarrow B, BC \rightarrow A, A \rightarrow BC, B \rightarrow AC, C \rightarrow AB }$
+$If |L| = k, then there are (2 ^ k) – 2 candidate association rules (ignoring L \rightarrow \Phi and /Phi \rightarrow L)$
 
 
 Apriori principle:
 If an itemset is frequent, then all of its subsets must also be frequent
 Apriori principle holds due to the following property of the support measure:
-\begin{equation*}
+\begin{equation}
 \forall X , Y : ( X \subseteq Y ) \Rightarrow s( X ) \geq s(Y )
-\end{equation*}
+\end{equation}
 Support of an itemset never exceeds the support of its subsets
 This is known as the anti-monotone property of support
 
@@ -88,6 +88,7 @@ R //Association Rules satisfying s and c
 
 Algorithm to Generate Frequent Itemsets
 Apriori(T,s)
+$
 L_{1} \leftarrow {Large 1-itemset}
 k \leftarrow 2
 while L_{k - 1} \neq \Phi
@@ -99,11 +100,13 @@ count[c] \leftarrow count[c] + 1
 L_{k} \leftarrow {c \in C_{k} | count[c] \geq s}
 k \leftarrow k + 1
 return \cup L_{k}
-
+$
 Algorithm to Generate Association Rules
 GenRule
+$
 R = \Phi;
 for each l \in L do
 for each x \subset l such that x \neq \Phi and x \neq l do
 if (supp(l) / supp(x)) \geq c then
 R = R \cup ( x \rightarrow ( l - x ) );
+$

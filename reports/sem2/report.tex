@@ -10,6 +10,7 @@
 %font = times new roman
 \usepackage{pslatex}
 \usepackage[english]{babel}
+\usepackage{listings}
 %title and section styling
 \usepackage{titlesec}
 \usepackage{sectsty}
@@ -40,8 +41,8 @@
 	\titlespacing*{\chapter}{0pt}{0pt}{15pt}
 	\chapterfont{\raggedleft}
 %add Bib to chapter list with chapter name
-\usepackage{natbib}
-\renewcommand{\bibsection}{\chapter{BIBLIOGRAPHY}}
+%\usepackage{natbib}
+%\renewcommand{\bibsection}{\chapter{BIBLIOGRAPHY}}
 %justification awesome set :)
 \usepackage[tracking=true,kerning=true,spacing=true]{microtype}
 %page clearence for sections
@@ -94,7 +95,13 @@
 %\input{tech.tex} %technical specification
 %\input{appendix.tex} %appendices
 
+\input{literature_survey.tex}
+\input{SRS.tex}
+\input{technical_specification.tex}
 \input{UserManual.tex}
+\input{Conclusion.tex}
+%\include{MathModel.tex}
+
 
 \bibliographystyle{plain}	
 \input{bibliography.tex} %bibliography

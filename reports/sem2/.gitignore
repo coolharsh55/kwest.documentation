@@ -1,0 +1,11 @@
+*.log
+*.aux
+*.ref
+*.idx
+*.toc
+*.out
+*.pdf
+*.lof
+
+doxygen/
+
