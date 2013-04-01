@@ -133,5 +133,27 @@ The user can browse a KWEST file system with any tools, software which work on t
 \section{Suggestions:}
 KWEST helps the user with organisation by providing suggestions for tagging files. These suggestions are provided as files prefixed with the word - ``\textit{SUGGESTED}''. The user may make use of that suggestion by tagging that file in the current tag. \newline
 e.g. in tag \textit{Zodiac}, there are 3 suggestions: \textit{ARIES, GEMINI, CANCER} each shown as a file with \textit{SUGGESTED} prefixed in their names. To make use of the suggestion on \textit{ARIES}, the user tags the file \textit{ARIES} under the tag \textit{Zodiac}. The file is now seen in the tag without the suggested prefix. The other suggestions are still present and may be used further or deleted.
+
 \subsection{Forming suggestions:}
-Suggestions are formed during mounting by 
+Each time the file system is mounted, the system tries to generate new suggestions. These suggestions are stored in the database and are displayed when the user browses relevant tags. The suggestions are formed on the basis of the \textit{Apriori} algorithm by approximating which files are commonly tagged. If the user forms new tags and/or tags some files, the suggestions based on these changes will happen only on the next mount of the file system.
+
+\section{F.A.Q.}
+\begin{enumerate} 
+\item \emph{The project won't compile. I followed the steps correctly, but there are some errors while building...} \newline
+Make sure you have all the dependencies installed and they are up-to-date with the requirments. Sometimes, a system error may interfere in the installation, you may want to restart and try again. The installation does not require administrative privelages, however, you must be able to execute the make file for the installation.
+\item \emph{It gives some error regarding missing kw libraries. Where do I get them?} \newline
+This is due to the libraries being incorrectly linked. You can retype the \textit{export} command from the installation steps.
+\item \emph{The importing of files takes a long time OR is stuck on one particular file...} \newline
+This may happen if that file is being kept busy by some other process. Also, for some file-types such as long videos, the extraction of metadata takes some time. You may wait for some time for the program to complete its operation or abort and restart the proess. No data is lost of corrupted by doing this.
+\item \emph{I get \texttt{segmentation fault} errors and the program crashes.} \newline
+This happens mostly due to file system corruption. You can try unmounting and mounting the file system again. If this still does not solve the issue, you may have to re-install or compile the program.
+\item \emph{I get a \texttt{Software connection abort} error while browsing the file system.} \newline
+This is mostly due to database corruption due to a file being deleted, or external interferences in the functioning of the file system. If the above said steps do not work, you may have to install it again.
+\item \emph{I get a \texttt{Operation not permitted} error.} \newline
+This error occurs whenever the user tries to perform some operations restricted by the KWEST file system. Such as copying from Audio to Images. The file system specifies that this operation is not permitted.
+\item \emph{I get a \texttt{Transport endpoint not connected} error after mounting the file system.} \newline
+This error occurs when the system cannot connect or access the mounted file system. Check whether you have correctly mounted the file system. If yes, try unmounting and mounting. If the error persists, you may have to install the program again.
+\item \emph{I right-click the file system and select unmount, but it gives a system error.} \newline
+Since this is a virtual file system created with FUSE, you can only unmount it using the \texttt{fusermount -u} command. See Unmounting section for more info on this.
+
+\end{enumerate}
