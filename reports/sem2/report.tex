@@ -11,6 +11,8 @@
 \usepackage{pslatex}
 \usepackage[english]{babel}
 \usepackage{listings}
+\lstset{basicstyle=\ttfamily,breaklines=true}
+\lstset{framextopmargin=5pt,frame=bottomline}
 %title and section styling
 \usepackage{titlesec}
 \usepackage{sectsty}
@@ -97,12 +99,14 @@
 
 \input{literature_survey.tex}
 \input{SRS.tex}
+\input{systemdesign.tex}
 \input{technical_specification.tex}
+\input{softwareimplementation.tex}
+\input{teamstructure.tex}
 \input{UserManual.tex}
 \input{DeveloperManual.tex}
+\input{./appendix/appendix.tex}
 \input{Conclusion.tex}
-%\include{MathModel.tex}
-
 
 \bibliographystyle{plain}	
 \input{bibliography.tex} %bibliography

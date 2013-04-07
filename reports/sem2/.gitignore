@@ -4,7 +4,7 @@
 *.idx
 *.toc
 *.out
-*.pdf
+report.pdf
 *.lof
 
 doxygen/

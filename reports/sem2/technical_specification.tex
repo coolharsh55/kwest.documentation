@@ -1,7 +1,7 @@
 \chapter {TECHNICAL SPECIFICATIONS}
 \section {Development}
 \subsection {FUSE}
-For developing and managing the virtual filesystem we have used FUSE, which is a loadable kernel module for Unix-like computer operating systems that lets non-privileged users create their own file systems without editing kernel code. This is achieved by running file system code in user space while the FUSE module provides only a \textit{bridge} to the actual kernel interfaces. \newline
+For developing and managing the virtual filesystem we have used FUSE. It is a loadable kernel module for Unix-like computer operating systems that lets non-privileged users create their own file systems without editing kernel code. This is achieved by running file system code in user space while the FUSE module provides only a \textit{bridge} to the actual kernel interfaces. \newline
 \emph{Minimum required: 2.8} \newline
 \emph{Version used: 2.9.0} from \emph{http://fuse.sourceforge.net/}
 
@@ -11,19 +11,19 @@ We have used SQLite as the data repository for this project. SQLite is a relatio
 \emph{Version Used: 3.7.13} from \emph{http://www.sqlite.org/}
 
 \subsection {Language for Implementation}
-We use ANSI C for implementing our project modules. Specifically, we follow the \textit{GNU C99} standards while compiling our code. \emph{Note:} Some features are incompatible with other standards. \newline
+We use ANSI C for implementing our project modules. Specifically, we follow the \textit{GNU C99} standards while compiling our code. GNU C99 is an extension of the C99 providing some extra features. \emph{Note:} Some features are incompatible with other standards. \newline
 \emph{GNU C99} from \emph{http://gcc.gnu.org/c99status.html}
 
 \subsection {Compiler}
 For compiling our project modules we use the GNU Compiler Collection (GCC). GCC is a compiler system which provides front ends for various languages including C. It provides optimizations, debugging and other features to help program development. \newline
 \emph{Minimum required: 4.6} \newline
-\emph{Version used: 4.7.2} from \emph{http://gcc.gnu.org/}
+\emph{Version used: 4.7.2} on \emph{Linux Mint 14}
 
 \section {Operating Environment}
 \subsection {Platform}
 The project is based on operating systems utilising the linux kernel. Any implementation which provides a POSIX compatible enviroment is sufficient. \newline
 \emph{Minimum required: 2.6.14} \newline
-\emph{Version used: 3.5.0-generic} from \emph{https://www.kernel.org/}
+\emph{Version used: 3.5.0-generic} on \emph{Linux Mint 14}
 
 \subsection {Operating System}
 We have used various operating environments while creating and testing the project. Linux distributions were \emph{Ubuntu 12.04, Ubuntu 12.10, Fedora 18, Linux Mint 13, Linux Mint 14}.

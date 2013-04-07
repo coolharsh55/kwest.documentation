@@ -1,4 +1,33 @@
-\chapter{User Manual}
+\chapter{Deployment and Maintainence}
+
+\section{Installation requirments}
+
+\begin{enumerate}
+\item Fuse - Linux kernel version 2.6.14+
+\item GCC - version 4.6+
+\item Sqlite3 - version 3.6+
+\end{enumerate}
+
+\section{Quick Start Guide}
+\begin{enumerate}
+\item Get the latest copy of KWEST form the project hosting site.
+\item Make sure you have the mininum version of dependencies installed.
+\item Compile the source using a standard C compiler.
+\item Run the KWEST program which will mount the file system.
+\item When required to unmount, use the fusermount command.
+\end{enumerate}
+
+\section{Uninstallation and Removal of data}
+\begin{enumerate}
+\item KWEST ``installs'' files in the users local directory.
+\item To clean all the installation data including the database and log files, the user should use the \emph{make clean} or \emph{make ob} commands.
+\item These commands are present in the Makefile, which comes with the project source.
+\item In case of manual installation, there is a \emph{kwest} folder in the \emph{.config} directory.
+\item Incomplete removal of files may cause haphazard execution of the program or corruption of files.
+\end{enumerate}
+
+\setcounter{section}{0}
+\chapter*{User Manual}
 
 KWEST is a virtual filesystem. This means that the folders and files represented by it are a part of its virtual organisation. Each file in KWEST represents an actual file stored somewhere on the underlying file system. The main focus of using KWEST is organisation.
 
@@ -43,11 +72,11 @@ fusermount -u mountpoint
 \section{Importing Files and Folders}
 
 \begin{itemize}
-\item By default KWEST imports from the users \textbf{HOME} folder. It recursively scans all the subfolders and imports the folder hierarchy into KWEST. Hidden and System files are ignored by KWEST.
+\item By default KWEST imports from the users \textbf{HOME} folder. It recursively scans all the subfolders and imports the folder hierarchy into KWEST. Hidden files are ignored by KWEST.
 
-\item The user can also explicitly use the \textbf{import} tool to import files and folders into KWEST. The import tool accepts the folder to import as argument and imports all files and folders within it. It can work regardless of whether the file system is mounted or not.
+\item The user can also explicitly use the \textbf{import} tool to import files and folders into KWEST. The import tool accepts the folder to import as argument and imports all files and folders within it. It can work regardless of whether the KWEST file system is mounted or not.
 
-\item While importing, the metadata of the file is used to organise each file. For eg: A music file contains the song's artist, which is used to categorise that file.
+\item While importing, the metadata of the file is used to organise each file. For e.g.: A music file contains the song's artist, which is used to categorise that file.
 \end{itemize}
 
 \section{Folder Structure}
@@ -71,7 +100,7 @@ As with Audio, files with metadata missing will appear under appropriate \textit
 All PDF documents are tagged with the PDF tag. Each PDF document is organised by its \textit{Author,Publisher,Subject} and \textit{Title}. Files with metadata missing are appropriately tagged under \textit{Unknown} tags.
 
 \item \textbf{Video} \newline
-Currently, the system organises video based only on Length, with the categories being \textit{Short, Medium and Long}. A short video is anything with less than 1800s of playtime. Videos with play time equal to or greater than 5400s are considered Long, and anything between them is considered Medium.	
+Currently, the system organises video based only on Length, with the categories being \textit{Short, Medium and Long}. A short video is anything with less than 1800s of playtime. Videos with play time equal to or greater than 5400s are considered Long, and anything between them is considered Medium. The Video tag does not contain any categories as most of the videos stored by the user do not have any metadata present.
 
 \item \textbf{`USER'} \newline
 The tag \textbf{`USER'} refers to the \textit{username} of the current user. The user can create and manage his own personal tags in this folder.
@@ -106,7 +135,7 @@ Deleting a tag will untag all files in it in the entire file system and will rem
 \begin{itemize}
 %1. Create a file
 \item \textbf{Creating new files:}
-As of now, KWEST is a tool for helping the users organize their files. Creating a new file is not yet a supported operations. However, users can create files on other file systems and import them into kwest. Import can be done by simply copying the file into appropriate tags.
+As of now, KWEST is a tool for helping the users organize their files. Creating a new file is not yet a supported operations. However, users can create files on other file systems and import them into KWEST. Import can be done by simply copying the file into appropriate tags.
 %2. Open/Read/Write/Execute
 \item \textbf{Open/Read/Write/Execute:}
 Any file tagged in KWEST can be opened, read, written to or executed as in traditional file systems. A slight performance penalty may be present due to the extra layer of virtualisation. However, normal operations like playing music, watching a video have been tested against and are found to not produce any noticiable lag in usage.
@@ -134,7 +163,7 @@ The user can browse a KWEST file system with any tools, software which work on t
 KWEST helps the user with organisation by providing suggestions for tagging files. These suggestions are provided as files prefixed with the word - ``\textit{SUGGESTED}''. The user may make use of that suggestion by tagging that file in the current tag. \newline
 e.g. in tag \textit{Zodiac}, there are 3 suggestions: \textit{ARIES, GEMINI, CANCER} each shown as a file with \textit{SUGGESTED} prefixed in their names. To make use of the suggestion on \textit{ARIES}, the user tags the file \textit{ARIES} under the tag \textit{Zodiac}. The file is now seen in the tag without the suggested prefix. The other suggestions are still present and may be used further or deleted.
 
-\subsection{Forming suggestions:}
+\subsection*{Forming suggestions:}
 Each time the file system is mounted, the system tries to generate new suggestions. These suggestions are stored in the database and are displayed when the user browses relevant tags. The suggestions are formed on the basis of the \textit{Apriori} algorithm by approximating which files are commonly tagged. If the user forms new tags and/or tags some files, the suggestions based on these changes will happen only on the next mount of the file system.
 
 \section{F.A.Q.}
