@@ -8,4 +8,4 @@ report.pdf
 *.lof
 
 doxygen/
-
+/*.lot
