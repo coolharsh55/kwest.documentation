@@ -10,6 +10,7 @@
 %font = times new roman
 \usepackage{pslatex}
 \usepackage[english]{babel}
+\usepackage{enumitem}
 \usepackage{listings}
 \lstset{basicstyle=\ttfamily,breaklines=true}
 \lstset{framextopmargin=5pt,frame=bottomline}
@@ -78,6 +79,7 @@
 \pagestyle{empty}
 \addtocontents{lof}{\protect\thispagestyle{empty}}
 \listoffigures % adds List of Figures
+\listoftables % adds list of tables
 \cleardoublepage
 %And reset back the settings we choose for Header and Footer
 \pagestyle{fancy}
@@ -97,16 +99,18 @@
 %\input{tech.tex} %technical specification
 %\input{appendix.tex} %appendices
 
-\input{literature_survey.tex}
-\input{SRS.tex}
-\input{systemdesign.tex}
-\input{technical_specification.tex}
-\input{softwareimplementation.tex}
-\input{teamstructure.tex}
-\input{UserManual.tex}
-\input{DeveloperManual.tex}
-\input{./appendix/appendix.tex}
-\input{Conclusion.tex}
+%\input{literature_survey.tex}
+%\input{SRS.tex}
+%\input{systemdesign.tex}
+%\input{technical_specification.tex}
+%\input{softwareimplementation.tex}
+%\input{teamstructure.tex}
+\input{testing.tex}
+\input{results.tex}
+%\input{UserManual.tex}
+%\input{DeveloperManual.tex}
+%\input{./appendix/appendix.tex}
+%\input{Conclusion.tex}
 
 \bibliographystyle{plain}	
 \input{bibliography.tex} %bibliography

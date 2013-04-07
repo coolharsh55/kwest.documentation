@@ -109,7 +109,7 @@ Semantic systems depend on data stored inside the files rather merely relying on
 
 ``Semantic File System''\cite{SEMFS}, as developed by O'Toole and Gittord in 1992, provides
 access to file contents and metadata by extracting the attributes using special modules
-called transducers. It was one of the very first attempts to classify files by semantics
+called ``transducers''. It was one of the very first attempts to classify files by semantics
 using metadata. Its biggest drawback was the need for file type specific transducers
 which were necessary to extract meta information and content from the file. Also, the
 user does not have any say in what kind of category the file is classified under. This
@@ -168,12 +168,14 @@ may be generated for each user increasing the database size.
 \newpage For the development of KWEST, we referred to the following papers in order to
 form a guideline for our project.
 
+$\newline$
 1. Chang. K, Ramadhana. B, Sethuraman. K, Le. T, Chachra. N, Tikale. S, Perdana. I,
-Jain. M, Kartasasmita. I, Knowledge File System - A principled approach to personal
-information management. 2010 IEEE International Conference on Data Mining
+Jain. M, Kartasasmita. I,\textit{ Knowledge File System - A principled approach to personal
+information management.} 2010 IEEE International Conference on Data Mining
 Workshops, Page(s): 1037-1044.\cite{KFS}
 
-Abstract: The Knowledge File System (KFS) is a smart virtual file system that
+$\newline$
+\textit{\textbf{Abstract:}} The Knowledge File System (KFS) is a smart virtual file system that
 sits between the operating system and the file system. Its primary functionality is to
 automatically organise files in a transparent and seamless manner so as to facilitate
 easy retrieval. Think of the KFS as a personal assistant, who can file every one of you
@@ -191,7 +193,7 @@ on Linux. Apache Lucene was used to provide traditional desktop search capabilit
 		complimenting the customisable rule-based KFS classification framework. Lastly, an
 		embedded database is used to log all file access to support file-usage classification.
 		
-Usefulness: This paper describes approach to personal information management
+\textit{\textbf{Usefulness:}} This paper describes approach to personal information management
 		through Knowledge File System. It is designed to help users organise information
 		using Virtual File System to reduce the problem of manual information classification and
 		retrieval. KFS provides functions so as to automatically classify the information based
@@ -202,10 +204,12 @@ Usefulness: This paper describes approach to personal information management
 		desktop file system, beagle and KFS are given. Finally the details of the implementation
 		of the KFS on the Linux platform using of FUSE are given.
 		
-		2. Eck. O, Schaefer. D, A semantic file system for integrated product data management.
+		$\newline$
+		2. Eck. O, Schaefer. D, \textit{A semantic file system for integrated product data management.}
 		2011 Advanced Engineering Informatics, Page(s): 177-184.\cite{SMFS2011}
 		
-		Abstract: We initially discuss a number of disadvantages of current file management
+        $\newline$
+		\textit{\textbf{Abstract:}} We initially discuss a number of disadvantages of current file management
 		systems. In the body of the paper our main contribution is presented. That is, a formal
 		mathematical model of a new semantic file system, SIL (Semantics Instead of Location),
 		that allows engineers to access data based on semantic information rather than storage
@@ -217,7 +221,7 @@ Usefulness: This paper describes approach to personal information management
 		semantic file system for product data management in the field of integrated design of
 		mechatronic systems are discussed.
 		
-		Usefulness: This paper describes a formal mathematical model that allows engineers
+		\textit{\textbf{Usefulness:}} This paper describes a formal mathematical model that allows engineers
 		to access data based on semantics rather than actual storage location. The main goal of
 		this file system is to search files based on content of data. The browsing of the system is
 		done based on file's metadata and attributes. Logical operator such as AND, OR, NOT
@@ -225,11 +229,13 @@ Usefulness: This paper describes approach to personal information management
 		Furthermore API's are written to create views and for the automation of notification
 		updates.
 		
-		3. Mohan. P, Venkateswaran. S, Raghuraman, Siromoney. A, Semantic File Retrieval
-		in File Systems using Virtual Directories. Proc. Linux Expo Conference, Raleigh, NC,
+		$\newline$		
+		3. Mohan. P, Venkateswaran. S, Raghuraman, Siromoney. A,\textit{ Semantic File Retrieval
+		in File Systems using Virtual Directories.} Proc. Linux Expo Conference, Raleigh, NC,
 		Page(s): 141-151, May 2007.\cite{VIRDIR}
 		
-		Abstract: Hard Disk capacity is no longer a problem. However, increasing disk capacity
+		$\newline$		
+		\textit{\textbf{Abstract:}} Hard Disk capacity is no longer a problem. However, increasing disk capacity
 		has brought with it a new problem, the problem of locating files. Retrieving a document
 		from a myriad of files and directories is no easy task. Industry solutions are being created
 		to address this short coming. We propose to create an extendable UNIX based File
@@ -239,18 +245,21 @@ Usefulness: This paper describes approach to personal information management
 		mainly to facilitate the searching of file, it can also be used by plugins to interpret other
 		queries.
 		
-		Usefulness: This paper describes the design of SemFS, which provides semantics
+		\textit{\textbf{Usefulness:}} This paper describes the design of SemFS, which provides semantics
 		based on the file's meta-data and attributes. It allows the usage of logical operators to
 		filter query results. It is implemented as a user space file system upon journaling storage.
 		The architecture is server-client with support for API's to extend functionality. Features
 		such as file tagging and versioning are also implemented.
 		
-		4.Rakesh. A, Tomasz. I, Arun. S, Mining Association Rules between Sets of Items in Large Databases, SIGMOD Conference 1993, Page(s): 207-216.\cite{MiningAssoc}
+		$\newline$
+		4.Rakesh. A, Tomasz. I, Arun. S, \textit{Mining Association Rules between Sets of Items in Large Databases}, SIGMOD Conference 1993, Page(s): 207-216.\cite{MiningAssoc}
 		
-		Abstract :-We are given a large database of customer transactions. Each transaction consists of items purchased by a customer in a visit. We present an efficient algorithm that generates all significant association rules between items in the database. The algorithm incorporates buffer management and novel estimation and pruning techniques. We also present results of applying this algorithm to sales data obtained from a large retailing company, which shows the effectiveness of the algorithm.
+		 $\newline$		
+		\textit{\textbf{Abstract :}} We are given a large database of customer transactions. Each transaction consists of items purchased by a customer in a visit. We present an efficient algorithm that generates all significant association rules between items in the database. The algorithm incorporates buffer management and novel estimation and pruning techniques. We also present results of applying this algorithm to sales data obtained from a large retailing company, which shows the effectiveness of the algorithm.
 		
-		Usefulness :-For finding frequently occurring file and tags ,Creating association rules based on them give and providing suggestions to user.
+		\textit{\textbf{Usefulness :}} For finding frequently occurring file and tags ,Creating association rules based on them give and providing suggestions to user.
 		
+		$\newline$		
 		Many tagging systems exist that allow efficient manual classification of information.
 		Most implementations tend to be theoretical\cite{SMO2012} demonstrations or complex
 		implementations\cite{STMGMTSYS} existing for some very specific purpose. These suggest the
