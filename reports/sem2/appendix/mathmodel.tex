@@ -33,7 +33,7 @@ $h$ is an operation which takes input as a tag $t$ and returns the set of files 
 \section{Storing Tags and Files}
 The relation $R$ is stored as a set of ordered pairs $(f,t)$, where $R \subseteq F \times T$. The operations $g$ and $h$ operate on these ordered pairs and return mapped or matched elements. A relation which has to be added must be represented in the form of of ordered pair $(f,t)$. Storage of all relations is given by $F \times T$ where ordered pairs exist according to $R = \{f \in F, t \in T \mid f\, R \,t\}$.
 
-\noindent For eg. we have the sets and their relations as: 
+\noindent For example, we have the sets and their relations as: 
 $$F = \{ f_{1}, f_{2}, f_{3} \}, T = \{ t_{1}, t_{2}, t_{3} \}, R = \{f_{1} \, R  \, t_{1}, f_{2}  \, R  \, t_{2}, f_{3}  \, R  \, t_{1}, f_{1}  \, R  \, t_{3}\}$$
 Then we store this relation by its ordered pairs given by:
 $$R = \{(f_{1},t_{1}),(f_{2}, t_{2}),(f_{3}, t_{1}),(f_{1}, t_{3})\}$$
@@ -45,12 +45,12 @@ $$X_{E}(f) = T_{E} \in 2^{T}$$
 \noindent Addition of new information (metadata, tags) is done as:
 $${if (t \notin T) \, then \, (T \gets T \cup \{t\})}$$
 
-\noindent We then store this relation as a ordered pair $\{(f,t) \forall t \in T_{E}\}$. At the end of this operation $T_{E} \subseteq T$ will hold true. 
+\noindent We then store this relation as a ordered pair $\{(f, \, t) \, \forall t \in T_{E}\}$. At the end of this operation $T_{E} \subseteq T$ will hold true. 
 
 \section{Importing Semantics}
 The existing file-directory structure can be imported to the system and represented in the form of tags and files. We define: 
 
-\noindent $F_{H}$ : Set of \emph{Files} on hard-disk which are not represented in system.\\
+\noindent $F_{H} \, $  : Set of \emph{Files} on hard-disk which are not represented in system.\\
 $D_{H}$ : Set of \emph{Directories} on hard-disk which are not represented in system. \\
 
 \noindent Then for every file stored within a directory $d$, the relation $R$ is expressed as 
@@ -58,7 +58,7 @@ $(f  \, R  \, d)$.
 When importing semantics we create the ordered pair $(f,d)$ given by the relation $(f  \, R \,  d, \forall d \in D_{d})$. Where $D_{d}$ contains the directory the file is stored in, as well as every parent directory of that directory itself.
 
 \noindent Directories also contain sub-directories which we store in the form of tag relationships. We represent them as:
-$\forall (d_{1}, d_{2}) \in D_{H}$, if $d_{2} \subset d_{1}$ ($d_{2}$ is a sub-directory of $d_{1}$) store the relation as-
+$\forall (d_{1}, d_{2}) \in D_{H}$, if $d_{2} \subset d_{1}$ ($d_{2}$ is a sub-directory of $d_{1}$) store the relation as
 $$d_{1} \to d_{2}$$
 
 
@@ -73,7 +73,7 @@ extended one item at a time (a step known as candidate generation), and groups
 of candidates are tested against the data. The algorithm terminates when no
 further successful extensions are found.
 
-The purpose of the Apriori Algorithm is to find associations between different sets of data.
+The purpose of the apriori algorithm is to find associations between different sets of data.
 Each set of data has a number of items and is called a transaction.
 The output of Apriori is sets of rules that tell us how often items are contained in sets of data.
 
@@ -98,7 +98,7 @@ is greater or equal to a threshold. If an itemset satisfies minimum support, the
 Thus an itemset whose support is greater or equal to minsup is a frequent itemset.
 
 \subsection{Confidence}
-The confidence of a rule is defined \\
+The confidence of a rule is defined as,\\
 \begin{equation}
 Conf(A \rightarrow B) = supp(A \rightarrow  B) / supp(A)
 \end{equation}
@@ -134,9 +134,9 @@ $\newline$
 \textbf{Algorithm} \\
 Input \\
 T - Database of transactions \\
-I - Items \\
+I   - Items \\
 L - Itemset\\
-s - support\\
+s   - support\\
 c - confidence
 
 $\newline$
@@ -170,9 +170,9 @@ $R = \Phi;\\
 $\newline$
 \textbf{Example}\\
 Consider a database, D, consisting of 9 transactions.
-Suppose minimum support count required is 2 (i.e. $min_sup = 2 / 9 = 22\%$ ).
+Suppose minimum support count required is 2 (i.e. $minsup = 2 / 9 = 22\%$ ).
 Let minimum confidence required is $minconf = 70\%$.
-We have to first find out the frequent itemset using Apriori algorithm.
+We have to first find out the frequent itemset using apriori algorithm.
 Then, Association rules will be generated using minsup and minconf.
 
 \begin{center}
@@ -226,7 +226,7 @@ The set of frequent 1-itemsets, L1, consists of the candidate 1-itemsets satisfy
 
 $\newline$
 \textbf{Step 3: Generating 2-itemset Frequent Pattern} \\
-To discover the set of frequent 2-itemsets, L2 , the algorithm uses L1 Join L1 to generate a candidate set of 2-itemsets, C2.
+To discover the set of frequent 2-itemsets, L2, the algorithm uses L1 Join L1 to generate a candidate set of 2-itemsets, C2.
 Next, the transactions in D are scanned and the support count for each candidate itemset in C2 is accumulated.
 The set of frequent 2-itemsets, L2, is then determined, consisting of those candidate 2-itemsets in C2 having minimum support.
 
@@ -245,18 +245,23 @@ The set of frequent 2-itemsets, L2, is then determined, consisting of those cand
 
 $\newline$
 \textbf{Step 4: Generating 3-itemset Frequent Pattern}\\
-The generation of the set of candidate 3-itemsets,  C3 ,  involves use of the Apriori Property.
-C3 = L2  Join  L2 = \{\{F1, F2, F3\}, \{F1, F2, F5\}, \{F1, F3, F5\}, \{F2, F3, F4\}, \{F2, F3, F5\}, \{F2, F4, F5\}\}.
+The generation of the set of candidate 3-itemsets, C3, involves use of the Apriori Property. First, we generate C3 using L2 join L2. \\
+\begin{center}
+C3 = \{\{F1, F2, F3\}, \{F1, F2, F5\}, \{F1, F3, F5\}, \\
+\{F2, F3, F4\}, \{F2, F3, F5\}, \{F2, F4, F5\}\}.
+\end{center}
 Now we will apply Apriori property to determine which candidate itemsets are frequent.
 
 The 2-item subsets of \{F1, F2, F3\} are \{F1, F2\}, \{F1, F3\} and \{F2, F3\}.
-Since all 2-item subsets of \{F1, F2, F3\} are members of L2, We will keep {F1, F2, F3\} in C3.
+Since all 2-item subsets of \{F1, F2, F3\} are members of L2, We will keep \{F1, F2, F3\} in C3.
 
 The 2-item subsets of \{F2, F3, F5\} are \{F2, F3\}, \{F2, F5\} and \{F3, F5\}.
 But, \{F3, F5\} is not a member of L2 and hence it is violating Apriori Property.
 Thus we will remove \{F2, F3, F5\} from C3.
-Therefore, C3 = \{\{F1, F2, F3\}, \{F1, F2, F5\}\}.
-
+Therefore,
+\begin{center}
+C3 = \{\{F1, F2, F3\}, \{F1, F2, F5\}\}.
+\end{center}
 Now, the transactions in D are scanned in order to determine L3, consisting
 of those candidates 3-itemsets in C3 having minimum support.
 
@@ -274,11 +279,10 @@ $\newline$
 The algorithm uses L3 Join L3 to generate a candidate set of 4-itemsets, C4.
 Although the join results in \{\{F1, F2, F3, F5\}\}, this itemset is removed since its subset \{\{F2, F3, F5\}\} is not frequent.
 Thus, $ C4 = \Phi $ , and algorithm terminates, having found all of the frequent items.
-This completes our Apriori Algorithm.
+This completes our apriori algorithm.
 
 $\newline$
-\textbf{Step 6: Generating Association Rules from Frequent Itemsets}
-
+\textbf{Step 6: Generating Association Rules from Frequent Itemsets} \\
 For each frequent itemset 'l', generate all nonempty subsets of l.
 For every nonempty subset s of l, output the rule $ s \rightarrow  (l-s) $ if $ supp(l) \; / \; supp(s) \geq minconf $
 
@@ -314,4 +318,3 @@ In this way, we have found the following three strong association rules.
 \item $F2, F5 \rightarrow  F1$
 \item $F5 \rightarrow  F1, F2$
 \end{enumerate}
-
