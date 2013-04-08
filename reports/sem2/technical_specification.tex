@@ -1,7 +1,7 @@
 \chapter {TECHNICAL SPECIFICATIONS}
 \section {Development}
 \subsection {FUSE}
-For developing and managing the virtual filesystem we have used FUSE. It is a loadable kernel module for Unix-like computer operating systems that lets non-privileged users create their own file systems without editing kernel code. This is achieved by running file system code in user space while the FUSE module provides only a \textit{bridge} to the actual kernel interfaces. \newline
+For developing and managing the virtual file system we have used FUSE. It is a loadable kernel module for Unix-like computer operating systems that lets non-privileged users create their own file systems without editing kernel code. This is achieved by running file system code in user space while the FUSE module provides only a \textit{bridge} to the actual kernel interfaces. \newline
 \emph{Minimum required: 2.8} \newline
 \emph{Version used: 2.9.0} from \emph{http://fuse.sourceforge.net/}
 
@@ -15,13 +15,13 @@ We use ANSI C for implementing our project modules. Specifically, we follow the 
 \emph{GNU C99} from \emph{http://gcc.gnu.org/c99status.html}
 
 \subsection {Compiler}
-For compiling our project modules we use the GNU Compiler Collection (GCC). GCC is a compiler system which provides front ends for various languages including C. It provides optimizations, debugging and other features to help program development. \newline
+For compiling our project modules we use the GNU Compiler Collection (GCC). GCC is a compiler system which provides front ends for various languages including C. It provides optimisation's, debugging and other features to help program development. \newline
 \emph{Minimum required: 4.6} \newline
 \emph{Version used: 4.7.2} on \emph{Linux Mint 14}
 
 \section {Operating Environment}
 \subsection {Platform}
-The project is based on operating systems utilising the linux kernel. Any implementation which provides a POSIX compatible enviroment is sufficient. \newline
+The project is based on operating systems utilising the linux kernel. Any implementation which provides a POSIX compatible environment is sufficient. \newline
 \emph{Minimum required: 2.6.14} \newline
 \emph{Version used: 3.5.0-generic} on \emph{Linux Mint 14}
 
@@ -35,7 +35,7 @@ TagLib is a library for reading and editing the meta-data of several popular aud
 \emph{Version used: TagLib 1.8} from \emph{http://taglib.github.com/}
 
 \subsection{LibExtractor}
-GNU Libextractor is a library used to extract meta data from files. The goal is to provide developers of file-sharing networks, browsers or WWW-indexing bots with a universal library to obtain simple keywords and meta data to match against queries and to show to users instead of only relying on filenames.  \newline
+GNU Libextractor is a library used to extract meta data from files. The goal is to provide developers of file-sharing networks, browsers or WWW-indexing bots with a universal library to obtain simple keywords and meta data to match against queries and to show to users instead of only relying on file names.  \newline
 \emph{Minimum required: 1.0.0} \newline
 \emph{Version used: 1.0.1} from \emph{http://www.gnu.org/software/libextractor/}
 

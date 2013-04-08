@@ -27,7 +27,7 @@ The testing of this system is intended for 3 types of audiences:
 The following have been identified as targets for testing:
 \begin{enumerate}
 \item Code and associated areas
-\item Filesystem operations
+\item File system operations
 \item Databases: SQLite3
 \item Operating Systems
 \end{enumerate}
@@ -106,7 +106,7 @@ Regression Testing is required when there is a :
 \textbf{Success criteria:} All of the following are successfully tested:
 \begin{enumerate}
 \item all previous operations are successfully executed.
-\item previously sovled bugs are not re-introduced.
+\item previously solved bugs are not re-introduced.
 \item operations do not suffer from unwanted performance hits.
 \end{enumerate}
 
@@ -116,11 +116,11 @@ Goal of this testing is to satisfy users and it mainly concentrates on the follo
 \begin{itemize}
 \item Is the system is easy to learn?
 \item Is the system useful and adds value to the target audience?
-\item Is Content, Color, Icons, Images used are aesthetically pleasing ?
+\item Is Content, Colour, Icons, Images used are aesthetically pleasing ?
 \end{itemize}
 \textbf{Efficiency}
 \begin{itemize}
-\item Navigation required to reach desired screen/webpage should be very less. Scroll bars shouldn’t be used frequently.
+\item Navigation required to reach desired screen/web page should be very less. Scroll bars shouldn’t be used frequently.
 \item Uniformity in the format of screen/pages in your application/website.
 \item Provision to search within your software application or website
 \end{itemize}
@@ -136,7 +136,7 @@ Goal of this testing is to satisfy users and it mainly concentrates on the follo
 \textbf{Tools required:} None(manual testing) \\
 \textbf{Success criteria:} All of the following are successfully tested:
 \begin{enumerate}
-\item operations are not changed drastically from a traditional file sytem.
+\item operations are not changed drastically from a traditional file system.
 \item user can use the file system without any special tools.
 \end{enumerate}
 \end{enumerate}
@@ -147,7 +147,7 @@ Goal of this testing is to satisfy users and it mainly concentrates on the follo
 \item Test Plan
 \begin{enumerate}[label=\Alph*]
 \item \textbf{Test Plan Entry Criteria:} Code is complete and has been pushed to the Git repository.
-\item \textbf{Test Plan Exit Criteria:} All functional requirments have been verified.
+\item \textbf{Test Plan Exit Criteria:} All functional requirements have been verified.
 \item \textbf{Suspension and Resumption Criteria:} Testing will be suspended on critical
 design flaws that will changes in redesign of critical components. Testing will resume when the coding is complete and code is reviewed successfully.
 \end{enumerate}
@@ -164,9 +164,9 @@ completed successfully.
 \begin{table}[h]
 \begin{tabular}{|p{2cm}|p{8cm}|p{4cm}|}
 \hline
-\textbf{Risk} & \textbf{Mitigation Strategy} & \textbf{Contingency} \\ \hline \hline
+\textbf{Risk} & \textbf{Mitigation Strategy} & \textbf{Contingency} \\ \hline
 FUSE API changes & Use FUSE version numbers to run a static check while compiling for required version of FUSE. & Change operation code to new version. \\ \hline
-External Library is no longer maintained & Try to use the latest version number of library available and keep a source ready for distribution. & Change to alternatice library. \\ \hline
+External Library is no longer maintained & Try to use the latest version number of library available and keep a source ready for distribution. & Change to alternate library. \\ \hline
 Performance has degraded & Code with performance in mind, using fast algorithms and approaches. & Use profiling tools to detect memory issues and static code analysers for code checking. \\
 \hline
 \end{tabular}
@@ -185,7 +185,7 @@ Cases are motivated by many things but will usually include a subset of Use Case
 performance characteristics and the risks the project is concerned with.
 A separate test case document is prepared for each testing phase (unit,
 integration, integrity, etc.) identified in the test plan. The test cases should be
-organized into related groups that are meaningful to the project – i.e. test suites.
+organised into related groups that are meaningful to the project – i.e. test suites.
 
 \subsection{File System Operations}
 Testing the file system for implementations of required operations:
@@ -199,7 +199,7 @@ access	& YES & checks for access to specified tag \\
 truncate	 & YES & closes file after operation \\
 destroy	 & YES & called on file system unmount \\
 open		& YES & opens for file for access \\
-release	& YES & releses file after access \\
+release	& YES & releases file after access \\
 mknod		& YES & creates new file \\
 rename		& YES & renames files and folders \\
 unlink		& YES & removes file from system \\
@@ -235,7 +235,7 @@ Comparison of KWEST file system against underlying file system.
 \item Original file system: ext4 500GB disk with partition size 150GB
 \item RAM: 4GB
 \item swap: 8GB on disk
-\item CPU utilization: average 4%
+\item CPU utilisation: average 4%
 \end{itemize}
 \textbf{Contents of Music folder imported into KWEST:}
 \begin{itemize}
@@ -252,7 +252,7 @@ Comparison of KWEST file system against underlying file system.
 \hline
 \textbf{Test} & \textbf{Time taken} & \textbf{Comment} \\ \hline
 all files	&	120sec	& total file size imported was 1.3GB \\ \hline
-videos	& 40sec	&	extracting metadata from videos is more expensiv compared to other file types \\ \hline
+videos	& 40sec	&	extracting metadata from videos is more expensive compared to other file types \\ \hline
 images	& 35sec & images having metadata take longer than those without \\ \hline
 audio 	& 4sec	& audio files are the fastest to parse and load \\ \hline
 PDF		& 2sec	& PDF files are parsed quickly as compared to other document types \\ \hline
@@ -263,7 +263,7 @@ forming associations & 2sec	 & time is proportional to number of common files in
 \label{performancemount}
 \end{table}
 
-\textbf{Test Script:} The following is a simple test script used to evaluate file system operations. The scipt works by calculating the difference in time before and after the execution of operations.
+\textbf{Test Script:} The following is a simple test script used to evaluate file system operations. The script works by calculating the difference in time before and after the execution of operations.
 \begin{lstlisting}[language=bash,frame=single]
 #store current time
 let DA=(`date +%s `)
@@ -281,10 +281,10 @@ echo $DC
 \begin{tabular}{|p{2cm}|p{1.5cm}|p{1.5cm}|p{7cm}|}
 \hline
 \textbf{Operation} & \textbf{ext4} & \textbf{KWEST} & \textbf{Comment} \\ \hline
-list directory	&	500ms	&	550ms & there is no noticiable difference \\ \hline
-read file	&	700ms & 850ms	& some extra time is taken to read a file depending on the amount of data being read. In general, there is no noticiable difference. \\ \hline
+list directory	&	500ms	&	550ms & there is no noticeable difference \\ \hline
+read file	&	700ms & 850ms	& some extra time is taken to read a file depending on the amount of data being read. In general, there is no noticeable difference. \\ \hline
 write file	&	1200ms & 2200ms	& (for 5MB text file) writing takes slightly more time, but the difference is within acceptable range. \\ \hline
-read and write	&	1010ms & 2400ms & (for 5MB text file) reading and writing simultaenously does not produce any performance degradation. \\
+read and write	&	1010ms & 2400ms & (for 5MB text file) reading and writing simultaneously does not produce any performance degradation. \\
 \hline
 \end{tabular}
 \caption{Performance tests for using KWEST}
@@ -294,7 +294,7 @@ read and write	&	1010ms & 2400ms & (for 5MB text file) reading and writing simul
 \subsection{Profiling Code}
 Code can be profiled using Manual methods, or using specific tools such as Valgrind, GDB, Splint etc. For testing KWEST, we have used the following profiling tools:
 \subsection*{GDB}
-GDB can be used to debug the file systemand check for memory leaks, errors and irregular operations. The sample output given below shows a clean mount and unmount of the KWEST file system.
+GDB can be used to debug the file system and check for memory leaks, errors and irregular operations. The sample output given below shows a clean mount and unmount of the KWEST file system.
 \begin{lstlisting}[language=bash,frame=single]
 $ gdb ./kwest
 GNU gdb (GDB) 7.5-ubuntu

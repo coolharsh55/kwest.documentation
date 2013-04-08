@@ -1,5 +1,7 @@
-\section*{APPENDIX A: MATHEMATICAL MODEL}
-
+\begingroup
+\let\clearpage\relax
+\chapter*{APPENDIX A: MATHEMATICAL MODEL}
+\endgroup
 The relationship between files and tags can be represented by using Set theory. Set theory is the branch of mathematics that studies sets, which are collections of objects. The following mathematical model represents the working of this filesystem. 
 
 \noindent The following dynamic and variable sets are defined as, \\
@@ -166,9 +168,80 @@ $R = \Phi;\\
 		for \; each \; x \subset l \; such \; that \; x \neq \Phi \; and \; x \neq l \; do \\ 
 			if (supp(l) \; / \; supp(x)) \geq c \; then \\
 				R = R \; \cup \; ( x \rightarrow ( l - x ) )$;
+\setcounter{section}{0}
+\setcounter{subsection}{0}
+\chapter*{APPENDIX B: TESTING OF DATA}
 
-$\newline$
-\textbf{Example}\\
+Testing of the system will be done on the following points:
+
+\section{Storing the relation $R$:}
+The working of the system depends on correctly storing the relation $R$. These tests check whether the relations are stored and represented correctly. 
+\begin{enumerate}
+\item For any file $f$ associated with tag $t$ there should exist an ordered pair $(f,t)$.
+\item For a file $f$ associated with tags $S = \{t_{1}, t_{2}, t_{3}\}$, the operation $g(f)$ should return exacty $S$.
+\item For a tag $t$ containing files $F = \{f_{1}, f_{2}, f_{3}\}$, the operation $h(t)$ should return exactly $F$.
+\end{enumerate}
+
+\section{Relation between tags: }
+\begin{enumerate}
+\item The relation $r$ between two tags $t_{1},t_{2}$ is given by function $X_{r}(t_{1},t_{2})=c$.
+\item The relation $r$ is distinct i.e. there exists only one relation between any two tags. If contradictions arise where more than one relation is present between two tags, then all those relations must be made void and $r=\phi$. The user can then explicitly specify which relation should be created between those two tags.
+\item Extensive testing must be done on relations to determine which $r$ needs to be set under certain conditions.
+\end{enumerate}
+
+\section{Extraction of Metadata:}
+Let $M$ be the set of all metadata tags $t$ for file $f$. The function $X_{E}$ represents an algorithm to extract t from f. It returns a set $T_{E}$ such that $\{t \in T_{E} \mid f \, R \, t\}$ and $(T_E \subseteq M)$. To test the efficiency of the function, or the effectiveness of it, we compare the cardinality of the generated set $T_E$ with the set of Metadata $M$. The efficiency can be calculated by
+$$\mathrm{Efficiency} \, \epsilon = \frac {\mid T_E \mid} {\mid M \mid}$$
+Using $\epsilon$ we can compare algorithms and their efficiency. Appropriate algorithms can be chosen for various file types so that efficiency of the entire system remains high. For e.g. \\
+\indent $X_{E1} : \{\epsilon =0.7$ for audio$, \epsilon = 0.4$ for images $\}$ \\
+\indent $X_{E2} : \{\epsilon =0.6$ for audio$, \epsilon = 0.6$ for images $\}$ \\
+Then we have the following options:
+\begin{enumerate}
+\item $X_{E2}$ is a better choice as it yeilds a more consisten efficiency.
+\item $X_{E1}$ is used only for audio and $X_{E2}$ is used only for image extractions.
+\end{enumerate}
+
+
+\section{Queries and their results:}
+Queries are parsed into tokens of the form $(t_1, \sigma , t_2)$. We need to test whether $\sigma $ returns the correct results for the query. A Query $Q(S)$ is said to be successfully executed when the expected result are shown.  
+\begin{itemize}
+\item The Query $q(t)$ for a single tag $t$ should return a set of files $(f \in F_{S})$ through the operation $h(t)$. 
+\item In a query if no operation is given, Intersection should be performed. 
+\item For Query $Q(S)$ the operations should be performed from left to right unless precedence is specified by paranthesis. 
+\end{itemize}
+
+Example:
+\noindent Let $t_{1}, t_{2}, t_{3}$ be tags having the following files: \\
+\indent $t_{1}$ : $\{photo_{1},photo_{2},doc_{1}\}$  \\
+\indent $t_{2}$ : $\{photo_{1},doc_{1}, ppt_{1}\}$  \\
+\indent $t_{3}$ : $\{photo_{1},doc_{3}\}$ 
+\begin{enumerate}
+\item $q(t) = F_{S}$ where $f$ should follow the relation $(f \in F_S \mid f \, R \, T)$. 
+For example, q$(t_{1})$ returns $F_S = \{photo_{1},photo_{2},doc_{1}\}$.
+\item Consider a query containing tags $S = \{t_{1}, t_{2}\}$. 
+It generates results by performing the operations $Q(S) = q(t_{1})\sigma q(t_{2})$
+where $\sigma $ is an operator.
+\begin{enumerate}
+\item Putting $\sigma = \cup$ for Union in query $Q(S) = q(t_{1})\cup q(t_{2})$; the result should be $F_S = \{photo_1, photo_2, doc_1, ppt_1\}$. 	
+\item Putting $\sigma = \cap$ for Intersection in query $Q(S) = q(t_{1})\cap q(t_{2})$; the result should be $F_S = \{photo_1, doc_1\}$.
+\item Putting $\sigma = \setminus$ for Set Difference in query $Q(S) = q(t_{1})\setminus q(t_{2})$; the result should be $F_S = \{photo_2\}$, whereas the query $Q(S) = q(t_{2}) \setminus q(t_{1})$ will return the result as $F_S = \{ppt_1\}$.
+\item Putting $\sigma = \ominus$ for Symmetric Difference in query $Q(S) = q(t_{1})\ominus q(t_{2})$; the result should be $F_S = \{photo_2, ppt_1\}$.
+\end{enumerate}
+
+\item Consider a query containing tags $S = \{t_{1}, t_{2}, t_{3}\}$.
+It performs operations as : $Q(S) = q(t_{1})\sigma_{1} q(t_{2})\sigma_{2} q(t_{3})$
+The default order for processing is from left to right unless precedence is specified through parenthesis.
+
+\begin{enumerate}
+\item For the query $Q(S) = q(t_{1}) q(t_{2}) q(t_{3})$ the result will be returned as files $\{photo_{1}\}$
+\item For the query $Q(S) = q(t_{1}) \cup q(t_{2}) \cap q(t_{3})$ the result will be returned as files $\{photo_{1}, doc_{1}, doc_{3}\}$
+\end{enumerate}
+\end{enumerate}
+
+After verifying that individual queries return correct results, we must check whether $Q(S)$ runs correctly as well. This is done by seperating the query into tokens, and calculating their results in turn. It must be verified that results are correct and have not been mis-intepreted through tokenization of the query.
+%----------------------------------------------------------------------------------------------------------------------------------------
+
+\section{Forming Associations}
 Consider a database, D, consisting of 9 transactions.
 Suppose minimum support count required is 2 (i.e. $minsup = 2 / 9 = 22\%$ ).
 Let minimum confidence required is $minconf = 70\%$.

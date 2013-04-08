@@ -14,10 +14,10 @@ The database KWEST uses is housed in a SQLite repository. Through the use of \te
 \end{lstlisting}
 
 \subsection{Logfile}
-KWEST uses an internal logfile which logs messages in a seperate log file stored in the user's config folder. This logfile is used to print or record error messages and operation statuses while operation. Upon incorrect operations or some system errors, the developer will require the logfile to debug the program. The developer can log to the logfile using the logfile API provided by:
+KWEST uses an internal logfile which logs messages in a separate log file stored in the user's config folder. This logfile is used to print or record error messages and operation statuses while operation. Upon incorrect operations or some system errors, the developer will require the logfile to debug the program. The developer can log to the logfile using the logfile API provided by:
 \begin{lstlisting}[language=C,frame=single]
 <logging.h> /* log message to logfile */
- /* initialize logging */
+ /* initialise logging */
 int log_init(void); 
  /* print log message to logfile */
 void log_msg(const char *msg, ...); 
@@ -26,7 +26,7 @@ int log_close(void);
 \end{lstlisting}
 
 \subsection{Data Association rules}
-The developer can provide their own suggestions by using a different algorithm or strategy. KWEST uses apriori to form the associations. For the developer to utilise a different approach, he needs to use the \textit{dbapriori.h} file and provide implementations to the defined functions.
+The developer can provide their own suggestions by using a different algorithm or strategy. KWEST uses Apriori to form the associations. For the developer to utilise a different approach, he needs to use the \textit{dbapriori.h} file and provide implementations to the defined functions.
 
 \begin{lstlisting}[language=C,frame=single]
 /* -------- GENERAL ----------------------- */
@@ -146,7 +146,7 @@ The GDB can debug a KWEST file system in single process foreground mode. To debu
 gdb program_name
 run -d -s -f <mount_directory>
 \end{lstlisting}
-The GDB will execute the program and mount the file system. The developer can use the file system in another terminal or browser, this instance of GDB needs to be in action for the developer to debug the program. In case of an error or interrup, GDB will display error messages accordingly. The developer can further view the error calls using:
+The GDB will execute the program and mount the file system. The developer can use the file system in another terminal or browser, this instance of GDB needs to be in action for the developer to debug the program. In case of an error or interrupt, GDB will display error messages accordingly. The developer can further view the error calls using:
 \begin{lstlisting}[language=bash,frame=single]
 stack bt
 stack ft
@@ -163,7 +163,7 @@ valgrind --tool=memcheck --trace-children=no
 \section{F.A.Q.}
 \begin{enumerate} 
 \item \emph{The project won't compile. I followed the steps correctly, but there are some errors while building...} \newline
-Make sure you have all the dependencies installed and they are up-to-date with the requirments. Sometimes, a system error may interfere in the installation, you may want to restart and try again. The installation does not require administrative privelages, however, you must be able to execute the make file for the installation.
+Make sure you have all the dependencies installed and they are up-to-date with the requirements. Sometimes, a system error may interfere in the installation, you may want to restart and try again. The installation does not require administrative privileges, however, you must be able to execute the make file for the installation.
 \item \emph{It gives some error regarding missing kw libraries. Where do I get them?} \newline
 This is due to the libraries being incorrectly linked. You can retype the \textit{export} command from the installation steps.
 \item \emph{I get compile time errors on the KWEST API} \newline
@@ -171,7 +171,7 @@ Every KWEST API feature has been thoroughly tested before recommendation. KWEST 
 \item \emph{I get \texttt{segmentation fault} errors and the program crashes.} \newline
 This happens mostly due to file system corruption. You can try unmounting and mounting the file system again. If this still does not solve the issue, you may have to re-install or compile the program.
 \item \emph{The extraction library I want to use is not available in C} \newline
-All you need to use a library in your language is a C API for that libary function. As long as the developer can gurantee that the library and it's associated operations will execute on the target machine, KWEST can run the plugin with external dependencies.
+All you need to use a library in your language is a C API for that library function. As long as the developer can guarantee that the library and it's associated operations will execute on the target machine, KWEST can run the plugin with external dependencies.
 \item \emph{Where do I get documented API for KWEST?} \newline
 The KWEST source code is documented using the doxygen documentation system. The source code contains a \textit{doxygen} file which can be compiled to produce Doxygen files which will provide the documentation.
 \item \emph{What if I want to change a file system operation behaviour?} \newline
