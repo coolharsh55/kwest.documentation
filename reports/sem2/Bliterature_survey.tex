@@ -1,11 +1,11 @@
 \chapter{INTRODUCTION}
 \section{Overview}
 
-Information organisation and management is an essential and inevitable part of everyday computer usage. Huge amount of data is produced on daily basis. With data growing in size, we are faced with the problem of locating files. Traditional file systems impose a  hierarchical structure of storage on the user. Traditional file systems are mono-hierarchical and implement directory trees to categorise and store files. In such systems, directories are the only means to access particular files.
+Information organisation \cite{FUSE} and management is an essential and inevitable part of everyday computer usage. Huge amount of data is produced on daily basis \cite{GOOGLEDESKTOP}. With data growing in size, we are faced with the problem of locating files. Traditional file systems impose a  hierarchical structure of storage on the user. Traditional file systems are mono-hierarchical and implement directory trees to categorise and store files. In such systems, directories are the only means to access particular files.
 
 In such systems, directories are the only means to access particular files. The path of a file contains directories, which refer to its context and categorisation. As an example \textit{``c:$\backslash$photos$\backslash$collegetrip$\backslash$museum*.jpg''} refers to all photos of a museum from a college trip. In this case, it is not possible to store that photo in another directory say \textit{``c:$\backslash$ photos$\backslash$museum*.jpg''} without copying the file. This severely limits the searching capabilities in a file system. The user is faced with the dilemma of which directory best represents the context of current file. While storing the file is identified by its file name alone which serves as its identifier. For searching a particular file, the user has to accurately remember the path and file name.
 
-A file cannot be searched by any other information relating to its context. Creating the directory structure is based on the users organisational skills. Searching or browsing through someone else data is tricky as the organisation is different for every user. Previous approaches to such problems provided symbolic links and aliases as an incomplete answer. Symbolic links become redundant when the target file paths are changed. Similarly, aliases may become redundant or may not function properly with certain programs. Working with such solutions requires advanced skills on the users part. Keyword based searches which extract metadata from files were brought to fore by Apple's Spotlight\cite{SPOTLIGHT} and Google's Desktop Search\cite{GOOGLEDESKTOP} . Both function only on limited file types and do not allow manual categorisation. This led to the development of semantic file systems, containing categorisation of files based on context. It provides access to files by using categories formed from extracting metadata. It is similar to how music files can be searched by artist, genre, album etc. However, this presents a limitation on the amount and capabilities of what metadata can be extracted from a file. Virtual directories are used to represent data from the file system. These directories do not have a permanent listing and the user has to explicitly query for data. There have been several implementations based on semantic file systems.
+A file cannot be searched by any other information relating to its context. Creating the directory structure is based on the users organisational skills. Searching or browsing through someone else data is tricky as the organisation is different for every user. Previous approaches to such problems provided symbolic links and aliases as an incomplete answer. Symbolic links become redundant when the target file paths are changed. Similarly, aliases may become redundant or may not function properly with certain programs. Working with such solutions requires advanced skills on the users part. Keyword based searches which extract metadata from files were brought to fore by Apple's Spotlight and Google's Desktop Search. Both function only on limited file types and do not allow manual categorisation. This led to the development of semantic file systems, containing categorisation of files based on context. It provides access to files by using categories formed from extracting metadata. It is similar to how music files can be searched by artist, genre, album etc. However, this presents a limitation on the amount and capabilities of what metadata can be extracted from a file. Virtual directories are used to represent data from the file system. These directories do not have a permanent listing and the user has to explicitly query for data. There have been several implementations based on semantic file systems.
 
 However, they have several limitations in usability. Most of the projects are based only on a few key points, such as limitations over file types. This project thus is to create a semantic solution to the problems and shortcomings of traditional file systems while covering the limitations of other implemented projects.
 
@@ -22,22 +22,13 @@ The goal of this project is to develop a semantic file system that extracts meta
 The team have knowledge of C and Object Oriented concepts. The Project is being implemented using loadable kernel module known as FUSE. In the current versions of some Linux based OS this module is included in the kernel itself.
 The query processing and programming will be done using SQLite. It is a relational database contained in a small C programming library. In contrast to other database management systems, SQLite is not a process that is accessed from the client application, but an integral part of it. This is also open source and is freely available.
 Thus, the cost for developing KWEST will be minimal and hence will be feasible without the need for large capital.
-
+\subsection{Schedule Feasibility}
 \subsection{Economic Feasibility}
-Cost of Software: We have used open-source technologies for building our system, thus there was no software cost incurred.\\
-Cost of Hardware: No hardware was required to be purchased, thus no cost was incurred in building the system.
-\section{Application of a Software Engineering Approach}
-We are using incremental model of Software Development Life Cycle. The Software development life cycle (SDLC) is a process used by a systems analyst to develop an information system, training, and user (stakeholder) ownership. The SDLC aims to produce a high quality system that meets or exceeds customer expectations, reaches completion within time and cost estimates, works effectively and efficiently in the current and planned Information Technology infrastructure, and is inexpensive to maintain and cost-effective to enhance.The Software Development Life Cycle framework provides a sequence of activities for system designers and developers to follow. It consists of a set of steps or phases in which each phase of the SDLC uses the results of the previous one. A Software Development Life Cycle (SDLC) adheres to important phases that are essential for developers, such as planning, analysis, design, and implementation.
-\begin{figure}[htb]
-\centering
-\setlength\fboxsep{0pt}
-\setlength\fboxrule{0.5pt}
-\fbox{\includegraphics[width=0.75\linewidth]{./diagrams/im.png}}
-%\includegraphics[width=0.8\textwidth]{image.png}
-\caption{Incremental Model}
-\label{fig:Im}
-\end{figure}
+Cost of Software: We have used open-source technologies for building our system, thus there was no software cost incurred.
 
+Cost of Hardware: No hardware was required to be purchased, thus no cost was incurred in building the system.
+\section{Application Of A Software Engineering Approach}
+We are using incremental model of Software Development Life Cycle. The Systems development life cycle (SDLC) is a process used by a systems analyst to develop an information system, training, and user (stakeholder) ownership. The SDLC aims to produce a high quality system that meets or exceeds customer expectations, reaches completion within time and cost estimates, works effectively and efficiently in the current and planned Information Technology infrastructure, and is inexpensive to maintain and cost-effective to enhance.The System Development Life Cycle framework provides a sequence of activities for system designers and developers to follow. It consists of a set of steps or phases in which each phase of the SDLC uses the results of the previous one.A Systems Development Life Cycle (SDLC) adheres to important phases that are essential for developers, such as planning, analysis, design, and implementation.
 \subsection{Planning}
 During this stage, business opportunities and problems are identified, and information technology solutions are discussed. Multiple alternative projects may be suggested and their feasibility analysed.$\newline$ $\newline$ Tasks proposed were
 
@@ -108,15 +99,15 @@ Deployment starts after the code is appropriately tested, approved for release, 
 				\end{enumerate}
 						
 \chapter{LITERATURE SURVEY}
-Over the years, organising and retrieving information accurately and efficiently has attracted lot of attention. While few have been successful, a number of innovative implementations \cite{SEMSURVEY} have emerged. The idea of using a file's semantics as the means to categorise it has been around for quite some time. This section discusses the various
+Over the years, organising and retrieving information accurately and efficiently has attracted lot of attention. While few have been successful, a number of innovative implementations\cite{SEMSURVEY} have emerged. The idea of using a file's semantics as the means to categorise it has been around for quite some time. This section discusses the various
 implementations made in the field of semantic file system.
 
-An efficient implementation of keyword based searching was brought to the desktop by Apple's Spotlight\cite{SPOTLIGHT} and Google's Desktop Search\cite{GOOGLEDESKTOP} . Both allow efficient and
+An efficient implementation of keyword based searching was brought to the desktop by Google's Desktop Search\cite{GOOGLEDESKTOP} and Apple's Spotlight\cite{SPOTLIGHT}. Both allow efficient and
 quick file retrieval based on keywords. They support many file types and have a simple interface which attracts a large number of users. However, both of them are limited to returning search results without any way to organising contents. In addition, they do not provide any provision to the user for classification of data. This limitation prevented the user from having a personalised way to retrieve data stored by them.
 
-Semantic systems depend on data stored inside the files rather merely relying on an file's attributes. Most implementations use common methodologies like content recognition\cite{STAT2011} , tagging\cite{TAGFS} , extracting metadata, etc. to categorise files by using various algorithms.
+Semantic systems depend on data stored inside the files rather merely relying on an file's attributes. Most implementations use common methodologies like content recognition\cite{STAT2011}, tagging \cite{TAGFS}, extracting metadata, etc. to categorise files by using various algorithms.
 
-``Semantic File System''\cite{SEMFS} , as developed by O'Toole and Gittord in 1992, provides
+``Semantic File System''\cite{SEMFS}, as developed by O'Toole and Gittord in 1992, provides
 access to file contents and metadata by extracting the attributes using special modules
 called ``transducers''. It was one of the very first attempts to classify files by semantics
 using metadata. Its biggest drawback was the need for file type specific transducers
@@ -174,14 +165,14 @@ issues. However, it lacks auto classification of data due to which several commo
 may be generated for each user increasing the database size.
 
  \end{enumerate} 
+\newpage For the development of KWEST, we referred to the following papers in order to
+form a guideline for our project.
 
-\newpage Papers referred for the developement of KWEST.
 $\newline$
-\begin{enumerate}
-\item Chang. K, Ramadhana. B, Sethuraman. K, Le. T, Chachra. N, Tikale. S, Perdana. I,
+1. Chang. K, Ramadhana. B, Sethuraman. K, Le. T, Chachra. N, Tikale. S, Perdana. I,
 Jain. M, Kartasasmita. I,\textit{ Knowledge File System - A principled approach to personal
 information management.} 2010 IEEE International Conference on Data Mining
-Workshops, Page(s): 1037-1044\cite{KFS} .
+Workshops, Page(s): 1037-1044.\cite{KFS}
 
 $\newline$
 \textit{\textbf{Abstract:}} The Knowledge File System (KFS) is a smart virtual file system that
@@ -198,12 +189,11 @@ file/folder metaphor, it enjoys 3 key advantages against desktop search based so
 such as Google's desktop Search, namely 1) usability, 2) portability, and 3) compatibility.
 The KFS has been prototyped using the FUSE (File system in USErspace) framework
 on Linux. Apache Lucene was used to provide traditional desktop search capability
-in the KFS. A machine learning text classifier was used as the KFS content classifier,
-complimenting the customisable rule-based KFS classification framework. Lastly, an
-embedded database is used to log all file access to support file-usage classification.
-
-		$\newline$				
-		\textit{\textbf{Usefulness:}} This paper describes approach to personal information management
+		in the KFS. A machine learning text classifier was used as the KFS content classifier,
+		complimenting the customisable rule-based KFS classification framework. Lastly, an
+		embedded database is used to log all file access to support file-usage classification.
+		
+\textit{\textbf{Usefulness:}} This paper describes approach to personal information management
 		through Knowledge File System. It is designed to help users organise information
 		using Virtual File System to reduce the problem of manual information classification and
 		retrieval. KFS provides functions so as to automatically classify the information based
@@ -213,10 +203,11 @@ embedded database is used to log all file access to support file-usage classific
 		keyword with the help of a text indexer. Furthermore the comparisons between Google
 		desktop file system, beagle and KFS are given. Finally the details of the implementation
 		of the KFS on the Linux platform using of FUSE are given.
+		
 		$\newline$
-		\item Eck. O, Schaefer. D, \textit{A semantic file system for integrated product data management.}
-		2011 Advanced Engineering Informatics, Page(s): 177-184\cite{SMFS2011} .
-
+		2. Eck. O, Schaefer. D, \textit{A semantic file system for integrated product data management.}
+		2011 Advanced Engineering Informatics, Page(s): 177-184.\cite{SMFS2011}
+		
         $\newline$
 		\textit{\textbf{Abstract:}} We initially discuss a number of disadvantages of current file management
 		systems. In the body of the paper our main contribution is presented. That is, a formal
@@ -230,7 +221,6 @@ embedded database is used to log all file access to support file-usage classific
 		semantic file system for product data management in the field of integrated design of
 		mechatronic systems are discussed.
 		
-		$\newline$		
 		\textit{\textbf{Usefulness:}} This paper describes a formal mathematical model that allows engineers
 		to access data based on semantics rather than actual storage location. The main goal of
 		this file system is to search files based on content of data. The browsing of the system is
@@ -238,11 +228,12 @@ embedded database is used to log all file access to support file-usage classific
 		are used to filter the results. The classification allows multiple tags to be created for files.
 		Furthermore API's are written to create views and for the automation of notification
 		updates.
+		
 		$\newline$		
-		\item Mohan. P, Venkateswaran. S, Raghuraman, Siromoney. A,\textit{ Semantic File Retrieval
-		in File Systems using Virtual Directories.} Proc. Linux Expo Conference, Raleigh, NC, May 2007, 
-		Page(s): 141-151\cite{VIRDIR} .
-
+		3. Mohan. P, Venkateswaran. S, Raghuraman, Siromoney. A,\textit{ Semantic File Retrieval
+		in File Systems using Virtual Directories.} Proc. Linux Expo Conference, Raleigh, NC,
+		Page(s): 141-151, May 2007.\cite{VIRDIR}
+		
 		$\newline$		
 		\textit{\textbf{Abstract:}} Hard Disk capacity is no longer a problem. However, increasing disk capacity
 		has brought with it a new problem, the problem of locating files. Retrieving a document
@@ -253,29 +244,36 @@ embedded database is used to log all file access to support file-usage classific
 		of the Virtual Directory are formed at run time. Although, the Virtual Directory is used
 		mainly to facilitate the searching of file, it can also be used by plugins to interpret other
 		queries.
-
-		$\newline$				
+		
 		\textit{\textbf{Usefulness:}} This paper describes the design of SemFS, which provides semantics
 		based on the file's meta-data and attributes. It allows the usage of logical operators to
 		filter query results. It is implemented as a user space file system upon journaling storage.
 		The architecture is server-client with support for API's to extend functionality. Features
 		such as file tagging and versioning are also implemented.
+		
 		$\newline$
-		\item Rakesh. A, Tomasz. I, Arun. S, \textit{Mining Association Rules between Sets of Items in Large Databases}, 			SIGMOD Conference 1993, Page(s): 207-216\cite{MiningAssoc} .
-
+		4.Rakesh. A, Tomasz. I, Arun. S, \textit{Mining Association Rules between Sets of Items in Large Databases}, SIGMOD Conference 1993, Page(s): 207-216.\cite{MiningAssoc}
+		
+		 $\newline$		
+		\textit{\textbf{Abstract :}} We are given a large database of customer transactions. Each transaction consists of items purchased by a customer in a visit. We present an efficient algorithm that generates all significant association rules between items in the database. The algorithm incorporates buffer management and novel estimation and pruning techniques. We also present results of applying this algorithm to sales data obtained from a large retailing company, which shows the effectiveness of the algorithm.
+		
+		\textit{\textbf{Usefulness :}} For finding frequently occurring file and tags ,Creating association rules based on them give and providing suggestions to user.
+		
 		$\newline$		
-		\textit{\textbf{Abstract :}} We are given a large database of customer transactions. Each transaction consists of 			items purchased by a customer in a visit. We present an efficient algorithm that generates all significant 					association rules between items in the database. The algorithm incorporates buffer management and novel estimation 			and pruning techniques. We also present results of applying this algorithm to sales data obtained from a large 				retailing company, which shows the effectiveness of the algorithm.
-
-		$\newline$				
-		\textit{\textbf{Usefulness :}} For finding frequently occurring file and tags, creating association rules based on 			them give and providing suggestions to user. \\ \\
 		Many tagging systems exist that allow efficient manual classification of information.
-		Most implementations tend to be theoretical demonstrations or complex
+		Most implementations tend to be theoretical\cite{SMO2012} demonstrations or complex
 		implementations\cite{STMGMTSYS} existing for some very specific purpose. These suggest the
-		possibility of using semantics\cite{SMO2012} in operating systems in some future date. But a
+		possibility of using semantics\cite{SMFS2011} in operating systems in some future date. But a
 		major problem is scalability with regard to related information. However, on a large
 		multi-user file system, one can get tons of tags to shift through in each folder, increasing
 		the load for users to search and maintain data. Our idea is to introduce a new concept
 		of relating tags to overcome this situation. Implementing all the desired and necessary
 		features from previous implementations, our design goal is to create an efficient Semantic
 		File System which could be used by any class of users.
-		\end{enumerate}
+				
+
+			
+
+			
+
+

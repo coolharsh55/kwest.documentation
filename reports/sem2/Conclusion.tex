@@ -5,13 +5,13 @@
 \subsection*{Considering data organisation}
 A file system, considering that it stores data, is created with stability and performance in mind. An end-user is more concerned with how they can store and access their data efficiently. Using a KWEST file system, the user can organise their data efficiently. All files are stored and accessed by their content or context rather than just a bunch of string-names. This allows the user to think and remember the file in terms of what it represents, rather than a path-name which may not be related to the data it contains. This semantic approach is helpful to the user, as it becomes easier to manage for them to search for and manage their data.
 
-\subsection*{Automation of tasks}
+\subsection*{Automation of Tasks}
 KWEST automatically uses the metadata embedded in a file to apply tags and categorise it. This automation helps the user by providing access to files according to their respective contexts. By doing this, the user gets all Audio files under the \textit{Audio} folder, all Image files under the \textit{Image} folder and so on. Further, each folder is organised by meta-type belonging to that mime type. E.g. the \textit{Audio} folder is sorted by \textit{Album, Artist, Genre}.
 
-\subsection*{Providing suggestions}
+\subsection*{Providing Suggestions}
 It may happen that the user inadvertently misses out tagging some file, which may result in an incomplete organisation. The user may later search for that particular file in the tag, but will not find it. In a KWEST file system, based on the occurrences of files in various user tags, the system provides \textit{suggestions} that help the user tag a file in appropriate places. This helps avoid missing out on important files, and allows a faster method of organisation as the files to be tagged are available as suggestions.
 
-\subsection*{Performance and stability}
+\subsection*{Performance and Stability}
 Although a KWEST file system is created and operates as a VFS, there is no perceptible lag or performance hit on the operations the user performs. Common operations like listening to music, watching a video, writing to a document can be carried out smoothly.
 
 Also, since KWEST is based on an always stable implementation of FUSE, the file system itself is stable. Strict coding standards and rigorous tests against memory allow the file system to remain stable even under moderate usage.
@@ -21,17 +21,17 @@ Also, since KWEST is based on an always stable implementation of FUSE, the file 
 
 The project, with its novel concept of \textit{Applying association rule learning in a semantic file system}; is the first implementation of a semantic file system to actively help the user categorise and organise their data.
 
-\subsection*{Support for more standard file types}
+\subsection*{Support for more Standard File Types}
 Right now the import feature can extract metadata only from a fixed set of file types. More file types can be handled which increase the feature and usefulness of the file system. Every operating system or file manager has a certain knowledge of what kind of metadata each file type can contain. Using this knowledge in the KWEST file system will allow the user to be able to browse a file system completely based on it's semantics.
 
-\subsection*{More relations and associations}
+\subsection*{More Relations and Associations}
 Currently, the system creates associations based on the common occurrences of files between various tags. This is done using the Apriori algorithm. There are a lot of other interesting approaches which can be utilised. Like algorithms to create various different associations. Or changing the way Apriori handles files and tags. File accesses, frequency of usage, explicit user choices can also be utilised for forming results.
 
 \subsection*{Efficiency and Performance}
 Although the system is both efficient and performant, it can be vastly improved to provide a high-quality file system. Operations can be threaded to reduce the wait time. Simultaneous access to files can be used to provide a fluid experience. Algorithm throughput can be raised to get more accurate results. These are just a few performance and efficiency related things we can do with KWEST. The ultimate approach is to integrate this file system at the kernel level. This will allow performance and stability similar those of traditional file systems.
 
-\subsection*{Collect data from various locations}
+\subsection*{Collect Data from Various Locations}
 The KWEST file system imports data only from the user's \textit{HOME} folder. The data stored there might not be the only location a user wants to use. In today's world, each person has a multitude of devices ranging from laptops, PCs, tablets and phones to Cloud services like Dropbox, Google Drive. Each of them have data which the KWEST file system can utilise to form associations and display using virtual suggestions. It will result in a unified view of all the user's data categorised and organised, which is spread and available across all of their devices.
 
-\section{Need for KWEST tomorrow}
+\section{Need for KWEST Tomorrow}
 With data usage almost doubling with each passing year, people are bound to focus on organising it. A tool like KWEST,  with its semantic roots, automation and suggestions will be immensely helpful when a large data storage has to be properly catalogued, organised and accessed. Thus, we have tried to implement a research based project with its usefulness reflected in the problems of tomorrow.

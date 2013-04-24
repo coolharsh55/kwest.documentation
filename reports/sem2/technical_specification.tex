@@ -1,55 +1,109 @@
 \chapter {TECHNICAL SPECIFICATIONS}
-\section {Development}
-\subsection {FUSE}
-For developing and managing the virtual file system we have used FUSE. It is a loadable kernel module for Unix-like computer operating systems that lets non-privileged users create their own file systems without editing kernel code. This is achieved by running file system code in user space while the FUSE module provides only a \textit{bridge} to the actual kernel interfaces. \newline
+\section{Technology Details Used in the Project}
+\subsection{Development}
+\subsubsection {FUSE}
+For developing and managing the virtual file system we have used FUSE. \newline
 \emph{Minimum required: 2.8} \newline
-\emph{Version used: 2.9.0} from \emph{http://fuse.sourceforge.net/}
+\emph{Version used: 2.9.0} 
 
-\subsection {SQLite}
-We have used SQLite as the data repository for this project. SQLite is a relational database management system contained in a small C programming library. It implements a self-contained, zero-configuration, transactional SQL database engine which can be embedded in applications. \newline
+\subsubsection {SQLite}
+We have used SQLite as the data repository for this project. \newline
 \emph{Minimum required: 3.6} \newline
-\emph{Version Used: 3.7.13} from \emph{http://www.sqlite.org/}
+\emph{Version Used: 3.7.13}
 
-\subsection {Language for Implementation}
+\subsubsection {Language for Implementation}
 We use ANSI C for implementing our project modules. Specifically, we follow the \textit{GNU C99} standards while compiling our code. GNU C99 is an extension of the C99 providing some extra features. \emph{Note:} Some features are incompatible with other standards. \newline
-\emph{GNU C99} from \emph{http://gcc.gnu.org/c99status.html}
+\emph{GNU C99}
 
-\subsection {Compiler}
-For compiling our project modules we use the GNU Compiler Collection (GCC). GCC is a compiler system which provides front ends for various languages including C. It provides optimisation's, debugging and other features to help program development. \newline
+\subsubsection {Compiler}
+For compiling our project modules we use the GNU Compiler Collection (GCC).  \newline
 \emph{Minimum required: 4.6} \newline
 \emph{Version used: 4.7.2} on \emph{Linux Mint 14}
 
-\section {Operating Environment}
-\subsection {Platform}
+\subsection {Operating Environment}
+\subsubsection {Platform}
 The project is based on operating systems utilising the linux kernel. Any implementation which provides a POSIX compatible environment is sufficient. \newline
 \emph{Minimum required: 2.6.14} \newline
 \emph{Version used: 3.5.0-generic} on \emph{Linux Mint 14}
 
-\subsection {Operating System}
+\subsubsection {Operating System}
 We have used various operating environments while creating and testing the project. Linux distributions were \emph{Ubuntu 12.04, Ubuntu 12.10, Fedora 18, Linux Mint 13, Linux Mint 14}.
 
-\section {External Libraries}
-\subsection{TagLib}
-TagLib is a library for reading and editing the meta-data of several popular audio formats. Currently it supports both ID3v1 and ID3v2 for MP3 files, Ogg Vorbis comments and ID3 tags and Vorbis comments in FLAC, MPC, Speex, WavPack TrueAudio, WAV, AIFF, MP4 and ASF files. \newline
+\subsection {External Libraries}
+\subsubsection{TagLib}
+Used for extracting Audio metadata from files. \newline
 \emph{Minimum required: TagLib 1.7.1} \newline
-\emph{Version used: TagLib 1.8} from \emph{http://taglib.github.com/}
+\emph{Version used: TagLib 1.8} 
 
-\subsection{LibExtractor}
-GNU Libextractor is a library used to extract meta data from files. The goal is to provide developers of file-sharing networks, browsers or WWW-indexing bots with a universal library to obtain simple keywords and meta data to match against queries and to show to users instead of only relying on file names.  \newline
+\subsubsection{LibExtractor}
+GNU Libextractor is a library used to extract meta data from files. It supports extraction from Image, PDF and Video file types. \newline
 \emph{Minimum required: 1.0.0} \newline
-\emph{Version used: 1.0.1} from \emph{http://www.gnu.org/software/libextractor/}
+\emph{Version used: 1.0.1}
 
-\subsection{Poppler}
+\subsubsection{Poppler}
 Poppler is a PDF rendering library based on the xpdf-3.0 code base. \newline
 \emph{Minimum required: 0.21} \newline
-\emph{Version used: 0.22} from \emph{http://poppler.freedesktop.org/}
+\emph{Version used: 0.22}
 
 
-\section{Debugging}
-\subsection{GDB: GNU Project Debugger}
+\subsection{Debugging}
+\subsubsection{GDB: GNU Project Debugger}
+Used to debug program crashes and memory errors. \newline
+\emph{Version used: 7.5}
+
+\subsubsection{Valgrind}
+Used as a profiling tool, for memory related issues and program crashes. \newline
+\emph{Version used: 3.7.0}
+
+\section{Reference to Technology}
+\subsection{Development}
+\subsubsection {FUSE}
+FUSE is a loadable kernel module for Unix-like computer operating systems that lets non-privileged users create their own file systems without editing kernel code. This is achieved by running file system code in user space while the FUSE module provides only a \textit{bridge} to the actual kernel interfaces. \newline
+\emph{http://fuse.sourceforge.net/}
+
+\subsubsection {SQLite}
+SQLite is a relational database management system contained in a small C programming library. It implements a self-contained, zero-configuration, transactional SQL database engine which can be embedded in applications. \newline
+\emph{http://www.sqlite.org/}
+
+\subsubsection {Language for Implementation}
+We use GNU99 C standard for implementing our project modules. \newline
+\emph{http://gcc.gnu.org/c99status.html}
+
+\subsubsection {Compiler}
+GCC is a compiler system which provides front ends for various languages including C. It provides optimisation's, debugging and other features to help program development. \newline
+\emph{http://gcc.gnu.org/}
+
+\subsection {Operating Environment}
+\subsubsection {Platform}
+The project is based on operating systems utilising the linux kernel. Any implementation which provides a POSIX compatible environment is sufficient. \newline
+\emph{https://www.kernel.org/}
+
+\subsubsection {Operating System}
+Linux distributions were : \newline
+\emph{http://www.ubuntu.com/} \newline
+\emph{http://linuxmint.com/} \newline
+\emph{http://fedoraproject.org/}
+
+
+\subsection {External Libraries}
+\subsubsection{TagLib}
+TagLib is a library for reading and editing the meta-data of several popular audio formats. Currently it supports both ID3v1 and ID3v2 for MP3 files, Ogg Vorbis comments and ID3 tags and Vorbis comments in FLAC, MPC, Speex, WavPack TrueAudio, WAV, AIFF, MP4 and ASF files. \newline
+\emph{http://taglib.github.com/}
+
+\subsubsection{LibExtractor}
+GNU Libextractor is a library used to extract meta data from files. The goal is to provide developers of file-sharing networks, browsers or WWW-indexing bots with a universal library to obtain simple keywords and meta data to match against queries and to show to users instead of only relying on file names.  \newline
+\emph{http://www.gnu.org/software/libextractor/}
+
+\subsubsection{Poppler}
+Poppler is a PDF rendering library based on the xpdf-3.0 code base. \newline
+\emph{http://poppler.freedesktop.org/}
+
+
+\subsection{Debugging}
+\subsubsection{GDB: GNU Project Debugger}
 GDB, the GNU Project debugger, allows you to see what is going on `inside' another program while it executes -- or what another program was doing at the moment it crashed. \newline
-\emph{Version used: 7.5} from \emph{http://www.gnu.org/software/gdb/}
+\emph{http://www.gnu.org/software/gdb/}
 
-\subsection{Valgrind}
+\subsubsection{Valgrind}
 Valgrind is a GPL licensed programming tool for memory debugging, memory leak detection, and profiling. Valgrind was originally designed to be a free memory debugging tool for Linux on x86, but has since evolved to become a generic framework for creating dynamic analysis tools such as checkers and profilers. \newline
-\emph{Version used: 3.7.0} from \emph{http://valgrind.org/}
+\emph{http://valgrind.org/}

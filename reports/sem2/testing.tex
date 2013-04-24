@@ -22,7 +22,58 @@ The testing of this system is intended for 3 types of audiences:
 \item \textbf{Reviewers:} Will use these test results as a metric to evaluate the project.
 \end{enumerate}
 
-\section{Test Plan}
+\section{Test Cases}
+\subsection{Introduction}
+The purpose of this Test Case document is to specify and communicate the specific
+conditions which need to be validated to enable an assessment of the system. Test
+Cases are motivated by many things but will usually include a subset of Use Cases,
+performance characteristics and the risks the project is concerned with.
+A separate test case document is prepared for each testing phase (unit,
+integration, integrity, etc.) identified in the test plan. The test cases should be
+organised into related groups that are meaningful to the project – i.e. test suites.
+
+\subsection{File System Operations}
+Testing the file system for implementations of required operations:
+\begin{table}[h]
+\begin{tabular}{|p{2cm}|p{2cm}|p{8cm}|}
+\hline
+\textbf{Operation} & \textbf{Status} & \textbf{Comment} \\ \hline
+getattr & YES & checks whether the given path exits \\
+readdir	 & YES & lists the contents of the given tag \\
+access	& YES & checks for access to specified tag \\
+truncate	 & YES & closes file after operation \\
+destroy	 & YES & called on file system unmount \\
+open		& YES & opens for file for access \\
+release	& YES & releases file after access \\
+mknod		& YES & creates new file \\
+rename		& YES & renames files and folders \\
+unlink		& YES & removes file from system \\
+read		& YES & reads data from file \\
+write		& YES & writes data to file \\
+chmod		& YES & changes permissions \\
+chown		& YES & changes owner\\
+mkdir		& YES & creates new directory \\
+rmdir		& YES & removes directory\\
+
+symlink	 & INVALID & not required in KWEST \\ 
+readlink & INVALID & not required in KWEST \\
+link		& INVALID & not required in KWEST \\
+utimens	& NO & not implemented \\
+statfs	& NO & not implemented \\
+fsync & INVALID & not required in KWEST \\
+
+setxattr	& NO & not implemented \\
+getxattr	& NO & not implemented \\
+listxattr	& NO & not implemented \\
+removexattr	& NO & not implemented \\
+\hline
+\end{tabular}
+\caption{File system operations}
+\label{fsop}
+\end{table}
+
+\section{Snap shots of the test cases and Test plans}
+\section*{Test Plan}
 \subsection{Target Items}
 The following have been identified as targets for testing:
 \begin{enumerate}
@@ -177,56 +228,119 @@ Performance has degraded & Code with performance in mind, using fast algorithms 
 \subsection{Problem Reporting, Escalation, and Issue Resolution}
 Each bug will be given a priority, which will determine when it is addressed in the current iteration. The bug priority may change due to other bugs, issues or re-evaluation of the bug by a peer review.
 
-\section{Test Cases}
-\subsection{Introduction}
-The purpose of this Test Case document is to specify and communicate the specific
-conditions which need to be validated to enable an assessment of the system. Test
-Cases are motivated by many things but will usually include a subset of Use Cases,
-performance characteristics and the risks the project is concerned with.
-A separate test case document is prepared for each testing phase (unit,
-integration, integrity, etc.) identified in the test plan. The test cases should be
-organised into related groups that are meaningful to the project – i.e. test suites.
+\section*{SNAP SHOTS OF TEST CASES}
+%insert screenshots here
+\subsection{File system operation testing}
+There are no good tools for exhaustively testing file system operations for reliability, freedom from bugs, scalability, etc. Often file system developers will use some scripts to run various operations such as creating and deleting files. The best known tool for testing file systems is called SPEW, which will thoroughly test a small subset of file system operations concerning the mix of read/write operations, memory-mapped operations, and file truncation operations, all inside a single file. None of the existing solutions covers all file system operations.
 
-\subsection{File System Operations}
-Testing the file system for implementations of required operations:
-\begin{table}[h]
-\begin{tabular}{|p{2cm}|p{2cm}|p{8cm}|}
-\hline
-\textbf{Operation} & \textbf{Status} & \textbf{Comment} \\ \hline
-getattr & YES & checks whether the given path exits \\
-readdir	 & YES & lists the contents of the given tag \\
-access	& YES & checks for access to specified tag \\
-truncate	 & YES & closes file after operation \\
-destroy	 & YES & called on file system unmount \\
-open		& YES & opens for file for access \\
-release	& YES & releases file after access \\
-mknod		& YES & creates new file \\
-rename		& YES & renames files and folders \\
-unlink		& YES & removes file from system \\
-read		& YES & reads data from file \\
-write		& YES & writes data to file \\
-chmod		& YES & changes permissions \\
-chown		& YES & changes owner\\
-mkdir		& YES & creates new directory \\
-rmdir		& YES & removes directory\\
+\newpage
+\subsubsection{Testing file system for ghost accesses}
+\begin{figure}[htb]
+\centering
+\setlength\fboxsep{0pt}
+\setlength\fboxrule{0.5pt}
+\fbox{\includegraphics[width=0.8\linewidth]{./testcases/tc01.png}}
+%\includegraphics[width=0.8\textwidth]{image.png}
+\caption{Accessing non-existant entries on file system}
+\label{fig:dfd0}
+\end{figure}
+The above screenshot depicts access to a non-existant file \emph{TEST.txt} and directory \emph{Audio}. Both are not present in the current folder. The bash terminal error displayed is \emph{No such file or directory}.
 
-symlink	 & INVALID & not required in KWEST \\ 
-readlink & INVALID & not required in KWEST \\
-link		& INVALID & not required in KWEST \\
-utimens	& NO & not implemented \\
-statfs	& NO & not implemented \\
-fsync & INVALID & not required in KWEST \\
+\subsubsection{Copying suggestions}
+\begin{figure}[htb]
+\centering
+\setlength\fboxsep{0pt}
+\setlength\fboxrule{0.5pt}
+\fbox{\includegraphics[width=0.8\linewidth]{./testcases/tc02.png}}
+%\includegraphics[width=0.8\textwidth]{image.png}
+\caption{Error shown while copying suggestions}
+\label{fig:dfd0}
+\end{figure}
+Suggestions are virtual entities which cannot be copied to another folder. However, the file represented by it can be opened and used as any normal file. The error shown was displayed in the \emph{Nemo} file manager.
 
-setxattr	& NO & not implemented \\
-getxattr	& NO & not implemented \\
-listxattr	& NO & not implemented \\
-removexattr	& NO & not implemented \\
-\hline
-\end{tabular}
-\caption{File system operations}
-\label{fsop}
-\end{table}
+\subsubsection{Copying files within different mime types}
+\begin{figure}[htb]
+\centering
+\setlength\fboxsep{0pt}
+\setlength\fboxrule{0.5pt}
+\fbox{\includegraphics[width=0.8\linewidth]{./testcases/tc03.png}}
+%\includegraphics[width=0.8\textwidth]{image.png}
+\caption{Error shown while copying an Audio file to Images}
+\label{fig:dfd0}
+\end{figure}
+Files can only be moved within their own mime types and within user tags. Putting an audio file in an image folder is not allowed. The error shown above was displayed in the \emph{Nemo} file manager.
 
+\subsubsection{Copying system generated folders}
+\begin{figure}[htb]
+\centering
+\setlength\fboxsep{0pt}
+\setlength\fboxrule{0.5pt}
+\fbox{\includegraphics[width=0.8\linewidth]{./testcases/tc04.png}}
+%\includegraphics[width=0.8\textwidth]{image.png}
+\caption{Copying an image folder representing `date'}
+\label{fig:dfd0}
+\end{figure}
+The folders are generated by the system depending on the meta-data of the files displayed under them. They cannot be moved anywhere other than their correct category. E.g. Audio folders can be moved within artists and albums, but not anywhere else. The error displayed above was taken from the \emph{Nemo} file manager.
+
+\subsubsection{Copying files within KWEST}
+\begin{figure}[htb]
+\centering
+\setlength\fboxsep{0pt}
+\setlength\fboxrule{0.5pt}
+\fbox{\includegraphics[width=0.8\linewidth]{./testcases/tc05.png}}
+%\includegraphics[width=0.8\textwidth]{image.png}
+\caption{Creating a copy of the same file in KWEST}
+\label{fig:dfd0}
+\end{figure}
+Copying a file within KWEST is an unsupported operation. This is due to the duplicity of metadata generated by two copies of the same file. In the screenshot, the user tries to create a copy using the \emph{cp} command. KWEST restricts the operation and bash displays the error \emph{Cannot create regular file: input/output error}.
+
+\subsubsection{Renaming files and folders within KWEST}
+\begin{figure}[htb]
+\centering
+\setlength\fboxsep{0pt}
+\setlength\fboxrule{0.5pt}
+\fbox{\includegraphics[width=0.8\linewidth]{./testcases/tc06.png}}
+%\includegraphics[width=0.8\textwidth]{image.png}
+\caption{Renaming an audio file in KWEST}
+\label{fig:dfd0}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\setlength\fboxsep{0pt}
+\setlength\fboxrule{0.5pt}
+\fbox{\includegraphics[width=0.8\linewidth]{./testcases/tc07.png}}
+%\includegraphics[width=0.8\textwidth]{image.png}
+\caption{Renaming a folder in KWEST}
+\label{fig:dfd0}
+\end{figure}
+Files cannot be renamed in KWEST. This is in part due to files being displayed by their metadata contents, and also due to the duplication of metadata in case of renamed files. In the screenshot above a file and a folder are being renamed using the \emph{mv} command. In this case bash returns the error \emph{Operation not allowed} signifying that KWEST does not allow this operation. The \emph{mv} command can still be used for moving files.
+
+\subsubsection{Deleting files in KWEST}
+\begin{figure}[htb]
+\centering
+\setlength\fboxsep{0pt}
+\setlength\fboxrule{0.5pt}
+\fbox{\includegraphics[width=0.8\linewidth]{./testcases/tc12.png}}
+%\includegraphics[width=0.8\textwidth]{image.png}
+\caption{Removing a file in one tag without affecting other tags}
+\label{fig:dfd0}
+\end{figure}
+A user file can be removed from the current tag without it being deleted from the other tags. The screenshot shows the file \emph{Doctor Pressure.m4a} being removed from the \emph{night} tag while the file is still present in other tags.
+
+\subsubsection{Loops in browsing the file system}
+\begin{figure}[htb]
+\centering
+\setlength\fboxsep{0pt}
+\setlength\fboxrule{0.5pt}
+\fbox{\includegraphics[width=0.8\linewidth]{./testcases/tc08.png}}
+%\includegraphics[width=0.8\textwidth]{image.png}
+\caption{Listing entries recursively to detect loops}
+\label{fig:dfd0}
+\end{figure}
+A virtual file system having references to multiple parents can have loops where the user can traverse the same set of folders while going \emph{deeper} into the file system heirarchy. The simple terminal test \emph{ls -R} can show whether such loops exist. The end of operation denotes that the terminal was able to traverse all paths and return, signifying that there were no loops in the file system.
+
+\newpage
 \subsection{Performance of file system operations}
 Comparison of KWEST file system against underlying file system.
 \textbf{Test Bench:}
@@ -263,7 +377,46 @@ forming associations & 2sec	 & time is proportional to number of common files in
 \label{performancemount}
 \end{table}
 
-\textbf{Test Script:} The following is a simple test script used to evaluate file system operations. The script works by calculating the difference in time before and after the execution of operations.
+\subsubsection{IOZone statistics}
+\begin{figure}[htb]
+\centering
+\setlength\fboxsep{0pt}
+\setlength\fboxrule{0.5pt}
+\fbox{\includegraphics[width=0.8\linewidth]{./testcases/tc09.png}}
+%\includegraphics[width=0.8\textwidth]{image.png}
+\caption{IOZone statistics for various operations}
+\label{fig:dfd0}
+\end{figure}
+IOzone is a filesystem benchmark tool. The benchmark generates and measures a variety of file operations. Iozone has been ported to many machines and runs under many operating systems.Iozone is useful for performing a broad filesystem analysis of a vendor’s computer platform. The benchmark tests file I/O performance for the following operations: Read, write, re-read, re-write, read backwards, read strided, fread, fwrite, random read/write, pread/pwrite variants. Homepage: \url{http://www.iozone.org/}
+
+\subsubsection{SPEW performance tests on KWEST}
+Spew is used to measure I/O performance of character devices, block devices, and regular files. It can also be used to generate high I/O loads to stress systems while verifying data integrity. Spew is easy to use and is flexible. No configuration files or complicated client/server configurations are needed. Spew also generates its own data patterns that are designed to make it easy to find and debug data integrity problems. Homepage: \url{http://spew.berlios.de}.
+\begin{figure}[htb]
+\centering
+\setlength\fboxsep{0pt}
+\setlength\fboxrule{0.5pt}
+\fbox{\includegraphics[width=0.8\linewidth]{./testcases/tc10.png}}
+%\includegraphics[width=0.8\textwidth]{image.png}
+\caption{SPEW performing read-after-write on KWEST}
+\label{fig:dfd0}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\setlength\fboxsep{0pt}
+\setlength\fboxrule{0.5pt}
+\fbox{\includegraphics[width=0.8\linewidth]{./testcases/tc11.png}}
+%\includegraphics[width=0.8\textwidth]{image.png}
+\caption{SPEW performing read-after-write on underlying file system}
+\label{fig:dfd0}
+\end{figure}
+The screenshot depicts the spew read-after-write test which writes random bytes to a file and then performs sequential reads on it. The statistics show that KWEST has a good write data rate which is comparable to regular file systems. However, read rate sees a significant drop. In spite of this, usability tests show that for a regular user, the file system offers satisfactory performance.
+
+\newpage
+
+
+\subsubsection{Test scripts} 
+The following is a simple test script used to evaluate file system operations. The script works by calculating the difference in time before and after the execution of operations.
 \begin{lstlisting}[language=bash,frame=single]
 #store current time
 let DA=(`date +%s `)
@@ -291,6 +444,78 @@ read and write	&	1010ms & 2400ms & (for 5MB text file) reading and writing simul
 \label{performancetests}
 \end{table}
 
+\newpage
+\subsubsection{READ operation TEST}
+Read operation test included reading from a 4.1MB file and outputing the contents on terminal. The file was accessed on the KWEST file system.
+\begin{lstlisting}[language=bash,frame=single]
+GNU nano 2.2.6              File: ./test.sh                                   
+echo "READ test"
+echo "cat ./mnt/Files/Music/t2.txt 
+let kT=0
+for i in 1 2 3 4 5 
+do
+echo "Run#" $i
+#store current time
+let kS=(`date +%s`)
+#perform file system operation
+cat ./mnt/Files/Music/t2.txt > ./mnt/Files/Music/test.txt
+#store new time
+let kE=(`date +%s`)
+#calculate the difference
+let kO=$kE-$kS
+let kT=kT+kO
+#output the time taken
+echo "kwest operation time = " $kO "sec"
+done
+let kT=kT/5
+echo "average time taken = " $kT
+\end{lstlisting}
+\begin{figure}[htb]
+\centering
+\setlength\fboxsep{0pt}
+\setlength\fboxrule{0.5pt}
+\fbox{\includegraphics[width=0.8\linewidth]{./opimg/readtest.png}}
+%\includegraphics[width=0.8\textwidth]{image.png}
+\caption{Read operation average time for 4.1MB text file}
+\label{fig:dfd0}
+\end{figure}
+
+\subsubsection{WRITE operation test}
+Write operation test included reading from a 4.1MB file and writing the contents to another file. Both the files were accessed from the KWEST file system.
+\begin{lstlisting}[language=bash,frame=single]
+GNU nano 2.2.6              File: ./test.sh        
+echo "READ test"
+echo "cat ./mnt/Files/Music/t2.txt > ./mnt/Files/Music/test.txt"
+let kT=0
+for i in 1 2 3 4 5 
+do
+echo "Run#" $i
+#store current time
+let kS=(`date +%s`)
+#perform file system operation
+cat ./mnt/Files/Music/t2.txt > ./mnt/Files/Music/test.txt
+#store new time
+let kE=(`date +%s`)
+#calculate the difference
+let kO=$kE-$kS
+let kT=kT+kO
+#output the time taken
+echo "kwest operation time = " $kO "sec"
+done
+let kT=kT/5
+echo "average time taken = " $kT
+\end{lstlisting}
+\begin{figure}[htb]
+\centering
+\setlength\fboxsep{0pt}
+\setlength\fboxrule{0.5pt}
+\fbox{\includegraphics[width=0.8\linewidth]{./opimg/writetest.png}}
+%\includegraphics[width=0.8\textwidth]{image.png}
+\caption{Write operation average time on 4.1MB text file}
+\label{fig:dfd0}
+\end{figure}
+
+
 \subsection{Profiling Code}
 Code can be profiled using Manual methods, or using specific tools such as Valgrind, GDB, Splint etc. For testing KWEST, we have used the following profiling tools:
 \subsection*{GDB}
@@ -299,14 +524,6 @@ GDB can be used to debug the file system and check for memory leaks, errors and 
 $ gdb ./kwest
 GNU gdb (GDB) 7.5-ubuntu
 Copyright (C) 2012 Free Software Foundation, Inc.
-License GPLv3+: GNU GPL version 3 or later 
-<http://gnu.org/licenses/gpl.html>
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.  
-Type `show copying` and `show warranty` to see details.
-This GDB was configured as "x86_64-linux-gnu".
-For bug reporting instructions, please see:
-<http://www.gnu.org/software/gdb/bugs/>...
 Reading symbols from kwest/src/kwest....
 (gdb) run -s -d -f mnt
 Starting program: kwest/src/kwest -s -d -f mnt
@@ -320,7 +537,8 @@ KWEST - A Semantically Tagged Virtual File System
 No stack.
 \end{lstlisting}
 
-\begin{table}[h]
+Using GDB, we can test the file system and record the various errors occuring under testing. The following table depicts each file system operation and the possible errors occuring on it - \\
+
 \begin{tabular}{|p{3cm}|p{2cm}|p{8cm}|}
 \hline
 \textbf{Test} & \textbf{Status} & \textbf{Possible Errors} \\ \hline
@@ -336,6 +554,5 @@ associations & PASS & memory error, segmentation fault, unconditional jump, I/O 
 fuse main & PASS & incompatible version \\
 \hline
 \end{tabular}
-\caption{GDB debugging for KWEST}
-\label{tab:GDB}
-\end{table}
+\captionof{table}{GDB debugging for KWEST}
+

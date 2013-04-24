@@ -53,6 +53,76 @@
 %Latex does this by default 
 %EXPERIMENTAL STUFF
 \setkomafont{subsubsection}{\large}
+\usepackage{atbegshi}% http://ctan.org/pkg/atbegshi
+\usepackage{tocloft}% http://ctan.org/pkg/tocloft
+\addtolength{\cftchapnumwidth}{35pt}
+\addtolength{\cftfignumwidth}{20pt}
+\addtolength{\cfttabnumwidth}{20pt}
+\addtolength{\cftsecnumwidth}{38pt}
+\makeatletter
+\newcommand{\tocheader}{{%
+  \bfseries% Font selection
+  \hspace*{\cftchapindent}% Chapter indent
+  \makebox[\cftchapnumwidth][l]{Sr.No.}% Chapter number heading
+  \hfill%
+  %\contentsname% Title heading
+   \hspace*{-10.5cm}% Chapter indent
+Chapters
+  \hfill%
+  \makebox[\@pnumwidth][r]{Page}% Page heading
+  \par\kern.5\baselineskip% After heading
+  }}
+  
+\newcommand{\lofheader}{{%
+  \bfseries% Font selection
+  \hspace*{\cftchapindent}% Chapter indent
+  \makebox[\cftchapnumwidth][l]{Sr.No.}% Chapter number heading
+  \hfill%
+  %\contentsname% Title heading
+     \hspace*{-10.5cm}% Chapter indent
+	Figure Name
+  \hfill%
+  \makebox[\@pnumwidth][r]{Page}% Page heading
+  \par\kern.5\baselineskip% After heading
+  }}
+  
+\newcommand{\lotheader}{{%
+  \bfseries% Font selection
+  \hspace*{\cftchapindent}% Chapter indent
+  \makebox[\cftchapnumwidth][l]{Sr.No.}% Chapter number heading
+  \hfill%
+     \hspace*{-10.5cm}% Chapter indent
+  %\contentsname% Title heading
+	Table Name
+  \hfill%
+  \makebox[\@pnumwidth][r]{Page}% Page heading
+  \par\kern.5\baselineskip% After heading
+  }}  
+  
+\AtBeginDocument{\renewcommand{\tableofcontents}{%
+  \begingroup%
+  \parindent\z@\parskip\cftparskip%
+  \tocheader%
+  \@starttoc{toc}%
+  \endgroup%
+}}
+\AtBeginDocument{\renewcommand{\listoffigures}{%
+  \begingroup%
+  \parindent\z@\parskip\cftparskip%
+  \lofheader%
+  \@starttoc{lof}%
+  \endgroup%
+}}
+\AtBeginDocument{\renewcommand{\listoftables}{%
+  \begingroup%
+  \parindent\z@\parskip\cftparskip%
+  \lotheader%
+  \@starttoc{lot}%
+  \endgroup%
+}}
+\renewcommand{\cftaftertoctitle}{\par\kern.5\baselineskip\tocheader}
+\newcommand{\AtBeginShipoutClear}{\gdef\AtBegShi@Hook{}}
+\makeatother
 %--------------------------------------------------------------------------------------------------------
 
 %--------------------------------------------------------------------------------------------------------

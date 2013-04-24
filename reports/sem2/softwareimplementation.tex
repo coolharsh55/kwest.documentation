@@ -10,7 +10,27 @@ The implementation of the software was done in a modular manner using the increm
 \item \textbf{Module 6:} Association Rule learning using Apriori Algorithm
 \end{list}
 
-\section{Creation of a virtual file system using FUSE}
+\section{Databases}
+The project was to implement a semantic file system. This required a data repository to store all the information such as file name, physical location, attributes, etc. Also, the metadata extracted from the files was also stored in the database. This way the database formed a central information location for the file system. Therefore, for the file system implementation to be stable and efficient, the system required an in-place robust database which offers integrity and speed. From the various options available, the SQLite database was selected and used.
+
+SQLite is a relational database management system contained in a small C
+programming library. 
+Unlike client-server database management systems, the SQLite engine has no
+standalone processes with which the application program communicates. Instead,
+the SQLite library is linked in and thus becomes an integral part of the application
+program. SQLite stores the entire database (definitions, tables, indices, and the data
+itself) as a single cross- platform file on a host machine. Features include :
+\begin{enumerate}
+\item Zero Configuration
+\item Serverless
+\item Single Database File
+\item Stable Cross-platform database
+\item Manifest typing
+\end{enumerate}
+
+\section{Important modules and algorithms}
+
+\subsection{Creation of a Virtual File System using FUSE}
 
 The first module of implementation was to create a basic file system using FUSE. Using FUSE we created a virtual file system capable of doing all the operations that a normal file system does.
 The module consists of the following phases:
@@ -27,14 +47,8 @@ The module consists of the following phases:
 \item \textbf{Phase 5:} Displaying suggestion based on associations derived using Apriori Algorithm. 
 \end{list}
 
-\section{Interfacing a Data Repository using SQLite}
-The project was to implement a semantic file system. This required a data repository to store all the information such as file name, physical location, attributes, etc. Also, the metadata extracted from the files was also stored in the database. Thus, the database formed a central information location for the file system.
-
-
-It is vital for the proper functioning of the system that the database always remains consistent. Logging mechanisms ensure that operations on the database always reach an endpoint. This module is used to check, correct and maintain integrity of the database by checking for redundant entries. Also, if there are new files which have not been added to KWEST, this module can help the user add them.
-
-
-The database is an important module of the file system. All the data required to browse and navigate the file system is stored in the database. FUSE interacts with the data in the database by querying for particular data based on path accessed. We implement this module in the following ways:
+\subsection{Interfacing a Data Repository using SQLite}
+The database is an important module of the file system. All the data required to browse and navigate the file system is stored in the database. FUSE interacts with the data in the database by querying for particular data based on path accessed. It is vital for the proper functioning of the system that the database always remains consistent. Logging mechanisms ensure that operations on the database always reach an endpoint. This module is used to check, correct and maintain integrity of the database by checking for redundant entries. Also, if there are new files which have not been added to KWEST, this module can help the user add them. We implement this module in the following ways:
 \begin{list}{•}{•}
 \item \textbf{Phase 1:} Create database tables for a file system.
 \item \textbf{Phase 2:} The relation tables between tags, files are stored.
@@ -42,7 +56,7 @@ The database is an important module of the file system. All the data required to
 \item \textbf{Phase 4:} The association rules for the data are derived using the Apriori algorithm.
 \end{list}
 
-\section{Adding automated Extraction of Metadata}
+\subsection{Adding Automated Extraction of Metadata}
 Metadata (meta content) is defined as data providing information about one or more aspects of the data. Metadata can be stored either internally, in the same file as the data, or externally, in a separate file. Metadata that is embedded with content is called embedded metadata.
 The metadata of the file is extracted by using external libraries. The data repository stores the extracted metadata in a predetermined format. 
 \begin{list}{•}{•}
@@ -52,7 +66,7 @@ The metadata of the file is extracted by using external libraries. The data repo
 \item \textbf{Phase 4:} Form relations between metadata and files using association rules.
 \end{list}
 
-\section{Importing Semantics in to the file system}
+\subsection{Importing Semantics in to the File System}
 Users already have certain organisational structures in the way they store data in file systems. This module imports semantics by converting the storage hierarchy to tag-based hierarchy. This means the directory structure present in the file system will be used to form tags and the files listed under the directory are tagged under that tag.
 \begin{list}{•}{•}
 \item \textbf{Phase 1:} Parse the folder structure on local hard disk.
@@ -60,8 +74,8 @@ Users already have certain organisational structures in the way they store data 
 \item \textbf{Phase 3:} Remove or ignore hidden and system files.
 \item \textbf{Phase 4:} Prune the database entries on every start up.
 \end{list}
-\newpage
-\section{Exporting Semantics from the file system}
+
+\subsection{Exporting Semantics from the File System}
 This module can export the storage hierarchy to some external location. The semantic organisation of tags is converted to actual directories and the files are then copied to these directories. This is similar to copying contents from one file system to another.
 \begin{list}{•}{•}
 \item \textbf{Phase 1:} Copy virtual locations to external location.
@@ -70,7 +84,7 @@ This module can export the storage hierarchy to some external location. The sema
 \item \textbf{Phase 4:} Copy suggestions using data repository.
 \end{list}
 
-\section{Association Rule learning using Apriori Algorithm}
+\subsection{Association Rule Learning using Apriori Algorithm}
 Association rules help in organising the file system data by providing suggestions while tagging files. These suggestions can be helpful when the user has either forgotten to tag the file, or is yet about to do it. This association rule learning approach uses the Apriori algorithm.
 \begin{list}{•}{•}
 \item \textbf{Phase 1:} Run Apriori over the KWEST database.
@@ -78,3 +92,17 @@ Association rules help in organising the file system data by providing suggestio
 \item \textbf{Phase 3:} Store association rules in database.
 \item \textbf{Phase 4:} Integrate with KWEST to show suggestions.
 \end{list}
+
+\section{Buisness logic and architecture}
+\subsection{Buisness logic}
+In computing, a file system (or filesystem) is a type of data store which can be used to store, retrieve and update a set of files. The term could refer to the abstract data structures used to define files, or to the actual software or firmware components that implement the abstract ideas.
+
+Traditionally, file systems were always developed with performance parameters in mind. However, with the data-rich systems of today, the responsibilities of a file system have increased. The onus of organisation and retrieval of data is much more on the file system than the user. The file system structure defines the capability and capacity of searches performed on it. In such a scenario, a file system that facilitates retrieval by providing features that help automate organisation is a lucrative option.
+
+\subsection{Expenses and Legal ramnifications}
+The software has been open sourced under the Apache License. As such, there are no cost requirments that can be incurred by the adaption of KWEST. All the utilised tools, libraries, platforms and algorithms are free to use. This encourages technology adaption for other students, developers and organisations.
+
+\subsection{Novelty of idea}
+There have been no previous implementations of adapting data mining techniques to a file system. This suggests the novelty of the idea of KWEST and the possibilities for future work. 
+
+\subsection{Buisness Architecture}

@@ -1,0 +1,179 @@
+\newpage
+
+\setcounter{section}{0}
+\chapter*{DEVELOPERS MANUAL}
+
+\section {KWEST GENERIC API}
+The developer can make use of the \textbf{KWEST API} to design and create new plugins for the KWEST file system. Currently, we offer the following API to the user:
+
+\subsection{Database Operations:}
+The database KWEST uses is housed in a SQLite repository. Through the use of \textit{database API}, the developer can access the database and perform operations on it. Performing operations directly on the database is not encouraged. Though, if the developers do wish to do so, we provide an API for the same. The database API contains the following headers:
+\begin{lstlisting}[language=C,frame=single]
+<dbbasic.h> /* basic database operations */
+<dbkey.h>   /* key operations for database interaction */
+\end{lstlisting}
+
+\subsection{Logfile}
+KWEST uses an internal logfile which logs messages in a separate log file stored in the user's config folder. This logfile is used to print or record error messages and operation statuses while operation. Upon incorrect operations or some system errors, the developer will require the logfile to debug the program. The developer can log to the logfile using the logfile API provided by:
+\begin{lstlisting}[language=C,frame=single]
+<logging.h> /* log message to logfile */
+ /* initialise logging */
+int log_init(void); 
+ /* print log message to logfile */
+void log_msg(const char *msg, ...); 
+ /* close the logfile */
+int log_close(void);
+\end{lstlisting}
+
+\subsection{Data Association rules}
+The developer can provide their own suggestions by using a different algorithm or strategy. KWEST uses Apriori to form the associations. For the developer to utilise a different approach, he needs to use the \textit{dbapriori.h} file and provide implementations to the defined functions.
+
+\begin{lstlisting}[language=C,frame=single]
+/* -------- GENERAL ----------------------- */
+int count_user_tags(void);
+sqlite3_stmt *get_user_tagname(void);
+int add_rule(int type, float c, 
+             char *para1, char *para2);
+             \end{lstlisting}
+\begin{lstlisting}[language=C,frame=single]
+/* -------- FILE SUGGESTIONS -------------- */
+sqlite3_stmt *get_user_tagged_files(void);
+char *get_file_suggestions_pr(char *tagname);
+char *get_file_suggestions_r(char *tagname);
+/* -------- TAG SUGGESTIONS --------------- */
+sqlite3_stmt *get_user_tagged_tags(void);
+char *get_tag_suggestions_pr(char *tagname);
+char *get_tag_suggestions_r(char *tagname);
+/* -------- OTHERS ------------------------ */
+void finalize(sqlite3_stmt * stmt);
+\end{lstlisting}
+
+\subsection{Flags}
+KWEST uses it's own values for flags, stored in a file called as \textit{flags.h}. The developer is encouraged to use the same notations for ease in developing for KWEST. One simply has to include the file to use it.
+\begin{lstlisting}[language=C,frame=single]
+#include<flags.h> /* KWEST flags and magic numbers */
+#define KW_SUCCESS 0 /* return SUCCESS as status */
+#define KW_FAIL   -1 /* return FAILED as status */
+#define KW_ERROR   1 /* return ERROR as status */
+
+/* FLAGS RELATED TO FUSE, DIRECTORY VALUES */
+#define KW_STDIR 0755 /* DIR entry in struct stat */
+#define KW_STFIL 0444 /* FILE entry in struct stat */
+
+/* FLAGS RELATED TO DATABASE OPERATIONS */
+#define QUERY_SIZE 512 /* Size of array holding query */
+
+#define USER_TAG   1 /* Tag Accessible to user */
+#define SYSTEM_TAG 2 /* Tag created and used by system */
+
+/* Starting id for tags and files */
+#define NO_DB_ENTRY      -2
+#define FILE_START       0
+#define SYSTEM_TAG_START 0
+#define USER_TAG_START   100
+#define USER_MADE_TAG    500
+
+/* Tag-Tag Association Types */
+#define ASSOC_PROBABLY_RELATED 1
+#define ASSOC_SUBGROUP         2
+#define ASSOC_RELATED          3
+#define ASSOC_NOT_RELATED      4
+\end{lstlisting}
+
+\section{Plugin API}
+KWEST provides developers with a \textbf{Plugin API} to help developers create plugins. Each plugin is created by providing implementations for a list of functions defined by KWEST. This is similar to the \textit{OOP} concept of implementing an \textit{interface}. \\
+\begin{lstlisting}[language=C,frame=single]
+struct plugin_extraction_entry
+{
+	char *name;
+	char *type;
+	void *obj;
+	bool (*is_of_type)(const char *);
+	int (*p_metadata_extract)
+		(const char *, struct kw_metadata *);
+	int (*p_metadata_update)
+		(const char *, struct kw_metadata *);
+	int (*on_load)
+		(struct plugin_extraction_entry *);
+	int (*on_unload)
+		(struct plugin_extraction_entry *);
+};
+\end{lstlisting}
+
+Inside the plugin, the developer may use any library for operations. To create file types, associations with the newly generated metadata, the developer must make use of the \textit{dbplugin.h} API. This API contains the functions to create and manage associations based on the metadata extracted from a file.
+
+\begin{lstlisting}[language=C,frame=single]
+ /* Add new mime type to Kwest */
+void add_mime_type(char *mime);
+ /* Add new metadata type to existing mime type */
+void add_metadata_type(char *mime, char *metadata);
+ /* Form association for metadata in file */
+void associate_file_metadata(const char *mime,
+		const char *tagname,const char *fname);
+ /* Form association between tags */
+void associate_tag_metadata(const char *mime,
+       const char *tagname,const char *parentmime,const char *parent);
+\end{lstlisting}
+
+\section{Extracting metadata}
+When the developer writes a new plugin for some file type, the plugin must implement the  function \textit{metadata\_ extract} which will return a metadata structure containing the file's associated metadata. This structure is defined in the file \textit{metadata\_ extract.h}
+\begin{lstlisting}[language=C,frame=single]
+struct kw_metadata {
+	/** type of metadata */
+	char  *type; 
+	\end{lstlisting}
+\begin{lstlisting}[language=C,frame=single]
+	/** number of tags in metadata */
+	int tagc; 
+	/** tag type array */
+	char **tagtype; 
+	/** tag value array */
+	char **tagv; 
+	/** object for use by plugin */
+	void *obj; 
+	/** initialization options upon extraction */
+	int (*do_init)(void *); 
+	/** callback function for cleaning up metadata */
+	int (*do_cleanup)(struct kw_metadata *); 
+};
+\end{lstlisting}
+
+\section{Debugging}
+The KWEST file system utilises the fuse kernel module for creating a virtual file system. Debugging a KWEST program is a little bit complex as it cannot be traced using normal debug calls. For debugging you can use the following tools:
+\subsection*{GDB - GNU Project Debugger}
+The GDB can debug a KWEST file system in single process foreground mode. To debug using GDB, do:
+\begin{lstlisting}[language=bash,frame=single]
+gdb program_name
+run -d -s -f <mount_directory>
+\end{lstlisting}
+The GDB will execute the program and mount the file system. The developer can use the file system in another terminal or browser, this instance of GDB needs to be in action for the developer to debug the program. In case of an error or interrupt, GDB will display error messages accordingly. The developer can further view the error calls using:
+\begin{lstlisting}[language=bash,frame=single]
+stack bt
+stack ft
+\end{lstlisting}
+
+\subsection*{Valgrind}
+Valgrind is an industry level tool which helps find errors and memory leaks in the program. To run a fuse file system like KWEST under Valgrind, the developer can issue the following command:
+\begin{lstlisting}[language=bash,frame=single]
+valgrind --tool=memcheck --trace-children=no 
+         --leak-check=full --track-origins=yes -v 
+         ./program_name mount_point -d -f -s
+\end{lstlisting}
+
+\section{F.A.Q.}
+\begin{enumerate} 
+\item \emph{The project won't compile. I followed the steps correctly, but there are some errors while building...} \newline
+Make sure you have all the dependencies installed and they are up-to-date with the requirements. Sometimes, a system error may interfere in the installation, you may want to restart and try again. The installation does not require administrative privileges, however, you must be able to execute the make file for the installation.
+\item \emph{It gives some error regarding missing kw libraries. Where do I get them?} \newline
+This is due to the libraries being incorrectly linked. You can retype the \textit{export} command from the installation steps.
+\item \emph{I get compile time errors on the KWEST API} \newline
+Every KWEST API feature has been thoroughly tested before recommendation. KWEST itself internally uses this API to manage it's plugin. Make sure you have properly cross-compiled the libraries and have included proper header files and try again.
+\item \emph{I get \texttt{segmentation fault} errors and the program crashes.} \newline
+This happens mostly due to file system corruption. You can try unmounting and mounting the file system again. If this still does not solve the issue, you may have to re-install or compile the program.
+\item \emph{The extraction library I want to use is not available in C} \newline
+All you need to use a library in your language is a C API for that library function. As long as the developer can guarantee that the library and it's associated operations will execute on the target machine, KWEST can run the plugin with external dependencies.
+\item \emph{Where do I get documented API for KWEST?} \newline
+The KWEST source code is documented using the doxygen documentation system. The source code contains a \textit{doxygen} file which can be compiled to produce Doxygen files which will provide the documentation.
+\item \emph{What if I want to change a file system operation behaviour?} \newline
+Sorry, we do not provide an API to do that. However, since KWEST itself is open source, you can change the operations freely.
+\end{enumerate}
